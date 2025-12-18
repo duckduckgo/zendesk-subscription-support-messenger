@@ -103,13 +103,16 @@ export default async function Home() {
       console.error('Failed to generate JWT token:', error);
     }
   }
+  console.log('### page.tsx', {
+    jwt,
+  });
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
         {/* Example: Using translations in server component */}
         <h1>{homepageTitle}</h1>
-        <LoadScriptButton token={jwt} />
+        <LoadScriptButton />
       </main>
     </div>
   );

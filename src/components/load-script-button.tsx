@@ -6,8 +6,7 @@ import { useZendeskResponseHandler } from '@/hooks/use-zendesk-response-handler'
 import { Button } from './button';
 
 export interface LoadScriptButtonProps {
-  /** JWT token for Zendesk authentication */
-  token: string | null;
+  token?: string | null;
 }
 
 /**
@@ -27,6 +26,8 @@ export default function LoadScriptButton({ token }: LoadScriptButtonProps) {
 
   console.log('### load-script-button.tsx', {
     token,
+    loadWidget,
+    zendeskReady,
   });
 
   // Set up response handler for updating article links
@@ -35,6 +36,9 @@ export default function LoadScriptButton({ token }: LoadScriptButtonProps) {
   });
 
   const handleOnLoad = () => {
+    console.log('### id', {
+      ze: typeof zE,
+    });
     // Wait for zE to be available, then authenticate and set up event listeners
     const setupZendesk = () => {
       if (typeof zE === 'undefined') {
@@ -42,26 +46,30 @@ export default function LoadScriptButton({ token }: LoadScriptButtonProps) {
         return;
       }
 
-      // Set up event listener for when widget opens
-      zE('messenger:on', 'open', () => setZendeskReady(true));
+      zE('messenger:set', 'cookies', 'functional');
+      // zE('messenger:set', 'locale', 'es');
+      zE('messenger:on', 'open', () => {
+        console.log('### Widget opened, setting zendeskReady to true');
+        setZendeskReady(true);
+      });
 
       // Authenticate user with JWT token if available
-      if (token) {
-        zE(
-          'messenger',
-          'loginUser',
-          async (provideJwt: (token: string) => void) => {
-            provideJwt(token);
-          },
-          (error: unknown) => {
-            if (error) {
-              console.error('Zendesk authentication failed:', error);
-            } else {
-              console.log('Zendesk authentication successful');
-            }
-          },
-        );
-      }
+      // if (token) {
+      //   zE(
+      //     'messenger',
+      //     'loginUser',
+      //     async (provideJwt: (token: string) => void) => {
+      //       provideJwt(token);
+      //     },
+      //     (error: unknown) => {
+      //       if (error) {
+      //         console.error('Zendesk authentication failed:', error);
+      //       } else {
+      //         console.log('Zendesk authentication successful');
+      //       }
+      //     },
+      //   );
+      // }
     };
 
     setupZendesk();
@@ -69,7 +77,7 @@ export default function LoadScriptButton({ token }: LoadScriptButtonProps) {
 
   return (
     <>
-      <Button text="I agree" onClick={() => setLoadWidget(true)} />
+      <Button text="I Agree" onClick={() => setLoadWidget(true)} />
 
       {loadWidget && (
         <Script
