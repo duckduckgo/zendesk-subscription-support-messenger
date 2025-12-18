@@ -35,7 +35,36 @@ export default function LoadScriptButton({ token }: LoadScriptButtonProps) {
   });
 
   const handleOnLoad = () => {
-    return zE('messenger:on', 'open', () => setZendeskReady(true));
+    // Wait for zE to be available, then authenticate and set up event listeners
+    const setupZendesk = () => {
+      if (typeof zE === 'undefined') {
+        setTimeout(setupZendesk, 100);
+        return;
+      }
+
+      // Set up event listener for when widget opens
+      zE('messenger:on', 'open', () => setZendeskReady(true));
+
+      // Authenticate user with JWT token if available
+      if (token) {
+        zE(
+          'messenger',
+          'loginUser',
+          async (provideJwt: (token: string) => void) => {
+            provideJwt(token);
+          },
+          (error: unknown) => {
+            if (error) {
+              console.error('Zendesk authentication failed:', error);
+            } else {
+              console.log('Zendesk authentication successful');
+            }
+          },
+        );
+      }
+    };
+
+    setupZendesk();
   };
 
   return (
