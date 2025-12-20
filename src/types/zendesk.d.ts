@@ -71,6 +71,22 @@ declare global {
           [locale: string]: string | undefined;
         };
       };
+      theme?: {
+        primary?: string;
+        onPrimary?: string;
+        message?: string;
+        onMessage?: string;
+        action?: string;
+        onAction?: string;
+        businessMessage?: string;
+        onBusinessMessage?: string;
+        background?: string;
+        onBackground?: string;
+        error?: string;
+        onError?: string;
+        notify?: string;
+        onNotify?: string;
+      };
     },
   ): void;
 

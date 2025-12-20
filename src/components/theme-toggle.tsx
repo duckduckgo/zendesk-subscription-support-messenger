@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useCallback } from 'react';
-import { useIntl } from 'react-intl';
 import { useTheme } from '@/contexts/theme-context';
 import { Theme, ResolvedTheme } from '@/constants/theme';
 import { Button } from './button';
@@ -19,7 +18,6 @@ import { Button } from './button';
  */
 export function ThemeToggle() {
   const { theme, resolvedTheme, setTheme } = useTheme();
-  const intl = useIntl();
 
   /**
    * Cycles through theme options when the button is clicked.
@@ -63,48 +61,26 @@ export function ThemeToggle() {
 
   /**
    * Returns a human-readable label for the current theme.
-   * Uses translations from react-intl following the static-pages pattern.
-   *
-   * Translation keys used:
-   * - themeSystem: "System ({resolvedTheme})" - Shows system theme with resolved value
-   * - themeDark: "Dark" - Dark theme label
-   * - themeLight: "Light" - Light theme label
-   *
-   * Following static-pages pattern:
-   * - Uses `intl.formatMessage()` for all translations
-   * - Supports parameter interpolation (e.g., {resolvedTheme})
-   * - Memoized to prevent recalculation on every render
    *
    * @returns String label describing the current theme
    */
   const themeLabel = useMemo(() => {
     if (theme === Theme.System) {
-      // Use translation with resolved theme parameter
-      // Format: "System (light)" or "System (dark)"
-      return intl.formatMessage({ id: 'themeSystem' }, { resolvedTheme });
+      const resolvedLabel =
+        resolvedTheme === ResolvedTheme.Dark ? 'dark' : 'light';
+      return `System (${resolvedLabel})`;
     }
-    // Use simple translation key for light/dark themes
-    const translationKey = theme === Theme.Dark ? 'themeDark' : 'themeLight';
-    return intl.formatMessage({ id: translationKey });
-  }, [theme, resolvedTheme, intl]);
+    return theme === Theme.Dark ? 'Dark' : 'Light';
+  }, [theme, resolvedTheme]);
 
   /**
    * Generates ARIA label for the theme toggle button.
-   * Uses translation with parameter interpolation for accessibility.
-   *
-   * Translation key: themeToggle
-   * Format: "Switch theme. Current: {currentTheme}"
-   *
-   * Memoized to prevent recalculation on every render.
    *
    * @returns Accessible label string for screen readers
    */
   const ariaLabel = useMemo(() => {
-    return intl.formatMessage(
-      { id: 'themeToggle' },
-      { currentTheme: themeLabel },
-    );
-  }, [themeLabel, intl]);
+    return `Switch theme. Current: ${themeLabel}`;
+  }, [themeLabel]);
 
   return (
     <Button

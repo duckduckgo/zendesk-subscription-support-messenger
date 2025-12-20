@@ -37,6 +37,22 @@ export default function LoadScriptButton() {
         common: {
           hideHeader: true,
         },
+        theme: {
+          primary: '#FE5E41',
+          onPrimary: '#FFFFFF',
+          message: '#F3C178',
+          onMessage: '#5F0F00',
+          action: '#B0DB43',
+          onAction: '#000000',
+          businessMessage: '#fff',
+          onBusinessMessage: '#F10404',
+          background: '#DFE0E2',
+          onBackground: '#F10404',
+          error: '#FF1744',
+          onError: '#FFFFFF',
+          notify: '#FF007F',
+          onNotify: '#FFFFFF',
+        },
       });
 
       // Render the embedded messenger
@@ -60,7 +76,9 @@ export default function LoadScriptButton() {
 
   return (
     <>
-      <Button text="I Agree" onClick={() => setLoadWidget(true)} />
+      {!zendeskReady && (
+        <Button text="I Agree" onClick={() => setLoadWidget(true)} />
+      )}
 
       {loadWidget && (
         <Script

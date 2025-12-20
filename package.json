@@ -20,12 +20,9 @@
     ]
   },
   "dependencies": {
-    "@formatjs/intl-locale": "^4.2.13",
-    "@formatjs/intl-pluralrules": "^5.4.6",
     "next": "16.0.7",
     "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "react-intl": "^7.1.14"
+    "react-dom": "19.2.0"
   },
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config",
