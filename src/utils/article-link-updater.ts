@@ -16,7 +16,7 @@ export function updateArticleLinks(
   articleLinkMap: Record<string, string>,
   baseUrl: string,
 ): void {
-  // Find all links with aria-label="View article:" or containing article IDs
+  // Find all links with aria-label="View article:"
   const articleIds = Object.keys(articleLinkMap);
   const links = doc.querySelectorAll<HTMLAnchorElement>(
     'a[aria-label^="View article:"]',

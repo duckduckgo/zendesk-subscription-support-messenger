@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import styles from './page.module.css';
-import { getTranslations, getTranslation, generateZendeskJWT } from '@/utils';
+import { getTranslation } from '@/utils';
 import LoadScriptButton from '@/components/load-script-button';
 
 /**
@@ -20,18 +20,12 @@ import LoadScriptButton from '@/components/load-script-button';
 export async function generateMetadata(): Promise<Metadata> {
   // Get translations for metadata generation
   // Layout also loads translations, but this ensures metadata is correct
-  const translations = await getTranslations();
-  const homepageTranslation = await getTranslation('homepage');
-
-  console.log('### page.tsx:generateMetadata', {
-    homepageTranslation,
-  });
+  const title = await getTranslation('pageTitle');
+  const description = await getTranslation('pageDescription');
 
   return {
-    title: translations.messages.homepage || 'AI Support Ticket Deflection',
-    description:
-      translations.messages.homepage ||
-      'AI-powered support ticket deflection system',
+    title,
+    description,
   };
 }
 
@@ -75,44 +69,31 @@ export async function generateMetadata(): Promise<Metadata> {
  * @returns Server-rendered homepage component
  */
 export default async function Home() {
-  // This is a server component - no 'use client' directive
   // You can get translations here using getTranslations() or getTranslation()
 
   // Option 1: Get all translations
-  const translations = await getTranslations();
-  const homepageTitle = translations.messages.homepage;
+  // const translations = await getTranslations();
 
   // Option 2: Get a specific translation (more convenient)
-  // const homepageTitle = await getTranslation('homepage');
-
-  // Generate JWT token server-side for Zendesk authentication
-  // This is done on page load to optimize performance and ensure
-  // the token is ready when the user interacts with the widget
-  const sharedSecret = process.env.ZENDESK_SHARED_SECRET;
-  let jwt: string | null = null;
-
-  if (sharedSecret) {
-    try {
-      const { token } = await generateZendeskJWT(sharedSecret);
-
-      jwt = token;
-      // Security: Never log JWT tokens - they contain sensitive authentication credentials
-    } catch (error) {
-      // Log error but don't block page rendering
-      // The Button component can handle the missing JWT gracefully
-      console.error('Failed to generate JWT token:', error);
-    }
-  }
-  console.log('### page.tsx', {
-    jwt,
-  });
+  const mainHeadingText = await getTranslation('pageTitle');
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
         {/* Example: Using translations in server component */}
-        <h1>{homepageTitle}</h1>
+        <h1>{mainHeadingText}</h1>
         <LoadScriptButton />
+        <div
+          style={{
+            width: '100%',
+            height: '500px',
+            minHeight: '400px',
+            border: 'none',
+            borderRadius: '8px',
+            marginTop: '20px',
+          }}
+          id="messaging-container"
+        ></div>
       </main>
     </div>
   );

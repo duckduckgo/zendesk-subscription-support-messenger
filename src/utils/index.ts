@@ -1,7 +1,6 @@
 export * from './article-link-updater';
 export * from './build-article-url';
 export * from './detect-locale';
-export * from './generate-zendesk-jwt';
 export * from './get-locale';
 export * from './get-translations';
 export * from './i18n';

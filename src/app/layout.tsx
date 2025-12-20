@@ -112,6 +112,16 @@ export default async function RootLayout({
             `,
           }}
         />
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.zEMessenger = {
+                autorender: false
+              };
+            `,
+          }}
+        />
         {/* Wrap app in providers */}
         <TranslationsProvider translations={translations}>
           <ThemeProvider>{children}</ThemeProvider>

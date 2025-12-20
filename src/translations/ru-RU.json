@@ -11,9 +11,14 @@
     ],
     "variants_enabled": true
   },
-  "homepage": {
-    "description": "Homepage title",
-    "message": "Отклонение тикетов поддержки ИИ",
+  "pageTitle": {
+    "description": "Page title",
+    "message": "Автоматизированный помощник поддержки DuckDuckGo",
+    "namespace": "common"
+  },
+  "pageDescription": {
+    "description": "Page description",
+    "message": "Автоматизированный помощник поддержки DuckDuckGo на базе Zendesk",
     "namespace": "common"
   },
   "themeToggle": {

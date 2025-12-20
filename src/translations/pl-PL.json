@@ -11,9 +11,14 @@
     ],
     "variants_enabled": true
   },
-  "homepage": {
-    "description": "Homepage title",
-    "message": "Deflekcja Biletów Wsparcia AI",
+  "pageTitle": {
+    "description": "Page title",
+    "message": "Automatyczny Asystent Wsparcia DuckDuckGo",
+    "namespace": "common"
+  },
+  "pageDescription": {
+    "description": "Page description",
+    "message": "Automatyczny asystent wsparcia DuckDuckGo zasilany przez Zendesk",
     "namespace": "common"
   },
   "themeToggle": {

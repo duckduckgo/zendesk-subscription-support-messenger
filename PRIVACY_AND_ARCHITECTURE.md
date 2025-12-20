@@ -7,13 +7,13 @@ This application follows privacy-first principles, matching the static-pages rep
 ### ✅ Privacy Features
 
 1. **No Cookies for Locale**
-   - Locale is determined from URL path only (`/[locale]/...`)
+   - Locale is determined from Accept-Language header only
    - No cookies set for locale persistence
    - No cross-site tracking
-   - Matches static-pages pattern exactly
+   - No URL-based locale routing
 
 2. **Accept-Language Header Usage**
-   - Used only for initial redirect (first visit to `/`)
+   - Used for locale detection on each request
    - Not stored, logged, or tracked
    - Standard HTTP header (RFC 7231)
    - Privacy-preserving: header is ephemeral and not persisted
@@ -32,32 +32,19 @@ This application follows privacy-first principles, matching the static-pages rep
 
 ## Server Rendering Verification
 
-### Build Output Confirmation
-
-```
-Route (app)
-┌ ○ /
-├ ○ /_not-found
-└ ƒ /[locale]
-
-ƒ Proxy (Middleware)
-
-○  (Static)   prerendered as static content
-ƒ  (Dynamic)  server-rendered on demand
-```
-
 ### Server Rendering Evidence
 
-1. **Homepage Component** (`src/app/[locale]/page.tsx`)
+1. **Homepage Component** (`src/app/page.tsx`)
    - ✅ No `'use client'` directive
    - ✅ Async function (server-side data fetching)
    - ✅ Translations loaded server-side
-   - ✅ Build shows: `ƒ /[locale]` (function route = server-rendered)
+   - ✅ Server-rendered on each request
 
-2. **Layout Component** (`src/app/[locale]/layout.tsx`)
+2. **Layout Component** (`src/app/layout.tsx`)
    - ✅ Server component (no `'use client'`)
    - ✅ Translations loaded server-side
    - ✅ Metadata generated server-side
+   - ✅ Locale detected from Accept-Language header
 
 3. **Benefits**
    - HTML sent directly from server
@@ -70,10 +57,10 @@ Route (app)
 
 ### ✅ Matches static-pages Patterns
 
-1. **Locale Routing**
-   - ✅ URL-based locale (`/[locale]/...`)
+1. **Locale Detection**
+   - ✅ Accept-Language header based detection
    - ✅ No cookies for locale
-   - ✅ Locale from route parameters
+   - ✅ No URL-based locale routing
 
 2. **Translation Loading**
    - ✅ Same JSON file structure
@@ -86,23 +73,6 @@ Route (app)
    - ✅ No user tracking
    - ✅ Client-side preferences only (theme)
 
-### Differences (App Router vs Pages Router)
-
-1. **Routing**
-   - App Router: `[locale]` folder structure
-   - Pages Router: `pages/[locale]/...` structure
-   - Both: Locale from URL path
-
-2. **Data Loading**
-   - App Router: Server components with async/await
-   - Pages Router: `getStaticProps` / `getServerSideProps`
-   - Both: Server-side translation loading
-
-3. **Middleware**
-   - App Router: `middleware.ts` file
-   - Pages Router: No middleware (handled in `getStaticPaths`)
-   - Both: Locale detection from URL
-
 ## Architecture Summary
 
 ### File Structure
@@ -110,38 +80,39 @@ Route (app)
 ```
 src/
 ├── app/
-│   ├── [locale]/          # Locale-specific routes
-│   │   ├── layout.tsx     # Server component - loads translations
-│   │   └── page.tsx       # Server component - homepage
-│   ├── layout.tsx         # Root layout (minimal)
-│   └── page.tsx            # Root redirect
+│   ├── layout.tsx         # Root layout - loads translations based on Accept-Language
+│   └── page.tsx           # Homepage - server component
 ├── components/            # Client components
 ├── contexts/              # React contexts (Theme)
 ├── providers/             # Providers (Translations)
-├── utils/                 # Utilities (i18n, load-translations)
-└── middleware.ts          # Locale detection & routing
+├── utils/                 # Utilities (i18n, load-translations, detect-locale)
+└── proxy.ts               # Request proxy (minimal)
 
-text/                      # Translation files
-└── en-US.json            # English translations
+src/translations/          # Translation files
+├── en-US.json            # English translations
+├── es-ES.json            # Spanish translations
+├── pl-PL.json            # Polish translations
+└── ru-RU.json            # Russian translations
 ```
 
 ### Data Flow
 
 1. **Initial Request**
-   - User visits `/`
-   - Middleware reads `Accept-Language` header
-   - Redirects to `/en-US` (or detected locale)
+   - User visits any route
+   - Server component reads `Accept-Language` header
+   - Locale detected from header
    - No cookie set
+   - No URL parsing
 
 2. **Page Load**
-   - Server component loads translations
+   - Server component loads translations for detected locale
    - HTML sent with translations included
    - Client hydrates with React
 
-3. **Navigation**
-   - Locale always from URL path
-   - No server round-trip for locale detection
-   - Fast client-side navigation
+3. **Subsequent Requests**
+   - Locale always detected from Accept-Language header
+   - No URL-based routing
+   - Server-side locale detection on each request
 
 ### Privacy Guarantees
 

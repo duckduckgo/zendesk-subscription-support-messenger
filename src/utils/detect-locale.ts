@@ -48,6 +48,7 @@ export async function detectLocaleFromHeaders(): Promise<SupportedLocale> {
     // Try language code match (e.g., "en" -> "en-US", "pl" -> "pl-PL")
     // This handles cases where browser sends "en" but we support "en-US"
     const languageCode = code.split('-')[0]?.toLowerCase();
+
     if (languageCode) {
       // Map common language codes to their supported locale variants
       const languageToLocaleMap: Record<string, string> = {
@@ -59,6 +60,7 @@ export async function detectLocaleFromHeaders(): Promise<SupportedLocale> {
 
       // Try mapped locale first (e.g., "pl" -> "pl-PL")
       const mappedLocale = languageToLocaleMap[languageCode];
+
       if (mappedLocale && isSupportedLocale(mappedLocale)) {
         return mappedLocale;
       }
@@ -66,6 +68,7 @@ export async function detectLocaleFromHeaders(): Promise<SupportedLocale> {
       // Fallback: Try to match with region code from Accept-Language header
       // (e.g., "en-GB" -> "en-US" if exact match not found)
       const regionCode = code.split('-')[1]?.toUpperCase();
+
       if (regionCode) {
         const matchedLocale = `${languageCode}-${regionCode}`;
         if (isSupportedLocale(matchedLocale)) {

@@ -11,9 +11,14 @@
     ],
     "variants_enabled": true
   },
-  "homepage": {
-    "description": "Homepage title",
-    "message": "AI Support Ticket Deflection",
+  "pageTitle": {
+    "description": "Page title",
+    "message": "DuckDuckGo Automated Support Assistant",
+    "namespace": "common"
+  },
+  "pageDescription": {
+    "description": "Page description",
+    "message": "DuckDuckGo automated support assistant powered by Zendesk",
     "namespace": "common"
   },
   "themeToggle": {

@@ -5,10 +5,6 @@ import Script from 'next/script';
 import { useZendeskResponseHandler } from '@/hooks/use-zendesk-response-handler';
 import { Button } from './button';
 
-export interface LoadScriptButtonProps {
-  token?: string | null;
-}
-
 /**
  * Component that loads the Zendesk Web Widget and handles article link updates.
  *
@@ -20,15 +16,9 @@ export interface LoadScriptButtonProps {
  * @param props - Component props
  * @returns Button to load widget and script tag
  */
-export default function LoadScriptButton({ token }: LoadScriptButtonProps) {
+export default function LoadScriptButton() {
   const [loadWidget, setLoadWidget] = useState(false);
   const [zendeskReady, setZendeskReady] = useState(false);
-
-  console.log('### load-script-button.tsx', {
-    token,
-    loadWidget,
-    zendeskReady,
-  });
 
   // Set up response handler for updating article links
   useZendeskResponseHandler({
@@ -36,43 +26,36 @@ export default function LoadScriptButton({ token }: LoadScriptButtonProps) {
   });
 
   const handleOnLoad = () => {
-    console.log('### id', {
-      ze: typeof zE,
-    });
-    // Wait for zE to be available, then authenticate and set up event listeners
-    const setupZendesk = () => {
-      if (typeof zE === 'undefined') {
-        setTimeout(setupZendesk, 100);
-        return;
-      }
+    if (typeof window === 'undefined') {
+      return;
+    }
 
+    try {
+      // Set cookies first
       zE('messenger:set', 'cookies', 'functional');
-      // zE('messenger:set', 'locale', 'es');
-      zE('messenger:on', 'open', () => {
-        console.log('### Widget opened, setting zendeskReady to true');
-        setZendeskReady(true);
+      zE('messenger:set', 'customization', {
+        common: {
+          hideHeader: true,
+        },
       });
 
-      // Authenticate user with JWT token if available
-      // if (token) {
-      //   zE(
-      //     'messenger',
-      //     'loginUser',
-      //     async (provideJwt: (token: string) => void) => {
-      //       provideJwt(token);
-      //     },
-      //     (error: unknown) => {
-      //       if (error) {
-      //         console.error('Zendesk authentication failed:', error);
-      //       } else {
-      //         console.log('Zendesk authentication successful');
-      //       }
-      //     },
-      //   );
-      // }
-    };
+      // Render the embedded messenger
+      zE('messenger', 'render', {
+        mode: 'embedded',
+        widget: {
+          targetElement: '#messaging-container',
+        },
+      });
 
-    setupZendesk();
+      // For embedded mode, set ready after a short delay to ensure widget has rendered
+      // The widget renders synchronously, so a small delay is sufficient
+      setTimeout(() => {
+        console.log('Zendesk messenger ready');
+        setZendeskReady(true);
+      }, 500);
+    } catch (error) {
+      console.error('Error initializing Zendesk:', error);
+    }
   };
 
   return (

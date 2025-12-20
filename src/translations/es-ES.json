@@ -11,9 +11,14 @@
     ],
     "variants_enabled": true
   },
-  "homepage": {
-    "description": "Homepage title",
-    "message": "Desviación de Tickets de Soporte con IA",
+  "pageTitle": {
+    "description": "Page title",
+    "message": "Asistente de Soporte Automatizado de DuckDuckGo",
+    "namespace": "common"
+  },
+  "pageDescription": {
+    "description": "Page description",
+    "message": "Asistente de soporte automatizado de DuckDuckGo impulsado por Zendesk",
     "namespace": "common"
   },
   "themeToggle": {
