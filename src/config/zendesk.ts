@@ -9,6 +9,8 @@ export const EMBEDDED_TARGET_ELEMENT = 'messaging-container';
  * Map of Zendesk article IDs to their corresponding public help page path.
  * Keys should match article IDs found in Zendesk.
  * Values are the paths to append to the base url with a leading slash.
+ * @note this will be automated in a future iteration. See {@link
+ * https://app.asana.com/1/137249556945/project/1212312923065453/task/1211456826025706?focus=true}
  */
 export const ARTICLE_LINK_MAP: Record<string, string> = {
   '44195025522323': '/privacy-pro/i-lost-my-device',

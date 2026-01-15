@@ -7,6 +7,7 @@ import PageLoadPixel from '@/components/page-load-pixel/page-load-pixel';
 import { Button } from '@/components/button/button';
 import { useZendeskResponseHandler } from '@/hooks/use-zendesk-response-handler';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
+import { useZendeskButtonHandlers } from '@/hooks/use-zendesk-button-handlers';
 import { EMBEDDED_TARGET_ELEMENT, ZENDESK_SCRIPT_URL } from '@/config/zendesk';
 import { MAIN_SITE_URL, SITE_TITLE } from '@/config/common';
 import { useIsTablet, useIsMobile } from '@/hooks/use-media-query';
@@ -28,6 +29,22 @@ export default function Home() {
   // Set up response handler for updating article links
   useZendeskResponseHandler({
     zendeskReady,
+  });
+
+  // Add click handlers to Zendesk buttons and links
+  useZendeskButtonHandlers({
+    zendeskReady,
+    onButtonClick: (el) => {
+      console.log('### onButtonClick', {
+        text: el.innerText,
+      });
+    },
+    onLinkClick: (el) => {
+      console.log('### onLinkClick', {
+        text: el.innerText,
+        href: el.href,
+      });
+    },
   });
 
   // Inject custom styles into Zendesk iframe
@@ -75,11 +92,13 @@ export default function Home() {
     `,
   });
 
-  const handleOnLoad = () => {
-    if (typeof window === 'undefined') {
-      return;
-    }
+  const handleOnError = (error: Error) => {
+    window.fireJse?.(
+      new Error(`Failed to load Zendesk: ${JSON.stringify(error)}`),
+    );
+  };
 
+  const handleOnLoad = () => {
     try {
       // Set cookies and theme customization first
       zE('messenger:set', 'cookies', 'functional');
@@ -109,12 +128,6 @@ export default function Home() {
           targetElement: `#${EMBEDDED_TARGET_ELEMENT}`,
         },
       });
-
-      // For embedded mode, set ready after a short delay to ensure widget has rendered
-      // The widget renders synchronously, so a small delay is sufficient
-      setTimeout(() => {
-        setZendeskReady(true);
-      }, 500);
     } catch (error) {
       window.fireJse?.(
         new Error(
@@ -212,6 +225,7 @@ export default function Home() {
                   skipBaseStyles
                   className={`${styles.button} ${styles.cancelButton}`}
                   onClick={() => {
+                    // allow time for a pixel to fire before redirecting
                     setTimeout(() => {
                       window.location.href = `${MAIN_SITE_URL}/subscription-support`;
                     }, 500);
@@ -253,9 +267,9 @@ export default function Home() {
         <Script
           id="ze-snippet"
           src={ZENDESK_SCRIPT_URL}
-          strategy="lazyOnload"
+          onReady={() => setZendeskReady(true)}
           onLoad={() => handleOnLoad()}
-          onError={() => console.error('Failed to load Zendesk')}
+          onError={(e) => handleOnError(e)}
         />
       )}
       <PageLoadPixel />
