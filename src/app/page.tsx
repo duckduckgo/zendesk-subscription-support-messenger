@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Script from 'next/script';
 import styles from './page.module.css';
 import PageLoadPixel from '@/components/page-load-pixel/page-load-pixel';
@@ -8,13 +8,22 @@ import { Button } from '@/components/button/button';
 import { useZendeskResponseHandler } from '@/hooks/use-zendesk-response-handler';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
 import { EMBEDDED_TARGET_ELEMENT, ZENDESK_SCRIPT_URL } from '@/config/zendesk';
-import { MAIN_SITE_URL } from '@/config/common';
+import { MAIN_SITE_URL, SITE_TITLE } from '@/config/common';
+import { useIsTablet, useIsMobile } from '@/hooks/use-media-query';
 
 const tempDisplay = false;
 
 export default function Home() {
   const [zendeskReady, setZendeskReady] = useState(false);
   const [loadWidget, setLoadWidget] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const isTablet = useIsTablet();
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   // Set up response handler for updating article links
   useZendeskResponseHandler({
@@ -123,7 +132,7 @@ export default function Home() {
           style={{ display: zendeskReady ? 'block' : 'none' }}
         >
           <div className={styles.chatCardHeader}>
-            <p>DuckDuckGo Automated Support Assistant</p>
+            <p>{SITE_TITLE}</p>
           </div>
           <div
             className={styles.chatContent}
@@ -133,7 +142,13 @@ export default function Home() {
 
         {!zendeskReady && (
           <>
-            <h1 className={styles.mainHeading}>Before You Continue</h1>
+            <h1
+              className={`${styles.mainHeading} ${
+                mounted && isMobile ? styles.mainHeadingMobile : ''
+              }`}
+            >
+              Before You Continue
+            </h1>
 
             <div className={styles.card}>
               <div className={styles.cardHeader}>
@@ -187,7 +202,11 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className={styles.buttonGroup}>
+              <div
+                className={`${styles.buttonGroup} ${
+                  mounted && isTablet ? styles.buttonGroupMobile : ''
+                }`}
+              >
                 <Button
                   text="Cancel"
                   skipBaseStyles

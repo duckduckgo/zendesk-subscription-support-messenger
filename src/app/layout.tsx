@@ -1,17 +1,18 @@
 import { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Script from 'next/script';
 import { ThemeProvider } from '@/contexts/theme-context';
 import { ResolvedTheme, PREFERS_COLOR_SCHEME_DARK } from '@/constants/theme';
 import LogoHorizontalLight from '@/icons/logo-horizontal-light.svg';
 import Footer from '@/components/footer/footer';
 import { duckSansDisplay, duckSansProduct, proximaNova } from '@/config/fonts';
+import { SITE_TITLE } from '@/config/common';
 import './globals.css';
 import styles from './layout.module.css';
-import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'DuckDuckGo Automated Support Assistant',
+  title: SITE_TITLE,
   description: 'DuckDuckGo automated support assistant powered by Zendesk',
 };
 

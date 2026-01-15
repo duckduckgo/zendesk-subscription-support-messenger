@@ -19,3 +19,14 @@
   width: 189px;
   height: 53px;
 }
+
+@media (max-width: 768px) {
+  .header {
+    padding: 20px 16px;
+  }
+
+  .logo {
+    width: 151px;
+    height: 42px;
+  }
+}

@@ -1,10 +1,12 @@
 .main {
   max-width: 768px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .mainHeading {
@@ -21,7 +23,8 @@
 
 .card {
   display: flex;
-  width: 768px;
+  max-width: 768px;
+  width: 100%;
   padding: 32px;
   flex-direction: column;
   justify-content: center;
@@ -32,10 +35,12 @@
   box-shadow:
     0 2px 6px 0 rgba(0, 0, 0, 0.1),
     0 8px 16px 0 rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
 }
 
 .target {
   height: 768px;
+  max-height: 100vh;
 }
 
 .cardHeader,
@@ -104,6 +109,7 @@
 .button {
   display: flex;
   flex: 1;
+  min-height: 48px;
   height: 48px;
   padding: 0 24px;
   align-items: center;
@@ -184,11 +190,82 @@
 }
 
 @media (max-width: 768px) {
+  .main {
+    padding: 0 16px 60px;
+  }
+
   .mainHeading {
     font-size: 28px;
+    line-height: 32px;
+    letter-spacing: -0.56px;
+    margin-bottom: 24px;
+  }
+
+  .mainHeadingMobile {
+    font-size: 24px;
+    line-height: 28px;
+    letter-spacing: -0.48px;
   }
 
   .card {
     padding: 20px;
+    gap: 20px;
+  }
+
+  .target {
+    height: calc(100vh - 40px);
+    min-height: 400px;
+  }
+
+  .content {
+    height: 400px;
+    min-height: 300px;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .buttonGroupMobile {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .button {
+    width: 100%;
+  }
+
+  .cardHeader p,
+  .chatCardHeader p {
+    font-size: 18px;
+    line-height: 22px;
+  }
+
+  .chatCardHeader p {
+    font-size: 17px;
+    line-height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 0 12px 40px;
+  }
+
+  .mainHeading {
+    font-size: 24px;
+    line-height: 28px;
+    letter-spacing: -0.48px;
+  }
+
+  .card {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .content {
+    padding: 12px;
+    height: 350px;
   }
 }
