@@ -1,0 +1,154 @@
+.footer {
+  max-width: 1248px;
+  margin: 0 auto;
+}
+
+.footerContent {
+  display: flex;
+  padding: 44px 0 64px 0;
+  align-items: flex-start;
+  gap: 68px;
+  align-self: stretch;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.footerSection {
+  font-size: 13px;
+}
+
+.footerSection:first-child,
+.footerSection:nth-child(2) {
+  width: 227px;
+  flex-shrink: 0;
+}
+
+.footerSection:last-child {
+  flex: 1;
+}
+
+.footerTitle {
+  color: var(--sds-color-palette-black, #000000);
+  font-family: 'Proxima Nova';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 149.7%;
+  letter-spacing: 2.1px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.footerLink,
+.footerTextLink {
+  display: flex;
+  align-items: center;
+  color: var(--sds-color-palette-blue-60);
+  font-family: 'Proxima Nova';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 145%;
+}
+
+.footerTextLink {
+  display: unset;
+  align-items: unset;
+}
+
+.footerLink:hover,
+.footerTextLink:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  align-items: center;
+  background-color: rgb(249, 190, 26);
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  font-family:
+    'Proxima Nova',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Oxygen-Sans',
+    Ubuntu,
+    Cantarell,
+    'Helvetica Neue',
+    Arial,
+    'Noto Sans',
+    sans-serif;
+  font-feature-settings: 'dlig', 'liga';
+  font-size: 10px;
+  font-weight: 600;
+  height: 16px;
+  justify-content: center;
+  letter-spacing: 0.04px;
+  line-height: 10px;
+  margin-left: 8px;
+  padding: 3px 5px;
+  text-align: left;
+  text-transform: uppercase;
+  width: 32.125px;
+}
+
+.footerText {
+  color: #222222;
+  font-family: 'Proxima Nova';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 145%;
+}
+
+.footerText strong {
+  color: #4285f4;
+  font-weight: 400;
+}
+
+.copyright {
+  display: flex;
+  align-items: center;
+  gap: 68px;
+  padding: 44px 0 32px;
+  color: var(--sds-color-palette-black, #000000);
+  font-family: 'Proxima Nova';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 125%;
+  /* 20px */
+}
+
+.copyright span:first-child {
+  width: 227px;
+  flex-shrink: 0;
+}
+
+.copyright span:nth-child(2) {
+  width: 227px;
+  flex-shrink: 0;
+  visibility: hidden;
+}
+
+.copyright span:last-child {
+  flex: 1;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .footerContent {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .footerSection:first-child,
+  .footerSection:nth-child(2),
+  .footerSection:last-child {
+    width: 100%;
+    flex: none;
+  }
+}

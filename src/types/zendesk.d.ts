@@ -6,6 +6,38 @@
  */
 
 declare global {
+  interface Window {
+    /**
+     * Indicates that the pixels.js script has loaded and is ready.
+     * Set by pixels.js after initializing event listeners.
+     */
+    pixelsScriptReady?: boolean;
+    /**
+     * Manually fire a pixel event for custom tracking.
+     * @param eventName - Name of the event (e.g., "button-click", "custom-action")
+     * @param extraData - Optional additional data to send as query parameters
+     */
+    firePixelEvent?: (
+      eventName: string,
+      extraData?: Record<string, string>,
+    ) => void;
+    /**
+     * Fires an error pixel for the provided page. If `maybeErr` is an instance of
+     * the JS Error class, its message is used directly. Otherwise, `maybeErr` is
+     * JSON.stringify'd with a bit of explanatory text that it was invalid.
+     * @param maybeErr - The JavaScript Error instance to retrieve a message from,
+     *                   or a value to be JSON serialized and included in an
+     *                   explanatory message.
+     */
+    fireJse?: (maybeErr: Error | unknown) => void;
+    /**
+     * Callback function called when the theme changes.
+     * Used by Zendesk widget to update its theme.
+     * @param theme - The new theme value ('light' or 'dark')
+     */
+    onThemeUpdate?: (theme: string) => void;
+  }
+
   /**
    * Sets customization options for the messaging Web Widget.
    * @see https://developer.zendesk.com/api-reference/widget-messaging/web/core/#set-customization
@@ -99,10 +131,13 @@ declare global {
     method: 'render',
     options: {
       mode: 'embedded';
-      widget: {
+      widget?: {
         targetElement: string;
       };
       conversationList?: {
+        targetElement: string;
+      };
+      messageLog?: {
         targetElement: string;
       };
     },

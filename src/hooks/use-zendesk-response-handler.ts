@@ -3,37 +3,49 @@ import {
   getMessagingIframe,
   getMessagingIframeDocument,
 } from '@/utils/zendesk-iframe';
-import { updateArticleLinks } from '@/utils/article-link-updater';
-import { ZENDESK_BASE_URL, ARTICLE_LINK_MAP } from '@/config/zendesk';
+import { updateArticleLinks } from '@/utils/update-article-links';
 
 interface UseZendeskResponseHandlerOptions {
-  /** Whether the Zendesk widget is ready */
   zendeskReady: boolean;
 }
 
 /**
  * Processes article links in the Zendesk widget iframe.
  * Retries if iframe is not yet available.
+ *
+ * @function processArticleLinks
+ * @param {number} retries
+ * @param {number} delay
+ *
+ * @returns {void}
  */
-function processArticleLinks(retries = 5, delay = 500): void {
+function processArticleLinks(
+  retries: number = 5,
+  delay: number = 500,
+): Document | void {
   const iframe = getMessagingIframe(null);
+
   if (!iframe) {
     if (retries > 0) {
       setTimeout(() => processArticleLinks(retries - 1, delay), delay);
     }
+
     return;
   }
 
   const iframeDoc = getMessagingIframeDocument(iframe);
+
   if (!iframeDoc) {
     if (retries > 0) {
       setTimeout(() => processArticleLinks(retries - 1, delay), delay);
     }
+
     return;
   }
 
-  // Process links with article IDs
-  updateArticleLinks(iframeDoc, ARTICLE_LINK_MAP, ZENDESK_BASE_URL);
+  updateArticleLinks(iframeDoc);
+
+  return iframeDoc;
 }
 
 /**
@@ -57,6 +69,7 @@ export function useZendeskResponseHandler({
       // Give the widget a moment to render
       setTimeout(() => {
         processArticleLinks();
+
         processedRef.current = true;
       }, 1000);
     }
@@ -77,13 +90,16 @@ export function useZendeskResponseHandler({
     });
 
     // Set up MutationObserver to watch for new links being added to the iframe
+    // {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver}
     const setupObserver = () => {
       const iframe = getMessagingIframe(null);
+
       if (!iframe) {
         return;
       }
 
       const iframeDoc = getMessagingIframeDocument(iframe);
+
       if (!iframeDoc) {
         return;
       }
@@ -97,19 +113,19 @@ export function useZendeskResponseHandler({
         // Create new observer to watch for DOM changes
         observerRef.current = new MutationObserver(() => {
           // Process links when DOM changes
-          updateArticleLinks(iframeDoc, ARTICLE_LINK_MAP, ZENDESK_BASE_URL);
+          updateArticleLinks(iframeDoc);
         });
 
         // Start observing
+        // {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver/observe}
         observerRef.current.observe(iframeDoc.body, {
           childList: true,
           subtree: true,
         });
       } catch (error) {
         // Cross-origin restrictions might prevent observing
-        console.warn(
-          'Could not set up MutationObserver for Zendesk iframe:',
-          error,
+        window.fireJse?.(
+          `Could not set up MutationObserver for Zendesk iframe: ${JSON.stringify(error)}`,
         );
       }
     };

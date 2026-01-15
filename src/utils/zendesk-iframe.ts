@@ -70,8 +70,11 @@ export function getMessagingIframeDocument(
   try {
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     return doc || null;
-  } catch {
-    // Cross-origin restriction - cannot access iframe document
+  } catch (error) {
+    window.fireJse?.(
+      `Cross-origin restriction - cannot access iframe document: ${JSON.stringify(error)}`,
+    );
+
     return null;
   }
 }

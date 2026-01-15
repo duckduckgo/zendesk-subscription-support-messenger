@@ -1,6 +1,167 @@
+@font-face {
+  font-family: 'Proxima Nova';
+  src:
+    url('/static-assets/fonts/ProximaNova-ExtraBold-webfont.woff2')
+      format('woff2'),
+    url('/static-assets/fonts/ProximaNova-ExtraBold-webfont.woff')
+      format('woff'),
+    url('/static-assets/fonts/ProximaNova-ExtraBold-webfont.ttf')
+      format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Proxima Nova';
+  src:
+    url('/static-assets/fonts/ProximaNova-Bold-webfont.woff2') format('woff2'),
+    url('/static-assets/fonts/ProximaNova-Bold-webfont.woff') format('woff'),
+    url('/static-assets/fonts/ProximaNova-Bold-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Proxima Nova';
+  src:
+    url('/static-assets/fonts/ProximaNova-Sbold-webfont.woff2') format('woff2'),
+    url('/static-assets/fonts/ProximaNova-Sbold-webfont.woff') format('woff'),
+    url('/static-assets/fonts/ProximaNova-Sbold-webfont.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Proxima Nova';
+  src:
+    url('/static-assets/fonts/ProximaNova-Reg-webfont.woff2') format('woff2'),
+    url('/static-assets/fonts/ProximaNova-Reg-webfont.woff') format('woff'),
+    url('/static-assets/fonts/ProximaNova-Reg-webfont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Proxima Nova';
+  src:
+    url('/static-assets/fonts/ProximaNova-RegIt-webfont.woff2') format('woff2'),
+    url('/static-assets/fonts/ProximaNova-RegIt-webfont.woff') format('woff'),
+    url('/static-assets/fonts/ProximaNova-RegIt-webfont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Proxima Nova';
+  src:
+    url('/static-assets/fonts/ProximaNova-Light-webfont.woff2') format('woff2'),
+    url('/static-assets/fonts/ProximaNova-Light-webfont.woff') format('woff'),
+    url('/static-assets/fonts/ProximaNova-Light-webfont.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DuckSans Display';
+  src:
+    url('/static-assets/fonts/DuckSansDisplay-Regular.woff2') format('woff2'),
+    url('/static-assets/fonts/DuckSansDisplay-Regular.woff') format('woff'),
+    url('/static-assets/fonts/DuckSansDisplay-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DuckSans Display';
+  src:
+    url('/static-assets/fonts/DuckSansDisplay-Medium.woff2') format('woff2'),
+    url('/static-assets/fonts/DuckSansDisplay-Medium.woff') format('woff'),
+    url('/static-assets/fonts/DuckSansDisplay-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DuckSans Display';
+  src:
+    url('/static-assets/fonts/DuckSansDisplay-Bold.woff2') format('woff2'),
+    url('/static-assets/fonts/DuckSansDisplay-Bold.woff') format('woff'),
+    url('/static-assets/fonts/DuckSansDisplay-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DuckSans Product';
+  src:
+    url('/static-assets/fonts/DuckSansProduct-Regular.woff2') format('woff2'),
+    url('/static-assets/fonts/DuckSansProduct-Regular.woff') format('woff'),
+    url('/static-assets/fonts/DuckSansProduct-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DuckSans Product';
+  src:
+    url('/static-assets/fonts/DuckSansProduct-Medium.woff2') format('woff2'),
+    url('/static-assets/fonts/DuckSansProduct-Medium.woff') format('woff'),
+    url('/static-assets/fonts/DuckSansProduct-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DuckSans Product';
+  src:
+    url('/static-assets/fonts/DuckSansProduct-Bold.woff2') format('woff2'),
+    url('/static-assets/fonts/DuckSansProduct-Bold.woff') format('woff'),
+    url('/static-assets/fonts/DuckSansProduct-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --Font-Family-Display:
+    var(--font-display), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --Font-Family-Product:
+    var(--font-product), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --Font-Family-Proxima-Nova:
+    var(--font-proxima-nova), -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --Buttons-Text-Primary: #fff;
+  --Buttons-Solid-Primary-Default: #3969ef;
+  --sds-color-text-01: #222222;
+  --sds-color-palette-blue-60: #2b55ca;
+  --sds-color-palette-black: #000000;
 }
 
 [data-theme='light'] {
@@ -33,7 +194,7 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--Font-Family-Product);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition:
