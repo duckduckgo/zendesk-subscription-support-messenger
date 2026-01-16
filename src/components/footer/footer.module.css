@@ -186,7 +186,7 @@
   visibility: visible !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1248px) {
   .footer {
     padding: 0 16px;
   }
@@ -200,6 +200,8 @@
   /* Reorder: About section first, then links side by side */
   .footerSection:last-child {
     order: -1;
+    width: 100%;
+    flex: none;
   }
 
   .footerLinksWrapper {
@@ -213,12 +215,6 @@
     flex: 1;
     min-width: 140px;
     width: auto;
-  }
-
-  .footerSection:last-child {
-    order: 1;
-    width: 100%;
-    flex: none;
   }
 
   .copyright {

@@ -52,8 +52,9 @@ export default function Home() {
     zendeskReady,
     styles: `
       div[role="status"] + div {
-        background-color: #ffffff;
         padding: 10px 1px;
+        width: 95%;
+        margin: 0 auto;
       }
 
       #composer-input {
@@ -128,6 +129,11 @@ export default function Home() {
           targetElement: `#${EMBEDDED_TARGET_ELEMENT}`,
         },
       });
+
+      // Set ready after a delay to allow widget to render
+      setTimeout(() => {
+        setZendeskReady(true);
+      }, 500);
     } catch (error) {
       window.fireJse?.(
         new Error(
@@ -140,20 +146,27 @@ export default function Home() {
   return (
     <>
       <main className={styles.main}>
-        <div
-          className={`${styles.card} ${styles.target}`}
-          style={{ display: zendeskReady ? 'block' : 'none' }}
-        >
-          <div className={styles.chatCardHeader}>
-            <p>{SITE_TITLE}</p>
+        {loadWidget && (
+          <div className={`${styles.card} ${styles.target}`}>
+            {!zendeskReady && (
+              <div className={styles.spinnerContainer}>
+                <div className={styles.spinner}></div>
+              </div>
+            )}
+            {zendeskReady && (
+              <div className={styles.chatCardHeader}>
+                <p>{SITE_TITLE}</p>
+              </div>
+            )}
+            <div
+              className={styles.chatContent}
+              id={EMBEDDED_TARGET_ELEMENT}
+              style={{ display: zendeskReady ? 'block' : 'none' }}
+            ></div>
           </div>
-          <div
-            className={styles.chatContent}
-            id={EMBEDDED_TARGET_ELEMENT}
-          ></div>
-        </div>
+        )}
 
-        {!zendeskReady && (
+        {!loadWidget && (
           <>
             <h1
               className={`${styles.mainHeading} ${
@@ -267,7 +280,6 @@ export default function Home() {
         <Script
           id="ze-snippet"
           src={ZENDESK_SCRIPT_URL}
-          onReady={() => setZendeskReady(true)}
           onLoad={() => handleOnLoad()}
           onError={(e) => handleOnError(e)}
         />
