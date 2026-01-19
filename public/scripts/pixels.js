@@ -136,10 +136,7 @@ Manual Event Tracking:
 
     firePixel('static-err', {
       msg: err.message,
-      // If `err.cause` is an Error, `cause` is just its `.message` via
-      // `.toString()`. Otherwise, it's the default serialization of
-      // `cause.toString()`.
-      cause: err.cause?.toString() ?? '',
+      cause: '',
       page: location.pathname,
     });
   };

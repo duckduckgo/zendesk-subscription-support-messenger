@@ -24,26 +24,38 @@ export function getMessagingIframe(
 
   if (webWidgetIframe) {
     const parent = webWidgetIframe.parentElement;
+
     if (parent) {
-      // Find the messaging iframe in the same parent (skip web_widget iframe)
-      const messagingIframe = Array.from(
-        parent.querySelectorAll('iframe'),
-      ).find((iframe) => iframe !== webWidgetIframe) as
-        | HTMLIFrameElement
-        | undefined;
+      try {
+        // Find the messaging iframe in the same parent (skip web_widget iframe)
+        const messagingIframe = Array.from(
+          parent.querySelectorAll('iframe'),
+        ).find((iframe) => iframe !== webWidgetIframe) as
+          | HTMLIFrameElement
+          | undefined;
 
-      if (messagingIframe) {
-        return messagingIframe;
-      }
-
-      // Check next sibling elements
-      let nextSibling = parent.nextElementSibling;
-      while (nextSibling) {
-        const iframe = nextSibling.querySelector('iframe');
-        if (iframe) {
-          return iframe;
+        if (messagingIframe) {
+          return messagingIframe;
         }
-        nextSibling = nextSibling.nextElementSibling;
+
+        // Check next sibling elements
+        let nextSibling = parent.nextElementSibling;
+
+        while (nextSibling) {
+          if (nextSibling && typeof nextSibling.querySelector === 'function') {
+            const iframe = nextSibling.querySelector('iframe');
+
+            if (iframe) {
+              return iframe;
+            }
+          }
+
+          nextSibling = nextSibling.nextElementSibling;
+        }
+      } catch (error) {
+        window.fireJse?.(
+          new Error(`Error finding messaging iframe: ${JSON.stringify(error)}`),
+        );
       }
     }
   }
@@ -69,6 +81,7 @@ export function getMessagingIframeDocument(
 
   try {
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
+
     return doc || null;
   } catch (error) {
     window.fireJse?.(

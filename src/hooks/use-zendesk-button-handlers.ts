@@ -17,6 +17,11 @@ interface UseZendeskButtonHandlersOptions {
 const processedElements = new WeakSet<HTMLElement>();
 
 /**
+ * Tracks if textarea listener has been attached to avoid duplicates.
+ */
+const textareaListenerAttached = new WeakSet<HTMLTextAreaElement>();
+
+/**
  * Options for adding click handlers (without zendeskReady)
  */
 type ClickHandlerOptions = {
@@ -38,9 +43,9 @@ function addClickHandlers(
   iframeDoc: Document,
   options: ClickHandlerOptions,
 ): void {
-  // Find all buttons and links with data-garden-id="buttons.button"
+  // Find all buttons and links with data-garden-id="buttons.button" or "buttons.icon_button"
   const buttonsAndLinks = iframeDoc.querySelectorAll<HTMLElement>(
-    '[data-garden-id="buttons.button"]',
+    '[data-garden-id="buttons.button"], [data-garden-id="buttons.icon_button"]',
   );
 
   buttonsAndLinks.forEach((element) => {
@@ -52,9 +57,12 @@ function addClickHandlers(
     // Determine if it's a button or link
     const isLink = element.tagName === 'A' || element.hasAttribute('href');
     const isButton =
-      element.tagName === 'BUTTON' || element.getAttribute('type') === 'button';
+      element.tagName === 'BUTTON' ||
+      element.getAttribute('type') === 'button' ||
+      element.getAttribute('data-garden-id') === 'buttons.icon_button';
 
-    // Create click handler for mouse events
+    // Create click handler
+    // Modern browsers automatically fire 'click' events after touch events on mobile devices
     const clickHandler = (event: MouseEvent) => {
       if (isLink && options.onLinkClick) {
         // Element is guaranteed to be an anchor when isLink is true
@@ -65,45 +73,121 @@ function addClickHandlers(
       }
     };
 
-    // Create touch handler for mobile devices
-    // Note: Modern mobile browsers fire 'click' events after touch events,
-    // but we add touchstart as a fallback for better mobile support
-    const touchHandler = (event: TouchEvent) => {
-      // Only handle if it's the initial touch (not a move or multi-touch)
-      if (event.touches.length === 1) {
-        if (isLink && options.onLinkClick) {
-          // Create a synthetic MouseEvent for consistency with click handler signature
-          const syntheticEvent = new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: event.view,
-            detail: 1,
-          });
-          // Element is guaranteed to be an anchor when isLink is true
-          options.onLinkClick(element as HTMLAnchorElement, syntheticEvent);
-        } else if (isButton && options.onButtonClick) {
-          const syntheticEvent = new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: event.view,
-            detail: 1,
-          });
-          // Element is guaranteed to be a button when isButton is true
-          options.onButtonClick(element as HTMLButtonElement, syntheticEvent);
-        }
-      }
-    };
-
-    // Add event listeners - use capture phase to catch before Zendesk handlers
+    // Add event listener - use capture phase to catch before Zendesk handlers
     element.addEventListener('click', clickHandler, { capture: true });
-
-    // Also listen to touchstart for mobile devices (without preventDefault to preserve native behavior)
-    // Modern browsers will fire both touchstart and click, but this ensures we catch touch events
-    element.addEventListener('touchstart', touchHandler, { capture: true });
 
     // Mark as processed
     processedElements.add(element);
   });
+
+  // Set up textarea Enter key handler separately for icon buttons
+  // This handles the case where the textarea might not exist when buttons are processed
+  if (options.onButtonClick) {
+    const textarea = iframeDoc.querySelector<HTMLTextAreaElement>(
+      '#composer-input textarea',
+    );
+
+    if (textarea && !textareaListenerAttached.has(textarea)) {
+      const textareaKeydownHandler = (event: KeyboardEvent) => {
+        if (event.key === 'Enter' || event.keyCode === 13) {
+          // Find the send button (icon button)
+          const sendButton = iframeDoc.querySelector<HTMLButtonElement>(
+            '[data-garden-id="buttons.icon_button"][title="Send message"]',
+          );
+
+          if (sendButton && options.onButtonClick) {
+            // Create a synthetic MouseEvent for consistency with click handler signature
+            const syntheticEvent = new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              view: event.view || window,
+              detail: 1,
+            });
+
+            options.onButtonClick(sendButton, syntheticEvent);
+          }
+        }
+      };
+
+      textarea.addEventListener('keydown', textareaKeydownHandler, {
+        capture: true,
+      });
+
+      textareaListenerAttached.add(textarea);
+    }
+  }
+}
+
+/**
+ * Sets up Enter key handler for textarea to trigger send button
+ *
+ * @function setupTextareaEnterHandler
+ * @param {Document} iframeDoc - The iframe document
+ * @param {ClickHandlerOptions} options - Handler callbacks
+ *
+ * @returns {void}
+ */
+function setupTextareaEnterHandler(
+  iframeDoc: Document,
+  options: ClickHandlerOptions,
+): void {
+  if (!options.onButtonClick) {
+    return;
+  }
+
+  try {
+    if (!iframeDoc || typeof iframeDoc.querySelector !== 'function') {
+      return;
+    }
+
+    const textarea =
+      iframeDoc.querySelector<HTMLTextAreaElement>('#composer-input');
+
+    if (textarea && !textareaListenerAttached.has(textarea)) {
+      const textareaKeydownHandler = (event: KeyboardEvent) => {
+        if (event.key === 'Enter' || event.keyCode === 13) {
+          // Don't prevent default - let Zendesk handle the message sending
+          // Just trigger our tracking handler
+          try {
+            // Find the send button (icon button)
+            const sendButton = iframeDoc.querySelector<HTMLButtonElement>(
+              '[data-garden-id="buttons.icon_button"][title="Send message"]',
+            );
+
+            if (sendButton && options.onButtonClick) {
+              // Create a synthetic MouseEvent for consistency with click handler signature
+              const syntheticEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: event.view || window,
+                detail: 1,
+              });
+
+              options.onButtonClick(sendButton, syntheticEvent);
+            }
+          } catch (error) {
+            window.fireJse?.(
+              new Error(
+                `Error in textarea Enter handler: ${JSON.stringify(error)}`,
+              ),
+            );
+          }
+        }
+      };
+
+      textarea.addEventListener('keydown', textareaKeydownHandler, {
+        capture: true,
+      });
+
+      textareaListenerAttached.add(textarea);
+    }
+  } catch (error) {
+    window.fireJse?.(
+      new Error(
+        `Error setting up textarea Enter handler: ${JSON.stringify(error)}`,
+      ),
+    );
+  }
 }
 
 /**
@@ -129,6 +213,7 @@ function processButtonsAndLinks(options: ClickHandlerOptions): Document | void {
   }
 
   addClickHandlers(iframeDoc, options);
+  setupTextareaEnterHandler(iframeDoc, options);
 
   return iframeDoc;
 }
@@ -163,6 +248,7 @@ export function useZendeskButtonHandlers({
     let timeout: ReturnType<typeof setTimeout> | null = null;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
     let retryCount = 0;
+
     const maxRetries = 10;
     const retryDelay = 500;
 
@@ -173,6 +259,7 @@ export function useZendeskButtonHandlers({
       // If no elements found and we haven't exceeded retries, try again
       if (!iframeDoc && retryCount < maxRetries) {
         retryCount++;
+
         retryTimeout = setTimeout(() => {
           processWithRetry();
         }, retryDelay);
@@ -187,6 +274,7 @@ export function useZendeskButtonHandlers({
       // Give the widget a moment to render, then start retry logic
       setTimeout(() => {
         processWithRetry();
+
         processedRef.current = true;
       }, 1000);
     } else {
@@ -215,6 +303,7 @@ export function useZendeskButtonHandlers({
       if (!iframe) {
         // Retry observer setup if iframe not ready
         setTimeout(setupObserver, 500);
+
         return;
       }
 
@@ -223,6 +312,7 @@ export function useZendeskButtonHandlers({
       if (!iframeDoc) {
         // Retry observer setup if iframe document not ready
         setTimeout(setupObserver, 500);
+
         return;
       }
 

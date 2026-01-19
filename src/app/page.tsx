@@ -18,6 +18,7 @@ export default function Home() {
   const [zendeskReady, setZendeskReady] = useState(false);
   const [loadWidget, setLoadWidget] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [firstMessageSent, setFirstMessageSent] = useState(false);
   const isTablet = useIsTablet();
   const isMobile = useIsMobile();
 
@@ -35,9 +36,15 @@ export default function Home() {
   useZendeskButtonHandlers({
     zendeskReady,
     onButtonClick: (el) => {
-      console.log('### onButtonClick', {
-        text: el.innerText,
-      });
+      // Only log send button clicks the first time
+      if (el.title === 'Send message' && !firstMessageSent) {
+        console.log('### onButtonClick', {
+          text: el.innerText,
+          title: el.title,
+        });
+
+        setFirstMessageSent(true);
+      }
     },
     onLinkClick: (el) => {
       console.log('### onLinkClick', {
