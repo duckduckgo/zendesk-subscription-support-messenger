@@ -3,6 +3,11 @@ import {
   getMessagingIframe,
   getMessagingIframeDocument,
 } from '@/utils/zendesk-iframe';
+import {
+  DOM_READY_DELAY_MS,
+  INITIAL_RENDER_DELAY_MS,
+  MAX_RETRIES_BUTTON_HANDLERS,
+} from '@/constants/zendesk-timing';
 
 interface UseZendeskButtonHandlersOptions {
   zendeskReady: boolean;
@@ -249,20 +254,17 @@ export function useZendeskButtonHandlers({
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
     let retryCount = 0;
 
-    const maxRetries = 10;
-    const retryDelay = 500;
-
     // Process buttons/links with retry logic to handle delayed rendering
     const processWithRetry = () => {
       const iframeDoc = processButtonsAndLinks(optionsRef.current);
 
       // If no elements found and we haven't exceeded retries, try again
-      if (!iframeDoc && retryCount < maxRetries) {
+      if (!iframeDoc && retryCount < MAX_RETRIES_BUTTON_HANDLERS) {
         retryCount++;
 
         retryTimeout = setTimeout(() => {
           processWithRetry();
-        }, retryDelay);
+        }, DOM_READY_DELAY_MS);
       } else {
         retryCount = 0;
       }
@@ -276,7 +278,7 @@ export function useZendeskButtonHandlers({
         processWithRetry();
 
         processedRef.current = true;
-      }, 1000);
+      }, INITIAL_RENDER_DELAY_MS);
     } else {
       // If already processed, still try once more in case new elements appeared
       processButtonsAndLinks(optionsRef.current);
@@ -292,7 +294,7 @@ export function useZendeskButtonHandlers({
       // Process new buttons/links after a short delay to allow DOM rendering
       timeout = setTimeout(() => {
         processButtonsAndLinks(optionsRef.current);
-      }, 500);
+      }, DOM_READY_DELAY_MS);
     });
 
     // Set up MutationObserver to watch for new buttons/links being added
@@ -302,7 +304,7 @@ export function useZendeskButtonHandlers({
 
       if (!iframe) {
         // Retry observer setup if iframe not ready
-        setTimeout(setupObserver, 500);
+        setTimeout(setupObserver, DOM_READY_DELAY_MS);
 
         return;
       }
@@ -311,7 +313,7 @@ export function useZendeskButtonHandlers({
 
       if (!iframeDoc) {
         // Retry observer setup if iframe document not ready
-        setTimeout(setupObserver, 500);
+        setTimeout(setupObserver, DOM_READY_DELAY_MS);
 
         return;
       }

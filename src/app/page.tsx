@@ -11,6 +11,10 @@ import { useZendeskButtonHandlers } from '@/hooks/use-zendesk-button-handlers';
 import { EMBEDDED_TARGET_ELEMENT, ZENDESK_SCRIPT_URL } from '@/config/zendesk';
 import { MAIN_SITE_URL, SITE_TITLE } from '@/config/common';
 import { useIsTablet, useIsMobile } from '@/hooks/use-media-query';
+import {
+  REDIRECT_DELAY_MS,
+  ZENDESK_READY_DELAY_MS,
+} from '@/constants/zendesk-timing';
 
 const tempDisplay = false;
 
@@ -140,7 +144,7 @@ export default function Home() {
       // Set ready after a delay to allow widget to render
       setTimeout(() => {
         setZendeskReady(true);
-      }, 500);
+      }, ZENDESK_READY_DELAY_MS);
     } catch (error) {
       window.fireJse?.(
         new Error(
@@ -248,7 +252,7 @@ export default function Home() {
                     // allow time for a pixel to fire before redirecting
                     setTimeout(() => {
                       window.location.href = `${MAIN_SITE_URL}/subscription-support`;
-                    }, 500);
+                    }, REDIRECT_DELAY_MS);
                   }}
                 />
                 <Button

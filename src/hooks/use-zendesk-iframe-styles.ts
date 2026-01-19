@@ -3,6 +3,12 @@ import {
   getMessagingIframe,
   getMessagingIframeDocument,
 } from '@/utils/zendesk-iframe';
+import {
+  DOM_READY_DELAY_MS,
+  INITIAL_RENDER_DELAY_MS,
+  OBSERVER_SETUP_DELAY_MS,
+  MAX_RETRIES_STANDARD,
+} from '@/constants/zendesk-timing';
 
 interface UseZendeskIframeStylesOptions {
   /** Whether the Zendesk widget is ready */
@@ -34,7 +40,7 @@ export function useZendeskIframeStyles({
    * Retries if iframe is not yet available.
    */
   const injectStyles = useCallback(
-    (retries = 5, delay = 500): void => {
+    (retries = MAX_RETRIES_STANDARD, delay = DOM_READY_DELAY_MS): void => {
       const iframe = getMessagingIframe(null);
       if (!iframe) {
         if (retries > 0) {
@@ -99,7 +105,7 @@ export function useZendeskIframeStyles({
     if (!injectedRef.current) {
       setTimeout(() => {
         injectStyles();
-      }, 1000);
+      }, INITIAL_RENDER_DELAY_MS);
     }
 
     // Set up MutationObserver to re-inject styles if iframe reloads
@@ -144,7 +150,7 @@ export function useZendeskIframeStyles({
     // Set up observer after a delay to ensure iframe is ready
     const observerTimeout = setTimeout(() => {
       setupObserver();
-    }, 1500);
+    }, OBSERVER_SETUP_DELAY_MS);
 
     return () => {
       if (observerTimeout) {

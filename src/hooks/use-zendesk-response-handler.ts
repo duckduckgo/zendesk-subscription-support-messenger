@@ -4,6 +4,13 @@ import {
   getMessagingIframeDocument,
 } from '@/utils/zendesk-iframe';
 import { updateArticleLinks } from '@/utils/update-article-links';
+import {
+  DOM_READY_DELAY_MS,
+  INITIAL_RENDER_DELAY_MS,
+  OBSERVER_SETUP_DELAY_MS,
+  FALLBACK_INTERVAL_MS,
+  MAX_RETRIES_STANDARD,
+} from '@/constants/zendesk-timing';
 
 interface UseZendeskResponseHandlerOptions {
   zendeskReady: boolean;
@@ -20,8 +27,8 @@ interface UseZendeskResponseHandlerOptions {
  * @returns {void}
  */
 function processArticleLinks(
-  retries: number = 5,
-  delay: number = 500,
+  retries: number = MAX_RETRIES_STANDARD,
+  delay: number = DOM_READY_DELAY_MS,
 ): Document | void {
   const iframe = getMessagingIframe(null);
 
@@ -71,7 +78,7 @@ export function useZendeskResponseHandler({
         processArticleLinks();
 
         processedRef.current = true;
-      }, 1000);
+      }, INITIAL_RENDER_DELAY_MS);
     }
 
     let timeout: ReturnType<typeof setTimeout> | null = null;
@@ -86,7 +93,7 @@ export function useZendeskResponseHandler({
       // Process links after a short delay to allow DOM rendering
       timeout = setTimeout(() => {
         processArticleLinks();
-      }, 500);
+      }, DOM_READY_DELAY_MS);
     });
 
     // Set up MutationObserver to watch for new links being added to the iframe
@@ -133,12 +140,12 @@ export function useZendeskResponseHandler({
     // Set up observer after a delay to ensure iframe is ready
     const observerTimeout = setTimeout(() => {
       setupObserver();
-    }, 1500);
+    }, OBSERVER_SETUP_DELAY_MS);
 
     // Also set up a periodic check as fallback (in case MutationObserver doesn't work)
     const intervalId = setInterval(() => {
       processArticleLinks(0, 0); // No retries, just process if available
-    }, 2000);
+    }, FALLBACK_INTERVAL_MS);
 
     return () => {
       if (timeout) {
