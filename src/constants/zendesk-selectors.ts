@@ -22,9 +22,9 @@ export const ZENDESK_SEND_BUTTON_SELECTOR =
   '[data-garden-id="buttons.icon_button"][title="Send message"]';
 
 /**
- * Selector for the composer input textarea container
+ * Selector for the input textarea container
  */
-export const ZENDESK_COMPOSER_INPUT_SELECTOR = '#composer-input';
+export const ZENDESK_INPUT_SELECTOR = '#composer-input';
 
 /**
  * Selector for article links in Zendesk responses

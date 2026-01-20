@@ -9,21 +9,32 @@ import {
   OBSERVER_SETUP_DELAY_MS,
   MAX_RETRIES_STANDARD,
 } from '@/constants/zendesk-timing';
+import { setupZendeskObserver } from '@/utils/zendesk-observer';
 
 interface UseZendeskIframeStylesOptions {
-  /** Whether the Zendesk widget is ready */
   zendeskReady: boolean;
-  /** CSS styles to inject into the iframe */
   styles: string;
 }
 
 /**
- * Hook that injects CSS styles into the Zendesk widget iframe.
- * Handles style injection when widget is ready and re-injects if iframe reloads.
+ * Injects CSS styles into the Zendesk widget iframe.
  *
- * @param options - Configuration options
- * @param options.zendeskReady - Whether the Zendesk widget is ready
- * @param options.styles - CSS string to inject into the iframe
+ * @param {UseZendeskIframeStylesOptions['zendeskReady']} options.zendeskReady
+ * - Indicates widget is available
+ * @param {UseZendeskIframeStylesOptions['styles']} options.styles - styles to
+ * inject into iframe
+ *
+ * @example
+ * ```ts
+ * useZendeskIframeStyles({
+ *   zendeskReady,
+ *   styles: `
+ *     .custom-class {
+ *       color: red;
+ *     }
+ *   `,
+ * });
+ * ```
  */
 export function useZendeskIframeStyles({
   zendeskReady,
@@ -34,14 +45,15 @@ export function useZendeskIframeStyles({
   const injectStylesRef = useRef<
     ((retries?: number, delay?: number) => void) | null
   >(null);
+  const observerRef = useRef<MutationObserver | null>(null);
+  const isMountedRef = useRef(true);
 
-  /**
-   * Injects styles into the Zendesk iframe document.
-   * Retries if iframe is not yet available.
-   */
+  // Injects styles into the Zendesk iframe document. Retries if iframe is not
+  // available yet.
   const injectStyles = useCallback(
     (retries = MAX_RETRIES_STANDARD, delay = DOM_READY_DELAY_MS): void => {
       const iframe = getMessagingIframe(null);
+
       if (!iframe) {
         if (retries > 0) {
           setTimeout(
@@ -49,10 +61,12 @@ export function useZendeskIframeStyles({
             delay,
           );
         }
+
         return;
       }
 
       const iframeDoc = getMessagingIframeDocument(iframe);
+
       if (!iframeDoc) {
         if (retries > 0) {
           setTimeout(
@@ -60,6 +74,7 @@ export function useZendeskIframeStyles({
             delay,
           );
         }
+
         return;
       }
 
@@ -72,26 +87,29 @@ export function useZendeskIframeStyles({
       }
 
       try {
-        // Create style element
         const styleElement = iframeDoc.createElement('style');
+
         styleElement.textContent = styles;
         styleElement.setAttribute('data-zendesk-custom-styles', 'true');
 
         // Inject into iframe head
         iframeDoc.head.appendChild(styleElement);
+
         styleElementRef.current = styleElement;
         injectedRef.current = true;
       } catch (error) {
         window.fireJse?.(
-          `Failed to inject styles into Zendesk iframe: ${JSON.stringify(error)}`,
+          new Error(
+            `Failed to inject styles into Zendesk iframe: ${JSON.stringify(error)}`,
+          ),
         );
       }
     },
     [styles],
   );
 
-  // Store the function reference in a ref so it can be called recursively
-  // Must be done in an effect to avoid accessing refs during render
+  // Store `injectStyles` in a ref to enable recursive calls. ESLint flags
+  // self-referential calls within useCallback
   useEffect(() => {
     injectStylesRef.current = injectStyles;
   }, [injectStyles]);
@@ -101,27 +119,32 @@ export function useZendeskIframeStyles({
       return;
     }
 
+    // Mark as mounted when effect runs
+    isMountedRef.current = true;
+
+    let injectStylesTimeout: ReturnType<typeof setTimeout> | null = null;
+    let observerTimeout: ReturnType<typeof setTimeout> | null = null;
+
     // Inject styles when widget becomes ready
     if (!injectedRef.current) {
-      setTimeout(() => {
-        injectStyles();
+      injectStylesTimeout = setTimeout(() => {
+        if (isMountedRef.current) {
+          injectStyles();
+        }
       }, INITIAL_RENDER_DELAY_MS);
     }
 
     // Set up MutationObserver to re-inject styles if iframe reloads
-    const setupObserver = () => {
-      const iframe = getMessagingIframe(null);
-      if (!iframe) {
+    let observerCleanup: (() => void) | null = null;
+
+    // Set up observer after a delay to ensure iframe is ready
+    observerTimeout = setTimeout(() => {
+      if (!isMountedRef.current) {
         return;
       }
 
-      const iframeDoc = getMessagingIframeDocument(iframe);
-      if (!iframeDoc) {
-        return;
-      }
-
-      try {
-        const observer = new MutationObserver(() => {
+      observerCleanup = setupZendeskObserver({
+        onMutation: (iframeDoc) => {
           // Check if style element was removed (iframe reloaded)
           if (
             styleElementRef.current &&
@@ -130,31 +153,36 @@ export function useZendeskIframeStyles({
             injectedRef.current = false;
             injectStyles();
           }
-        });
-
-        observer.observe(iframeDoc.head, {
-          childList: true,
-          subtree: true,
-        });
-
-        return () => {
-          observer.disconnect();
-        };
-      } catch (error) {
-        window.fireJse?.(
-          `Could not set up MutationObserver for Zendesk iframe styles: ${JSON.stringify(error)}`,
-        );
-      }
-    };
-
-    // Set up observer after a delay to ensure iframe is ready
-    const observerTimeout = setTimeout(() => {
-      setupObserver();
+        },
+        target: 'head',
+        retryOnNotReady: false,
+        isMountedRef,
+        observerRef,
+      });
     }, OBSERVER_SETUP_DELAY_MS);
 
     return () => {
+      // Mark as unmounted to prevent any async operations from continuing
+      isMountedRef.current = false;
+
+      // Clean up timeouts
+      if (injectStylesTimeout) {
+        clearTimeout(injectStylesTimeout);
+      }
+
       if (observerTimeout) {
         clearTimeout(observerTimeout);
+      }
+
+      // Clean up observer
+      if (observerCleanup) {
+        observerCleanup();
+      }
+
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+
+        observerRef.current = null;
       }
     };
   }, [zendeskReady, styles, injectStyles]);

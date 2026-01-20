@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 import {
   getMessagingIframe,
   getMessagingIframeDocument,
@@ -11,6 +11,7 @@ import {
   FALLBACK_INTERVAL_MS,
   MAX_RETRIES_STANDARD,
 } from '@/constants/zendesk-timing';
+import { setupZendeskObserver } from '@/utils/zendesk-observer';
 
 interface UseZendeskResponseHandlerOptions {
   zendeskReady: boolean;
@@ -18,24 +19,44 @@ interface UseZendeskResponseHandlerOptions {
 
 /**
  * Processes article links in the Zendesk widget iframe.
- * Retries if iframe is not yet available.
  *
  * @function processArticleLinks
- * @param {number} retries
- * @param {number} delay
+ * @param {RefObject<boolean>} isMountedRef - Ref to track if component is
+ * mounted
+ * @param {number} retries - Maximum number of retry attempts (defaults to
+ * MAX_RETRIES_STANDARD)
+ * @param {number} delay - Delay between retries in milliseconds (defaults to
+ * DOM_READY_DELAY_MS)
  *
- * @returns {void}
+ * @returns The iframe document if successful, or void if iframe/document not
+ * found
  */
 function processArticleLinks(
+  isMountedRef: RefObject<boolean>,
   retries: number = MAX_RETRIES_STANDARD,
   delay: number = DOM_READY_DELAY_MS,
 ): Document | void {
+  // Schedules a retry if attempts remain and component is mounted
+  const scheduleRetry = (): void => {
+    if (retries > 0) {
+      setTimeout(() => {
+        // Check mounted state before recursive call
+        if (isMountedRef.current) {
+          processArticleLinks(isMountedRef, retries - 1, delay);
+        }
+      }, delay);
+    }
+  };
+
+  // Check mounted state before proceeding
+  if (!isMountedRef.current) {
+    return;
+  }
+
   const iframe = getMessagingIframe(null);
 
   if (!iframe) {
-    if (retries > 0) {
-      setTimeout(() => processArticleLinks(retries - 1, delay), delay);
-    }
+    scheduleRetry();
 
     return;
   }
@@ -43,41 +64,61 @@ function processArticleLinks(
   const iframeDoc = getMessagingIframeDocument(iframe);
 
   if (!iframeDoc) {
-    if (retries > 0) {
-      setTimeout(() => processArticleLinks(retries - 1, delay), delay);
-    }
+    scheduleRetry();
 
     return;
   }
 
+  // Update article links in the iframe document
   updateArticleLinks(iframeDoc);
 
   return iframeDoc;
 }
 
 /**
- * Hook that updates article links in Zendesk widget responses.
- * Processes links when widget is ready and when new messages arrive.
+ * Updates article links in Zendesk widget responses.
+ *
+ * @function useZendeskResponseHandler
+ * @param {UseZendeskResponseHandlerOptions['zendeskReady']}
+ * options.zendeskReady - Whether the Zendesk widget is ready
+ *
+ * @example
+ * ```ts
+ * useZendeskResponseHandler({
+ *   zendeskReady,
+ * });
+ * ```
  */
 export function useZendeskResponseHandler({
   zendeskReady,
 }: UseZendeskResponseHandlerOptions) {
   const observerRef = useRef<MutationObserver | null>(null);
   const processedRef = useRef(false);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
     if (!zendeskReady) {
       return;
     }
 
-    // Process links immediately when widget becomes ready
-    // This handles embedded mode where messages are already visible
+    // Mark as mounted when effect runs
+    isMountedRef.current = true;
+
+    let processLinksTimeout: ReturnType<typeof setTimeout> | null = null;
+    let observerTimeout: ReturnType<typeof setTimeout> | null = null;
+    let observerCleanup: (() => void) | null = null;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    // Process links immediately when widget becomes ready to catch
+    // previously rendered chat elements
     if (!processedRef.current) {
       // Give the widget a moment to render
-      setTimeout(() => {
-        processArticleLinks();
+      processLinksTimeout = setTimeout(() => {
+        if (isMountedRef.current) {
+          processArticleLinks(isMountedRef);
 
-        processedRef.current = true;
+          processedRef.current = true;
+        }
       }, INITIAL_RENDER_DELAY_MS);
     }
 
@@ -92,73 +133,67 @@ export function useZendeskResponseHandler({
 
       // Process links after a short delay to allow DOM rendering
       timeout = setTimeout(() => {
-        processArticleLinks();
+        if (isMountedRef.current) {
+          processArticleLinks(isMountedRef);
+        }
       }, DOM_READY_DELAY_MS);
     });
 
     // Set up MutationObserver to watch for new links being added to the iframe
-    // {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver}
-    const setupObserver = () => {
-      const iframe = getMessagingIframe(null);
-
-      if (!iframe) {
+    observerTimeout = setTimeout(() => {
+      if (!isMountedRef.current) {
         return;
       }
 
-      const iframeDoc = getMessagingIframeDocument(iframe);
-
-      if (!iframeDoc) {
-        return;
-      }
-
-      // Clean up existing observer
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-
-      try {
-        // Create new observer to watch for DOM changes
-        observerRef.current = new MutationObserver(() => {
-          // Process links when DOM changes
+      observerCleanup = setupZendeskObserver({
+        onMutation: (iframeDoc) => {
           updateArticleLinks(iframeDoc);
-        });
-
-        // Start observing
-        // {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver/observe}
-        observerRef.current.observe(iframeDoc.body, {
-          childList: true,
-          subtree: true,
-        });
-      } catch (error) {
-        // Cross-origin restrictions might prevent observing
-        window.fireJse?.(
-          `Could not set up MutationObserver for Zendesk iframe: ${JSON.stringify(error)}`,
-        );
-      }
-    };
-
-    // Set up observer after a delay to ensure iframe is ready
-    const observerTimeout = setTimeout(() => {
-      setupObserver();
+        },
+        target: 'body',
+        retryOnNotReady: false,
+        isMountedRef,
+        observerRef,
+      });
     }, OBSERVER_SETUP_DELAY_MS);
 
     // Also set up a periodic check as fallback (in case MutationObserver doesn't work)
-    const intervalId = setInterval(() => {
-      processArticleLinks(0, 0); // No retries, just process if available
+    intervalId = setInterval(() => {
+      if (isMountedRef.current) {
+        // No retries, just process if available
+        processArticleLinks(isMountedRef, 0, 0);
+      }
     }, FALLBACK_INTERVAL_MS);
 
     return () => {
+      // Mark as unmounted
+      isMountedRef.current = false;
+
+      // Clean up timeouts
+      if (processLinksTimeout) {
+        clearTimeout(processLinksTimeout);
+      }
+
       if (timeout) {
         clearTimeout(timeout);
       }
+
       if (observerTimeout) {
         clearTimeout(observerTimeout);
       }
+
       if (intervalId) {
         clearInterval(intervalId);
       }
+
+      // Clean up observer
+      if (observerCleanup) {
+        observerCleanup();
+      }
+
       if (observerRef.current) {
         observerRef.current.disconnect();
+
+        observerRef.current = null;
       }
     };
   }, [zendeskReady]);

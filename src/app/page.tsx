@@ -18,7 +18,7 @@ import {
 import {
   ZENDESK_SEND_BUTTON_IDENTIFIER,
   ZENDESK_BUTTON_DATA_ATTR,
-  ZENDESK_COMPOSER_INPUT_SELECTOR,
+  ZENDESK_INPUT_SELECTOR,
   ZENDESK_YES_BUTTON_IDENTIFIER,
   ZENDESK_NO_BUTTON_IDENTIFIER,
   ZENDESK_TALKTOAHUMAN_BUTTON_IDENTIFIER,
@@ -100,25 +100,25 @@ export default function Home() {
         margin: 0 auto;
       }
 
-      ${ZENDESK_COMPOSER_INPUT_SELECTOR} {
+      ${ZENDESK_INPUT_SELECTOR} {
         border-radius: 8px;
         background-color: #FFFFFF;
       }
 
-      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea,
-      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea:active,
-      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea:focus,
-      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea:focus-visible,
-      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea:focus-within {
+      ${ZENDESK_INPUT_SELECTOR} textarea,
+      ${ZENDESK_INPUT_SELECTOR} textarea:active,
+      ${ZENDESK_INPUT_SELECTOR} textarea:focus,
+      ${ZENDESK_INPUT_SELECTOR} textarea:focus-visible,
+      ${ZENDESK_INPUT_SELECTOR} textarea:focus-within {
         border: 1px solid rgb(102, 102, 102) !important;
         border-color: rgb(102, 102, 102) !important;
         outline: none !important;
         box-shadow: none !important;
       }
 
-      ${ZENDESK_COMPOSER_INPUT_SELECTOR}:focus-within,
-      ${ZENDESK_COMPOSER_INPUT_SELECTOR}:has(textarea:focus),
-      ${ZENDESK_COMPOSER_INPUT_SELECTOR}:has(textarea:active) {
+      ${ZENDESK_INPUT_SELECTOR}:focus-within,
+      ${ZENDESK_INPUT_SELECTOR}:has(textarea:focus),
+      ${ZENDESK_INPUT_SELECTOR}:has(textarea:active) {
         border: 1px solid rgb(102, 102, 102) !important;
         border-color: rgb(102, 102, 102) !important;
         box-shadow: none !important;
