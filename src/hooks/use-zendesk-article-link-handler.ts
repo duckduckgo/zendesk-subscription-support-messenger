@@ -13,7 +13,7 @@ import {
 } from '@/constants/zendesk-timing';
 import { setupZendeskObserver } from '@/utils/zendesk-observer';
 
-interface UseZendeskResponseHandlerOptions {
+interface UseZendeskArticleLinkHandlerOptions {
   zendeskReady: boolean;
 }
 
@@ -76,22 +76,22 @@ function processArticleLinks(
 }
 
 /**
- * Updates article links in Zendesk widget responses.
+ * Updates article links in the Zendesk widget iframe.
  *
- * @function useZendeskResponseHandler
- * @param {UseZendeskResponseHandlerOptions['zendeskReady']}
+ * @function useZendeskArticleLinkHandler
+ * @param {UseZendeskArticleLinkHandlerOptions['zendeskReady']}
  * options.zendeskReady - Whether the Zendesk widget is ready
  *
  * @example
  * ```ts
- * useZendeskResponseHandler({
+ * useZendeskArticleLinkHandler({
  *   zendeskReady,
  * });
  * ```
  */
-export function useZendeskResponseHandler({
+export function useZendeskArticleLinkHandler({
   zendeskReady,
-}: UseZendeskResponseHandlerOptions) {
+}: UseZendeskArticleLinkHandlerOptions) {
   const observerRef = useRef<MutationObserver | null>(null);
   const processedRef = useRef(false);
   const isMountedRef = useRef(true);
@@ -104,16 +104,16 @@ export function useZendeskResponseHandler({
     // Mark as mounted when effect runs
     isMountedRef.current = true;
 
-    let processLinksTimeout: ReturnType<typeof setTimeout> | null = null;
+    let processArticleLinksTimeout: ReturnType<typeof setTimeout> | null = null;
     let observerTimeout: ReturnType<typeof setTimeout> | null = null;
     let observerCleanup: (() => void) | null = null;
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
-    // Process links immediately when widget becomes ready to catch
+    // Process article links immediately when widget becomes ready to catch
     // previously rendered chat elements
     if (!processedRef.current) {
       // Give the widget a moment to render
-      processLinksTimeout = setTimeout(() => {
+      processArticleLinksTimeout = setTimeout(() => {
         if (isMountedRef.current) {
           processArticleLinks(isMountedRef);
 
@@ -124,14 +124,14 @@ export function useZendeskResponseHandler({
 
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
-    // Listen for new messages and process links
+    // Listen for new messages and process article links
     zE('messenger:on', 'unreadMessages', () => {
       // Clear any pending timeout
       if (timeout) {
         clearTimeout(timeout);
       }
 
-      // Process links after a short delay to allow DOM rendering
+      // Process article links after a short delay to allow DOM rendering
       timeout = setTimeout(() => {
         if (isMountedRef.current) {
           processArticleLinks(isMountedRef);
@@ -139,7 +139,7 @@ export function useZendeskResponseHandler({
       }, DOM_READY_DELAY_MS);
     });
 
-    // Set up MutationObserver to watch for new links being added to the iframe
+    // Set up MutationObserver to watch for new article links being added to the iframe
     observerTimeout = setTimeout(() => {
       if (!isMountedRef.current) {
         return;
@@ -169,8 +169,8 @@ export function useZendeskResponseHandler({
       isMountedRef.current = false;
 
       // Clean up timeouts
-      if (processLinksTimeout) {
-        clearTimeout(processLinksTimeout);
+      if (processArticleLinksTimeout) {
+        clearTimeout(processArticleLinksTimeout);
       }
 
       if (timeout) {

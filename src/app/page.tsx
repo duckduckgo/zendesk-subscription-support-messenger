@@ -5,7 +5,7 @@ import Script from 'next/script';
 import styles from './page.module.css';
 import PageLoadPixel from '@/components/page-load-pixel/page-load-pixel';
 import { Button } from '@/components/button/button';
-import { useZendeskResponseHandler } from '@/hooks/use-zendesk-response-handler';
+import { useZendeskArticleLinkHandler } from '@/hooks/use-zendesk-article-link-handler';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
 import { useZendeskButtonHandlers } from '@/hooks/use-zendesk-button-handlers';
 import { EMBEDDED_TARGET_ELEMENT, ZENDESK_SCRIPT_URL } from '@/config/zendesk';
@@ -37,8 +37,8 @@ export default function Home() {
     setMounted(true);
   }, []);
 
-  // Set up response handler for updating article links
-  useZendeskResponseHandler({
+  // Set up article link handler for updating article links
+  useZendeskArticleLinkHandler({
     zendeskReady,
   });
 
