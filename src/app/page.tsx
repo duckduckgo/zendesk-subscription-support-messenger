@@ -15,8 +15,14 @@ import {
   REDIRECT_DELAY_MS,
   ZENDESK_READY_DELAY_MS,
 } from '@/constants/zendesk-timing';
-
-const tempDisplay = false;
+import {
+  ZENDESK_SEND_BUTTON_IDENTIFIER,
+  ZENDESK_BUTTON_DATA_ATTR,
+  ZENDESK_COMPOSER_INPUT_SELECTOR,
+  ZENDESK_YES_BUTTON_IDENTIFIER,
+  ZENDESK_NO_BUTTON_IDENTIFIER,
+  ZENDESK_TALKTOAHUMAN_BUTTON_IDENTIFIER,
+} from '@/constants/zendesk-selectors';
 
 export default function Home() {
   const [zendeskReady, setZendeskReady] = useState(false);
@@ -40,20 +46,46 @@ export default function Home() {
   useZendeskButtonHandlers({
     zendeskReady,
     onButtonClick: (el) => {
-      // Only log send button clicks the first time
-      if (el.title === 'Send message' && !firstMessageSent) {
-        console.log('### onButtonClick', {
-          text: el.innerText,
-          title: el.title,
+      const { innerText, title } = el;
+
+      // Check for first time `send` button clicks
+      if (title === ZENDESK_SEND_BUTTON_IDENTIFIER && !firstMessageSent) {
+        console.log('### onButtonClick.send', {
+          innerText,
+          title,
         });
 
         setFirstMessageSent(true);
       }
+
+      // Check for `Yes` or `No` clicks when asked 'Was this helpful?'
+      if (
+        innerText === ZENDESK_YES_BUTTON_IDENTIFIER ||
+        innerText === ZENDESK_NO_BUTTON_IDENTIFIER
+      ) {
+        console.log('### onButtonClick.yes/no', {
+          innerText,
+          title,
+        });
+      }
+
+      // Check for `Talk to a human` button clicks
+      if (innerText === ZENDESK_TALKTOAHUMAN_BUTTON_IDENTIFIER) {
+        console.log('### onButtonClick.talk', {
+          innerText,
+          title,
+        });
+      }
     },
+    // Handle KB link and 'Support Form' clicks
     onLinkClick: (el) => {
+      const { innerText, href } = el;
+
+      // @note: if targeting the support form link, use `innerText.includes()`.
+      // ZD has a carriage return after the text
       console.log('### onLinkClick', {
-        text: el.innerText,
-        href: el.href,
+        href,
+        innerText,
       });
     },
   });
@@ -68,25 +100,25 @@ export default function Home() {
         margin: 0 auto;
       }
 
-      #composer-input {
+      ${ZENDESK_COMPOSER_INPUT_SELECTOR} {
         border-radius: 8px;
         background-color: #FFFFFF;
       }
 
-      #composer-input textarea,
-      #composer-input textarea:active,
-      #composer-input textarea:focus,
-      #composer-input textarea:focus-visible,
-      #composer-input textarea:focus-within {
+      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea,
+      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea:active,
+      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea:focus,
+      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea:focus-visible,
+      ${ZENDESK_COMPOSER_INPUT_SELECTOR} textarea:focus-within {
         border: 1px solid rgb(102, 102, 102) !important;
         border-color: rgb(102, 102, 102) !important;
         outline: none !important;
         box-shadow: none !important;
       }
 
-      #composer-input:focus-within,
-      #composer-input:has(textarea:focus),
-      #composer-input:has(textarea:active) {
+      ${ZENDESK_COMPOSER_INPUT_SELECTOR}:focus-within,
+      ${ZENDESK_COMPOSER_INPUT_SELECTOR}:has(textarea:focus),
+      ${ZENDESK_COMPOSER_INPUT_SELECTOR}:has(textarea:active) {
         border: 1px solid rgb(102, 102, 102) !important;
         border-color: rgb(102, 102, 102) !important;
         box-shadow: none !important;
@@ -97,7 +129,7 @@ export default function Home() {
         border-radius: 8px;
       }
 
-      ul:has(button[data-garden-id="buttons.button"]) {
+      ul:has(button[data-garden-id="${ZENDESK_BUTTON_DATA_ATTR}"]) {
         max-width: unset;
         justify-content: center;
       }
@@ -262,27 +294,6 @@ export default function Home() {
                   onClick={() => setLoadWidget(true)}
                 />
               </div>
-
-              {tempDisplay && (
-                <>
-                  <hr className={styles.divider} />
-
-                  <div className={styles.helpSection}>
-                    <p className={styles.helpTitle}>
-                      Need help or more details?
-                    </p>
-                    <a href="#" className={styles.link}>
-                      FAQs and Support
-                    </a>
-                    <a href="#" className={styles.link}>
-                      Send Feedback
-                    </a>
-                    <a href="#" className={styles.link}>
-                      Privacy Policy and Terms of Service
-                    </a>
-                  </div>
-                </>
-              )}
             </div>
           </>
         )}

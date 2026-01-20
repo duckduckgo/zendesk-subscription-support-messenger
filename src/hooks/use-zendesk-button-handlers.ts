@@ -8,6 +8,12 @@ import {
   INITIAL_RENDER_DELAY_MS,
   MAX_RETRIES_BUTTON_HANDLERS,
 } from '@/constants/zendesk-timing';
+import {
+  ZENDESK_BUTTON_SELECTOR,
+  ZENDESK_ICON_BUTTON_DATA_ATTR,
+  ZENDESK_COMPOSER_INPUT_SELECTOR,
+  ZENDESK_SEND_BUTTON_SELECTOR,
+} from '@/constants/zendesk-selectors';
 
 interface UseZendeskButtonHandlersOptions {
   zendeskReady: boolean;
@@ -50,7 +56,7 @@ function addClickHandlers(
 ): void {
   // Find all buttons and links with data-garden-id="buttons.button" or "buttons.icon_button"
   const buttonsAndLinks = iframeDoc.querySelectorAll<HTMLElement>(
-    '[data-garden-id="buttons.button"], [data-garden-id="buttons.icon_button"]',
+    ZENDESK_BUTTON_SELECTOR,
   );
 
   buttonsAndLinks.forEach((element) => {
@@ -64,7 +70,7 @@ function addClickHandlers(
     const isButton =
       element.tagName === 'BUTTON' ||
       element.getAttribute('type') === 'button' ||
-      element.getAttribute('data-garden-id') === 'buttons.icon_button';
+      element.getAttribute('data-garden-id') === ZENDESK_ICON_BUTTON_DATA_ATTR;
 
     // Create click handler
     // Modern browsers automatically fire 'click' events after touch events on mobile devices
@@ -84,43 +90,6 @@ function addClickHandlers(
     // Mark as processed
     processedElements.add(element);
   });
-
-  // Set up textarea Enter key handler separately for icon buttons
-  // This handles the case where the textarea might not exist when buttons are processed
-  if (options.onButtonClick) {
-    const textarea = iframeDoc.querySelector<HTMLTextAreaElement>(
-      '#composer-input textarea',
-    );
-
-    if (textarea && !textareaListenerAttached.has(textarea)) {
-      const textareaKeydownHandler = (event: KeyboardEvent) => {
-        if (event.key === 'Enter' || event.keyCode === 13) {
-          // Find the send button (icon button)
-          const sendButton = iframeDoc.querySelector<HTMLButtonElement>(
-            '[data-garden-id="buttons.icon_button"][title="Send message"]',
-          );
-
-          if (sendButton && options.onButtonClick) {
-            // Create a synthetic MouseEvent for consistency with click handler signature
-            const syntheticEvent = new MouseEvent('click', {
-              bubbles: true,
-              cancelable: true,
-              view: event.view || window,
-              detail: 1,
-            });
-
-            options.onButtonClick(sendButton, syntheticEvent);
-          }
-        }
-      };
-
-      textarea.addEventListener('keydown', textareaKeydownHandler, {
-        capture: true,
-      });
-
-      textareaListenerAttached.add(textarea);
-    }
-  }
 }
 
 /**
@@ -145,8 +114,9 @@ function setupTextareaEnterHandler(
       return;
     }
 
-    const textarea =
-      iframeDoc.querySelector<HTMLTextAreaElement>('#composer-input');
+    const textarea = iframeDoc.querySelector<HTMLTextAreaElement>(
+      ZENDESK_COMPOSER_INPUT_SELECTOR,
+    );
 
     if (textarea && !textareaListenerAttached.has(textarea)) {
       const textareaKeydownHandler = (event: KeyboardEvent) => {
@@ -156,7 +126,7 @@ function setupTextareaEnterHandler(
           try {
             // Find the send button (icon button)
             const sendButton = iframeDoc.querySelector<HTMLButtonElement>(
-              '[data-garden-id="buttons.icon_button"][title="Send message"]',
+              ZENDESK_SEND_BUTTON_SELECTOR,
             );
 
             if (sendButton && options.onButtonClick) {

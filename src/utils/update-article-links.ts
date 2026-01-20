@@ -1,5 +1,6 @@
 import { buildArticleUrl } from './build-article-url';
 import { ARTICLE_LINK_MAP } from '@/config/zendesk';
+import { ZENDESK_ARTICLE_LINK_SELECTOR } from '@/constants/zendesk-selectors';
 
 /**
  * Updates article links in a document based on the provided mapping.
@@ -15,7 +16,7 @@ export function updateArticleLinks(doc: Document): void {
 
   // Find all links with aria-label="View article:"
   const anchorElements = doc.querySelectorAll<HTMLAnchorElement>(
-    'a[aria-label^="View article:"]',
+    ZENDESK_ARTICLE_LINK_SELECTOR,
   );
 
   anchorElements.forEach((anchorEl) => {
