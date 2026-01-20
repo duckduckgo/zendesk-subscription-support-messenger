@@ -17,7 +17,10 @@ import {
 
 interface UseZendeskButtonHandlersOptions {
   zendeskReady: boolean;
-  onButtonClick?: (element: HTMLButtonElement, event: MouseEvent) => void;
+  onButtonClick?: (
+    element: HTMLButtonElement,
+    event: MouseEvent | KeyboardEvent,
+  ) => void;
   onLinkClick?: (element: HTMLAnchorElement, event: MouseEvent) => void;
 }
 
@@ -36,7 +39,10 @@ const textareaListenerAttached = new WeakSet<HTMLTextAreaElement>();
  * Options for adding click handlers (without zendeskReady)
  */
 type ClickHandlerOptions = {
-  onButtonClick?: (element: HTMLButtonElement, event: MouseEvent) => void;
+  onButtonClick?: (
+    element: HTMLButtonElement,
+    event: MouseEvent | KeyboardEvent,
+  ) => void;
   onLinkClick?: (element: HTMLAnchorElement, event: MouseEvent) => void;
 };
 
@@ -130,15 +136,9 @@ function setupTextareaEnterHandler(
             );
 
             if (sendButton && options.onButtonClick) {
-              // Create a synthetic MouseEvent for consistency with click handler signature
-              const syntheticEvent = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: event.view || window,
-                detail: 1,
-              });
-
-              options.onButtonClick(sendButton, syntheticEvent);
+              // Pass the original KeyboardEvent directly
+              // The callback signature accepts MouseEvent | KeyboardEvent
+              options.onButtonClick(sendButton, event);
             }
           } catch (error) {
             window.fireJse?.(
