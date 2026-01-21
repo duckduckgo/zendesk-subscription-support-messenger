@@ -53,9 +53,7 @@ export function getMessagingIframe(
           nextSibling = nextSibling.nextElementSibling;
         }
       } catch (error) {
-        window.fireJse?.(
-          new Error(`Error finding messaging iframe: ${JSON.stringify(error)}`),
-        );
+        window.fireJse?.(error);
       }
     }
   }
@@ -84,9 +82,7 @@ export function getMessagingIframeDocument(
 
     return doc || null;
   } catch (error) {
-    window.fireJse?.(
-      `Cross-origin restriction - cannot access iframe document: ${JSON.stringify(error)}`,
-    );
+    window.fireJse?.(error);
 
     return null;
   }

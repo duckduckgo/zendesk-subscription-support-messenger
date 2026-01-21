@@ -152,11 +152,7 @@ export function setupZendeskObserver(
       }
     };
   } catch (error) {
-    window.fireJse?.(
-      new Error(
-        `Could not set up MutationObserver for Zendesk iframe: ${JSON.stringify(error)}`,
-      ),
-    );
+    window.fireJse?.(error);
 
     return null;
   }

@@ -2,7 +2,8 @@
 Portable Pixels Script
 ----------------------
 
-A configurable pixel tracking script that fires analytics events for page loads, link clicks, button clicks, and custom events.
+A configurable pixel tracking script that fires analytics events for page loads,
+link clicks, button clicks, and custom events.
 
 Configuration:
   - Set window.PIXEL_CONFIG before this script loads, or call initPixelTracking(config)
@@ -61,8 +62,8 @@ Manual Event Tracking:
     eventPrefix: 'subscriptionsupport_',
     buttonSelector: 'button', // CSS selector for buttons to track (supports any valid CSS selector)
     trackButtonText: true, // Whether to include button text in pixel
-    trackButtonId: true, // Whether to include button ID in pixel
-    trackButtonClass: true, // Whether to include button class in pixel
+    trackButtonId: false, // Whether to include button ID in pixel
+    trackButtonClass: false, // Whether to include button class in pixel
     maxButtonTextLength: 100, // Maximum length of button text to send
   };
 
@@ -120,7 +121,7 @@ Manual Event Tracking:
    * the JS Error class, its message is used directly. Otherwise, `maybeErr` is
    * `JSON.stringify`'d with a bit of explanatory text that it was invalid.
    *
-   * @param {Error | unknown} - maybeErr - the JavaScript Error instance to
+   * @param {Error | unknown} maybeErr - the JavaScript Error instance to
    * retrieve a message from, or a value to be JSON serialized and included in
    * an explanatory message.
    */
@@ -266,28 +267,6 @@ Manual Event Tracking:
       }
     });
   }
-
-  // /**
-  //  * Handles link click events
-  //  * @param {Event} e - Click event
-  //  */
-  // function handleLinkClick(e) {
-  //   const link = e.currentTarget;
-  //   const href = link.href;
-  //   const hostname = link.hostname;
-  //
-  //   const isInternalLink = hostname === location.hostname;
-  //   const isAllowedHostname = config.allowedHostnames.indexOf(hostname) !== -1;
-  //   const isAllowedExternalLink = config.externalLinkAllowList[href] === true;
-  //
-  //   if (isInternalLink || isAllowedHostname || isAllowedExternalLink) {
-  //     // internal link clicks and allow-listed external links can send the href
-  //     firePixel('click', { 'link-url': href });
-  //   } else {
-  //     // otherwise we don't send the href but fire a click pixel for measuring engagement
-  //     firePixel('click');
-  //   }
-  // }
 
   /**
    * Handles button click events

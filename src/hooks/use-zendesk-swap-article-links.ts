@@ -13,7 +13,7 @@ import {
 } from '@/constants/zendesk-timing';
 import { setupZendeskObserver } from '@/utils/zendesk-observer';
 
-interface UseZendeskArticleLinkHandlerOptions {
+interface UseZendeskSwapArticleLinksOptions {
   zendeskReady: boolean;
 }
 
@@ -76,22 +76,22 @@ function processArticleLinks(
 }
 
 /**
- * Updates article links in the Zendesk widget iframe.
+ * Swaps article links in the Zendesk widget iframe with custom URLs.
  *
- * @function useZendeskArticleLinkHandler
- * @param {UseZendeskArticleLinkHandlerOptions['zendeskReady']}
+ * @function useZendeskSwapArticleLinks
+ * @param {UseZendeskSwapArticleLinksOptions['zendeskReady']}
  * options.zendeskReady - Whether the Zendesk widget is ready
  *
  * @example
  * ```ts
- * useZendeskArticleLinkHandler({
+ * useZendeskSwapArticleLinks({
  *   zendeskReady,
  * });
  * ```
  */
-export function useZendeskArticleLinkHandler({
+export function useZendeskSwapArticleLinks({
   zendeskReady,
-}: UseZendeskArticleLinkHandlerOptions) {
+}: UseZendeskSwapArticleLinksOptions) {
   const observerRef = useRef<MutationObserver | null>(null);
   const processedRef = useRef(false);
   const isMountedRef = useRef(true);
@@ -124,14 +124,14 @@ export function useZendeskArticleLinkHandler({
 
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
-    // Listen for new messages and process article links
+    // Listen for new messages and swap article links
     zE('messenger:on', 'unreadMessages', () => {
       // Clear any pending timeout
       if (timeout) {
         clearTimeout(timeout);
       }
 
-      // Process article links after a short delay to allow DOM rendering
+      // Swap article links after a short delay to allow DOM rendering
       timeout = setTimeout(() => {
         if (isMountedRef.current) {
           processArticleLinks(isMountedRef);

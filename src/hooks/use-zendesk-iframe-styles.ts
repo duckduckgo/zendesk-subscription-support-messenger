@@ -98,11 +98,7 @@ export function useZendeskIframeStyles({
         styleElementRef.current = styleElement;
         injectedRef.current = true;
       } catch (error) {
-        window.fireJse?.(
-          new Error(
-            `Failed to inject styles into Zendesk iframe: ${JSON.stringify(error)}`,
-          ),
-        );
+        window.fireJse?.(error);
       }
     },
     [styles],

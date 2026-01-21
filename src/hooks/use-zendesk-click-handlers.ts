@@ -16,7 +16,7 @@ import {
 } from '@/constants/zendesk-selectors';
 import { setupZendeskObserver } from '@/utils/zendesk-observer';
 
-interface UseZendeskButtonHandlersOptions {
+interface UseZendeskClickHandlersOptions {
   zendeskReady: boolean;
   onButtonClick?: (
     element: HTMLButtonElement,
@@ -125,11 +125,7 @@ function setupTextareaEnterHandler(
               options.onButtonClick(sendButton, event);
             }
           } catch (error) {
-            window.fireJse?.(
-              new Error(
-                `Error setting textarea keydown handler: ${JSON.stringify(error)}`,
-              ),
-            );
+            window.fireJse?.(error);
           }
         }
       };
@@ -144,11 +140,7 @@ function setupTextareaEnterHandler(
       textareaListenerAttached.add(textarea);
     }
   } catch (error) {
-    window.fireJse?.(
-      new Error(
-        `Error setting up textarea Enter handler: ${JSON.stringify(error)}`,
-      ),
-    );
+    window.fireJse?.(error);
   }
 }
 
@@ -192,17 +184,18 @@ function processButtonsAndLinks(
 /**
  * Adds click handlers to Zendesk widget buttons and links.
  *
- * @param {UseZendeskButtonHandlersOptions['zendeskReady']} options.zendeskReady
+ * @function useZendeskClickHandlers
+ * @param {UseZendeskClickHandlersOptions['zendeskReady']} options.zendeskReady
  * - Whether the Zendesk widget is ready
- * @param {UseZendeskButtonHandlersOptions['onButtonClick']}
+ * @param {UseZendeskClickHandlersOptions['onButtonClick']}
  * options.onButtonClick - Optional callback for button clicks (including Enter
  * key)
- * @param {UseZendeskButtonHandlersOptions['onLinkClick']} options.onLinkClick
+ * @param {UseZendeskClickHandlersOptions['onLinkClick']} options.onLinkClick
  * - Optional callback for link clicks
  *
  * @example
  * ```ts
- * useZendeskButtonHandlers({
+ * useZendeskClickHandlers({
  *   zendeskReady,
  *   onButtonClick: (element, event) => {
  *     console.log('Button clicked:', element.innerText);
@@ -213,11 +206,11 @@ function processButtonsAndLinks(
  * });
  * ```
  */
-export function useZendeskButtonHandlers({
+export function useZendeskClickHandlers({
   zendeskReady,
   onButtonClick,
   onLinkClick,
-}: UseZendeskButtonHandlersOptions) {
+}: UseZendeskClickHandlersOptions) {
   const observerRef = useRef<MutationObserver | null>(null);
   const processedRef = useRef(false);
   const isMountedRef = useRef(true);
@@ -308,9 +301,23 @@ export function useZendeskButtonHandlers({
         // processed (tracked via WeakSet)
         processButtonsAndLinks(optionsRef.current, iframeDoc);
       },
+      // onSetup: (iframeDoc) => {
+      //   // Process existing elements immediately when observer is set up
+      //   processButtonsAndLinks(optionsRef.current, iframeDoc);
+      // },
       onSetup: (iframeDoc) => {
-        // Process existing elements immediately when observer is set up
-        processButtonsAndLinks(optionsRef.current, iframeDoc);
+        iframeDoc.addEventListener(
+          'click',
+          (event) => {
+            const target = event.target as HTMLElement | null;
+            const anchor = target?.closest('a');
+            console.log('### onSetup', {
+              href: anchor?.href,
+              innerText: anchor?.innerText,
+            });
+          },
+          true, // Use capture phase
+        );
       },
       target: 'body',
       retryOnNotReady: true,

@@ -5,9 +5,9 @@ import Script from 'next/script';
 import styles from './page.module.css';
 import PageLoadPixel from '@/components/page-load-pixel/page-load-pixel';
 import { Button } from '@/components/button/button';
-import { useZendeskArticleLinkHandler } from '@/hooks/use-zendesk-article-link-handler';
+import { useZendeskSwapArticleLinks } from '@/hooks/use-zendesk-swap-article-links';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
-import { useZendeskButtonHandlers } from '@/hooks/use-zendesk-button-handlers';
+import { useZendeskClickHandlers } from '@/hooks/use-zendesk-click-handlers';
 import { EMBEDDED_TARGET_ELEMENT, ZENDESK_SCRIPT_URL } from '@/config/zendesk';
 import { MAIN_SITE_URL, SITE_TITLE } from '@/config/common';
 import { useIsTablet, useIsMobile } from '@/hooks/use-media-query';
@@ -37,23 +37,20 @@ export default function Home() {
     setMounted(true);
   }, []);
 
-  // Set up article link handler for updating article links
-  useZendeskArticleLinkHandler({
+  // Swap article links with custom URLs
+  useZendeskSwapArticleLinks({
     zendeskReady,
   });
 
   // Add click handlers to Zendesk buttons and links
-  useZendeskButtonHandlers({
+  useZendeskClickHandlers({
     zendeskReady,
     onButtonClick: (el) => {
       const { innerText, title } = el;
 
       // Check for first time `send` button clicks
       if (title === ZENDESK_SEND_BUTTON_IDENTIFIER && !firstMessageSent) {
-        console.log('### onButtonClick.send', {
-          innerText,
-          title,
-        });
+        window.firePixelEvent?.('first-message');
 
         setFirstMessageSent(true);
       }
@@ -63,29 +60,25 @@ export default function Home() {
         innerText === ZENDESK_YES_BUTTON_IDENTIFIER ||
         innerText === ZENDESK_NO_BUTTON_IDENTIFIER
       ) {
-        console.log('### onButtonClick.yes/no', {
-          innerText,
-          title,
+        window.firePixelEvent?.('button-click', {
+          'button-query': 'Was-this-helpful',
+          'button-text': innerText,
         });
       }
 
       // Check for `Talk to a human` button clicks
       if (innerText === ZENDESK_TALKTOAHUMAN_BUTTON_IDENTIFIER) {
-        console.log('### onButtonClick.talk', {
-          innerText,
-          title,
-        });
+        /* noop */
       }
     },
     // Handle KB link and 'Support Form' clicks
     onLinkClick: (el) => {
-      const { innerText, href } = el;
+      // @note: if specifically targeting the support form link, use
+      // `innerText.includes('Support form')`. ZD has a carriage return after
+      // the text
 
-      // @note: if targeting the support form link, use `innerText.includes()`.
-      // ZD has a carriage return after the text
-      console.log('### onLinkClick', {
-        href,
-        innerText,
+      window.firePixelEvent?.('link-click', {
+        slug: new URL(el.href).pathname,
       });
     },
   });
@@ -137,9 +130,7 @@ export default function Home() {
   });
 
   const handleOnError = (error: Error) => {
-    window.fireJse?.(
-      new Error(`Failed to load Zendesk: ${JSON.stringify(error)}`),
-    );
+    window.fireJse?.(error);
   };
 
   const handleOnLoad = () => {
@@ -178,11 +169,7 @@ export default function Home() {
         setZendeskReady(true);
       }, ZENDESK_READY_DELAY_MS);
     } catch (error) {
-      window.fireJse?.(
-        new Error(
-          `Error initializing messenger settings: ${JSON.stringify(error)}`,
-        ),
-      );
+      window.fireJse?.(error);
     }
   };
 
