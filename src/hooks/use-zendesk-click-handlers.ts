@@ -1,15 +1,6 @@
 import { useEffect, useRef } from 'react';
+import { DOM_READY_DELAY_MS } from '@/constants/zendesk-timing';
 import {
-  getMessagingIframe,
-  getMessagingIframeDocument,
-} from '@/utils/zendesk-iframe';
-import {
-  DOM_READY_DELAY_MS,
-  INITIAL_RENDER_DELAY_MS,
-  MAX_RETRIES_BUTTON_HANDLERS,
-} from '@/constants/zendesk-timing';
-import {
-  ZENDESK_BUTTON_SELECTOR,
   ZENDESK_ICON_BUTTON_DATA_ATTR,
   ZENDESK_INPUT_SELECTOR,
   ZENDESK_SEND_BUTTON_SELECTOR,
@@ -23,162 +14,6 @@ interface UseZendeskClickHandlersOptions {
     event: MouseEvent | KeyboardEvent,
   ) => void;
   onLinkClick?: (element: HTMLAnchorElement, event: MouseEvent) => void;
-}
-
-// Tracks elements that have already had click handlers attached
-const processedElements = new WeakSet<HTMLElement>();
-
-// Tracks if textarea listener has been attached to avoid duplicates
-const textareaListenerAttached = new WeakSet<HTMLTextAreaElement>();
-
-type ClickHandlerOptions = {
-  onButtonClick?: (
-    element: HTMLButtonElement,
-    /** KeyboardEvent needed for capturing return key for sending messages */
-    event: MouseEvent | KeyboardEvent,
-  ) => void;
-  onLinkClick?: (element: HTMLAnchorElement, event: MouseEvent) => void;
-};
-
-/**
- * Adds click handlers to buttons and links within the Zendesk iframe
- *
- * @function addClickHandlers
- * @param {Document} iframeDoc - The iframe document
- * @param {ClickHandlerOptions} options - Handler callbacks
- *
- * @returns {void}
- */
-function addClickHandlers(
-  iframeDoc: Document,
-  options: ClickHandlerOptions,
-): void {
-  const buttonsAndLinks = iframeDoc.querySelectorAll<HTMLElement>(
-    ZENDESK_BUTTON_SELECTOR,
-  );
-
-  buttonsAndLinks.forEach((element) => {
-    // Skip if already processed
-    if (processedElements.has(element)) {
-      return;
-    }
-
-    // Determine if it's a button or link
-    const isLink = element.tagName === 'A' || element.hasAttribute('href');
-    const isButton =
-      element.tagName === 'BUTTON' ||
-      element.getAttribute('type') === 'button' ||
-      element.getAttribute('data-garden-id') === ZENDESK_ICON_BUTTON_DATA_ATTR;
-
-    const clickHandler = (event: MouseEvent) => {
-      if (isLink && options.onLinkClick) {
-        options.onLinkClick(element as HTMLAnchorElement, event);
-      } else if (isButton && options.onButtonClick) {
-        options.onButtonClick(element as HTMLButtonElement, event);
-      }
-    };
-
-    // Add event listener in capture phase to intercept clicks before Zendesk's
-    // handlers. Using capture to ensure handler runs before Zendesk's handlers
-    element.addEventListener('click', clickHandler, { capture: true });
-
-    // Mark as processed
-    processedElements.add(element);
-  });
-}
-
-/**
- * Sets up Enter key handler for textarea (sending messages)
- *
- * @function setupTextareaEnterHandler
- * @param {Document} iframeDoc - The iframe document
- * @param {ClickHandlerOptions} options - Handler callbacks
- *
- * @returns {void}
- */
-function setupTextareaEnterHandler(
-  iframeDoc: Document,
-  options: ClickHandlerOptions,
-): void {
-  if (!options.onButtonClick) {
-    return;
-  }
-
-  try {
-    if (!iframeDoc || typeof iframeDoc.querySelector !== 'function') {
-      return;
-    }
-
-    const textarea = iframeDoc.querySelector<HTMLTextAreaElement>(
-      ZENDESK_INPUT_SELECTOR,
-    );
-
-    if (textarea && !textareaListenerAttached.has(textarea)) {
-      const textareaKeydownHandler = (event: KeyboardEvent) => {
-        if (event.key === 'Enter') {
-          try {
-            const sendButton = iframeDoc.querySelector<HTMLButtonElement>(
-              ZENDESK_SEND_BUTTON_SELECTOR,
-            );
-
-            if (sendButton && options.onButtonClick) {
-              options.onButtonClick(sendButton, event);
-            }
-          } catch (error) {
-            window.fireJse?.(error);
-          }
-        }
-      };
-
-      // Add event listener in capture phase to intercept clicks before
-      // Zendesk's handlers
-      textarea.addEventListener('keydown', textareaKeydownHandler, {
-        capture: true,
-      });
-
-      // Mark as processed
-      textareaListenerAttached.add(textarea);
-    }
-  } catch (error) {
-    window.fireJse?.(error);
-  }
-}
-
-/**
- * Processes buttons and links in the Zendesk widget iframe. Only processes
- * elements that haven't been processed yet.
- *
- * @function processButtonsAndLinks
- * @param {ClickHandlerOptions} options - Handler callbacks
- * @param {Document} [iframeDoc] - Optional iframe document to use (avoids redundant lookup)
- *
- * @returns {Document | void}
- */
-function processButtonsAndLinks(
-  options: ClickHandlerOptions,
-  iframeDoc?: Document,
-): Document | void {
-  // Use provided iframeDoc if available, otherwise fetch it
-  const doc =
-    iframeDoc ||
-    (() => {
-      const iframe = getMessagingIframe(null);
-
-      if (!iframe) {
-        return null;
-      }
-
-      return getMessagingIframeDocument(iframe);
-    })();
-
-  if (!doc) {
-    return;
-  }
-
-  addClickHandlers(doc, options);
-  setupTextareaEnterHandler(doc, options);
-
-  return doc;
 }
 
 /**
@@ -212,17 +47,20 @@ export function useZendeskClickHandlers({
   onLinkClick,
 }: UseZendeskClickHandlersOptions) {
   const observerRef = useRef<MutationObserver | null>(null);
-  const processedRef = useRef(false);
   const isMountedRef = useRef(true);
-  const optionsRef = useRef<ClickHandlerOptions>({
+  const optionsRef = useRef<UseZendeskClickHandlersOptions>({
+    zendeskReady,
     onButtonClick,
     onLinkClick,
   });
+  // Track which documents we've attached handlers to (using WeakSet to avoid memory leaks)
+  const documentsWithClickHandler = useRef(new WeakSet<Document>());
+  const textareasWithHandler = useRef(new WeakSet<HTMLTextAreaElement>());
 
   // Keep options ref up to date
   useEffect(() => {
-    optionsRef.current = { onButtonClick, onLinkClick };
-  }, [onButtonClick, onLinkClick]);
+    optionsRef.current = { zendeskReady, onButtonClick, onLinkClick };
+  }, [zendeskReady, onButtonClick, onLinkClick]);
 
   useEffect(() => {
     if (!zendeskReady) {
@@ -232,92 +70,129 @@ export function useZendeskClickHandlers({
     // Mark as mounted when effect runs
     isMountedRef.current = true;
 
-    let timeout: ReturnType<typeof setTimeout> | null = null;
-    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-    let retryCount = 0;
     let observerCleanup: (() => void) | null = null;
 
-    // Process buttons/links with retry logic to handle delayed rendering
-    const processWithRetry = () => {
-      if (!isMountedRef.current) {
+    // Attach click handler
+    const attachClickHandler = (iframeDoc: Document) => {
+      // Skip if we've already attached to this document
+      if (documentsWithClickHandler.current.has(iframeDoc)) {
         return;
       }
 
-      const iframeDoc = processButtonsAndLinks(optionsRef.current, undefined);
-
-      // If no elements found and we haven't exceeded retries, try again
-      if (!iframeDoc && retryCount < MAX_RETRIES_BUTTON_HANDLERS) {
-        retryCount++;
-
-        retryTimeout = setTimeout(() => {
-          if (isMountedRef.current) {
-            processWithRetry();
+      iframeDoc.addEventListener(
+        'click',
+        (event) => {
+          if (!isMountedRef.current) {
+            return;
           }
-        }, DOM_READY_DELAY_MS);
-      } else {
-        retryCount = 0;
+
+          const target = event.target as HTMLElement | null;
+
+          if (!target) {
+            return;
+          }
+
+          // Check if click was on a link
+          const anchor = target.closest('a');
+
+          if (anchor && optionsRef.current.onLinkClick) {
+            optionsRef.current.onLinkClick(
+              anchor as HTMLAnchorElement,
+              event as MouseEvent,
+            );
+
+            return;
+          }
+
+          // Check if click was on a button
+          const button =
+            target.closest('button') ||
+            (target.getAttribute('data-garden-id') ===
+            ZENDESK_ICON_BUTTON_DATA_ATTR
+              ? target
+              : null);
+
+          if (button && optionsRef.current.onButtonClick) {
+            optionsRef.current.onButtonClick(
+              button as HTMLButtonElement,
+              event as MouseEvent,
+            );
+          }
+        },
+        true, // Use capture phase
+      );
+
+      // Mark this document as having the handler attached
+      documentsWithClickHandler.current.add(iframeDoc);
+    };
+
+    // Attach textarea Enter key handler
+    const attachTextareaHandler = (iframeDoc: Document) => {
+      if (!optionsRef.current.onButtonClick) {
+        return;
+      }
+
+      try {
+        const textarea = iframeDoc.querySelector<HTMLTextAreaElement>(
+          ZENDESK_INPUT_SELECTOR,
+        );
+
+        // Skip if we've already attached to this textarea
+        if (textarea && !textareasWithHandler.current.has(textarea)) {
+          const textareaKeydownHandler = (event: KeyboardEvent) => {
+            if (!isMountedRef.current) {
+              return;
+            }
+
+            if (event.key === 'Enter') {
+              try {
+                const sendButton = iframeDoc.querySelector<HTMLButtonElement>(
+                  ZENDESK_SEND_BUTTON_SELECTOR,
+                );
+
+                if (sendButton && optionsRef.current.onButtonClick) {
+                  // Pass the KeyboardEvent to onButtonClick
+                  optionsRef.current.onButtonClick(sendButton, event);
+                }
+              } catch (error) {
+                window.fireJse?.(error);
+              }
+            }
+          };
+
+          textarea.addEventListener('keydown', textareaKeydownHandler, {
+            capture: true,
+          });
+
+          // Mark this textarea as having the handler attached
+          textareasWithHandler.current.add(textarea);
+        }
+      } catch (error) {
+        window.fireJse?.(error);
       }
     };
 
-    // Process buttons/links immediately when widget becomes ready to catch
-    // previously rendered chat elements
-    let initialProcessTimeout: ReturnType<typeof setTimeout> | null = null;
-
-    if (!processedRef.current) {
-      // Give the widget a moment to render, then start retry logic
-      initialProcessTimeout = setTimeout(() => {
-        if (isMountedRef.current) {
-          processWithRetry();
-
-          processedRef.current = true;
-        }
-      }, INITIAL_RENDER_DELAY_MS);
-    } else {
-      // If already processed, still try once more in case new elements appeared
-      if (isMountedRef.current) {
-        processButtonsAndLinks(optionsRef.current);
-      }
-    }
-
-    // Listen for new messages and process new buttons/links
-    zE('messenger:on', 'unreadMessages', () => {
-      // Clear any pending timeout
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-
-      // Process new buttons/links after a short delay to allow DOM rendering
-      timeout = setTimeout(() => {
-        if (isMountedRef.current) {
-          processButtonsAndLinks(optionsRef.current);
-        }
-      }, DOM_READY_DELAY_MS);
-    });
-
-    // Set up MutationObserver to watch for new buttons/links being added
+    // Set up MutationObserver to attach generic click handlers
     observerCleanup = setupZendeskObserver({
       onMutation: (iframeDoc) => {
-        // Process new buttons/links when DOM changes Only new elements will be
-        // processed (tracked via WeakSet)
-        processButtonsAndLinks(optionsRef.current, iframeDoc);
+        // Re-attach handlers on DOM mutations in case iframe was reloaded
+        // This ensures handlers persist even if Zendesk reloads the widget
+        if (isMountedRef.current) {
+          attachClickHandler(iframeDoc);
+          attachTextareaHandler(iframeDoc);
+        }
       },
-      // onSetup: (iframeDoc) => {
-      //   // Process existing elements immediately when observer is set up
-      //   processButtonsAndLinks(optionsRef.current, iframeDoc);
-      // },
       onSetup: (iframeDoc) => {
-        iframeDoc.addEventListener(
-          'click',
-          (event) => {
-            const target = event.target as HTMLElement | null;
-            const anchor = target?.closest('a');
-            console.log('### onSetup', {
-              href: anchor?.href,
-              innerText: anchor?.innerText,
-            });
-          },
-          true, // Use capture phase
-        );
+        // Attach handlers when observer is first set up
+        attachClickHandler(iframeDoc);
+        attachTextareaHandler(iframeDoc);
+
+        // Retry textarea handler setup after a delay in case it's not ready yet
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            attachTextareaHandler(iframeDoc);
+          }
+        }, DOM_READY_DELAY_MS);
       },
       target: 'body',
       retryOnNotReady: true,
@@ -329,21 +204,11 @@ export function useZendeskClickHandlers({
       // Mark as unmounted to prevent any async operations from continuing
       isMountedRef.current = false;
 
-      // Clean up all timeouts
-      if (initialProcessTimeout) {
-        clearTimeout(initialProcessTimeout);
-      }
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      if (retryTimeout) {
-        clearTimeout(retryTimeout);
-      }
-
       // Clean up observer
       if (observerCleanup) {
         observerCleanup();
       }
+
       if (observerRef.current) {
         observerRef.current.disconnect();
 
