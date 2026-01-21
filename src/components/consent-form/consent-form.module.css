@@ -1,0 +1,169 @@
+.mainHeading {
+  color: var(--sds-color-text-01);
+  text-align: center;
+  font-family: var(--Font-Family-Display, 'DuckSans Display');
+  font-size: 64px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 64px;
+  letter-spacing: -1.28px;
+  margin-bottom: 32px;
+}
+
+.card {
+  display: flex;
+  max-width: 768px;
+  width: 100%;
+  padding: 32px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow:
+    0 2px 6px 0 rgba(0, 0, 0, 0.1),
+    0 8px 16px 0 rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: stretch;
+
+  p {
+    color: #222222;
+    font-family: var(--Font-Family-Display, 'DuckSans Display');
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px;
+  }
+}
+
+.content {
+  display: flex;
+  height: 480px;
+  padding: 16px;
+  align-items: flex-start;
+  gap: 16px;
+  align-self: stretch;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #f2f2f2;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  .section {
+    p {
+      color: #222222;
+      font-family: var(--Font-Family-Product, 'DuckSans Product');
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 24px;
+    }
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  align-self: stretch;
+}
+
+.button {
+  display: flex;
+  flex: 1;
+  min-height: 48px;
+  height: 48px;
+  padding: 0 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1.25px solid rgba(0, 0, 0, 0.12);
+  background-color: var(--Buttons-Solid-Primary-Default, #3969ef);
+  color: var(--Buttons-Text-Primary, #fff);
+  font-family: var(--Font-Family-Product, 'DuckSans Product');
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton {
+  background-color: white;
+  border: 2px solid #e0e0e0;
+  color: #212121;
+  /* Override primary button text color for cancel button */
+}
+
+.cancelButton:hover {
+  background-color: #f5f5f5;
+}
+
+.continueButton {
+  background-color: var(--Buttons-Solid-Primary-Default, #3969ef);
+  color: white;
+}
+
+.continueButton:hover {
+  background-color: var(--Buttons-Solid-Primary-Default, #3969ef);
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .mainHeading {
+    font-size: 24px;
+    line-height: 28px;
+    letter-spacing: -0.48px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .content {
+    height: 400px;
+    min-height: 300px;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .button {
+    width: 100%;
+  }
+
+  .cardHeader p {
+    font-size: 18px;
+    line-height: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainHeading {
+    font-size: 24px;
+    line-height: 28px;
+    letter-spacing: -0.48px;
+  }
+
+  .card {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .content {
+    padding: 12px;
+    height: 350px;
+  }
+}

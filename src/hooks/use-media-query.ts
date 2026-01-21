@@ -17,18 +17,10 @@ export default function useMediaQuery(query: string): boolean {
       setMatches(media.matches);
     };
 
-    if (media.addListener) {
-      media.addListener(listener);
-    } else {
-      media.addEventListener('change', listener);
-    }
+    media.addEventListener('change', listener);
 
     return () => {
-      if (media.removeListener) {
-        media.removeListener(listener);
-      } else {
-        media.removeEventListener('change', listener);
-      }
+      media.removeEventListener('change', listener);
     };
   }, [query]);
 

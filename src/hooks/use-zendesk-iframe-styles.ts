@@ -78,7 +78,7 @@ export function useZendeskIframeStyles({
         return;
       }
 
-      // Check if styles are already injected
+      // Check if styles are already injected and element still exists
       if (
         styleElementRef.current &&
         iframeDoc.contains(styleElementRef.current)
@@ -87,6 +87,15 @@ export function useZendeskIframeStyles({
       }
 
       try {
+        // Remove any existing style elements with our attribute to prevent duplicates
+        const existingStyleElements = iframeDoc.querySelectorAll(
+          'style[data-zendesk-custom-styles="true"]',
+        );
+
+        existingStyleElements.forEach((element) => {
+          element.remove();
+        });
+
         const styleElement = iframeDoc.createElement('style');
 
         styleElement.textContent = styles;

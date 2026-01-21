@@ -54,8 +54,14 @@ export function useZendeskClickHandlers({
     onLinkClick,
   });
   // Track which documents we've attached handlers to (using WeakSet to avoid memory leaks)
-  const documentsWithClickHandler = useRef(new WeakSet<Document>());
-  const textareasWithHandler = useRef(new WeakSet<HTMLTextAreaElement>());
+  // Initialize WeakSets once per component instance - useRef only calls the initializer once
+  const documentsWithClickHandler = useRef<WeakSet<Document>>(
+    new WeakSet<Document>(),
+  );
+
+  const textareasWithHandler = useRef<WeakSet<HTMLTextAreaElement>>(
+    new WeakSet<HTMLTextAreaElement>(),
+  );
 
   // Keep options ref up to date
   useEffect(() => {
@@ -92,7 +98,7 @@ export function useZendeskClickHandlers({
             return;
           }
 
-          // Check if click was on a link
+          // If click was on a link
           const anchor = target.closest('a');
 
           if (anchor && optionsRef.current.onLinkClick) {
@@ -104,7 +110,7 @@ export function useZendeskClickHandlers({
             return;
           }
 
-          // Check if click was on a button
+          // If click was on a button
           const button =
             target.closest('button') ||
             (target.getAttribute('data-garden-id') ===
@@ -119,7 +125,7 @@ export function useZendeskClickHandlers({
             );
           }
         },
-        true, // Use capture phase
+        true, // Use capture
       );
 
       // Mark this document as having the handler attached

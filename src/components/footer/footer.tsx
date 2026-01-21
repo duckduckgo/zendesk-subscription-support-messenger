@@ -1,20 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import styles from './footer.module.css';
 import { learnMoreLinks, otherResourcesLinks } from '@/constants/footerLinks';
 import { MAIN_SITE_URL } from '@/config/common';
-import { useIsTablet } from '@/hooks/use-media-query';
 
 export default function Footer() {
-  const [mounted, setMounted] = useState(false);
-  const isTablet = useIsTablet();
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
   const buildHref = (href: string): string => {
     if (href.includes('https://')) {
       return href;
@@ -132,13 +122,9 @@ export default function Footer() {
         </div>
       </div>
 
-      <div
-        className={`${styles.copyright} ${
-          mounted && isTablet ? styles.copyrightMobile : ''
-        }`}
-      >
+      <div className={styles.copyright}>
         <span>&copy; {new Date().getFullYear()} DuckDuckGo</span>
-        {mounted && !isTablet && <span aria-hidden="true"></span>}
+        <span aria-hidden="true"></span>
         <span>Protection. Privacy. Peace of mind.</span>
       </div>
     </footer>

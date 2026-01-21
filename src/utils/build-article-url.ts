@@ -1,16 +1,14 @@
 import { ZENDESK_BASE_URL } from '@/config/zendesk';
 
 /**
- * Builds a complete article URL from the provided path.
+ * Builds a complete article URL from the provided path using the URL constructor.
  *
- * Handles URL normalization including:
- * - Ensuring base URL has trailing slash
- * - Removing leading slash from path (URL constructor handles this properly)
- * - Proper URL construction using URL constructor
+ * The URL constructor handles path normalization automatically, including:
+ * - Trailing slashes in the base URL
+ * - Leading slashes in the path
  *
- * @function buildArticleUrl
- * @param {string} path - The article path (relative to baseUrl, with a leading slash)
- *
+ * @param {string} path - The article path (relative to baseUrl, with or without
+ * a leading slash)
  * @returns {string} Complete article URL
  *
  * @example
@@ -20,13 +18,5 @@ import { ZENDESK_BASE_URL } from '@/config/zendesk';
  * ```
  */
 export function buildArticleUrl(path: string): string {
-  // Ensure base URL has trailing slash for proper URL construction
-  const baseUrl = ZENDESK_BASE_URL.endsWith('/')
-    ? ZENDESK_BASE_URL
-    : `${ZENDESK_BASE_URL}/`;
-
-  // Remove leading slash from path (URL constructor will add it properly)
-  const normalizedPath = path.startsWith('/') ? path.slice(1) : path;
-
-  return new URL(normalizedPath, baseUrl).href;
+  return new URL(path, ZENDESK_BASE_URL).href;
 }

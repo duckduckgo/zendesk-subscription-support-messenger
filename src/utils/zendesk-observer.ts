@@ -5,9 +5,6 @@ import {
 } from './zendesk-iframe';
 import { DOM_READY_DELAY_MS } from '@/constants/zendesk-timing';
 
-/**
- * Options for setting up a MutationObserver on the Zendesk iframe
- */
 export interface SetupZendeskObserverOptions {
   /** Callback to execute when DOM mutations occur */
   onMutation: (iframeDoc: Document) => void;
@@ -22,6 +19,12 @@ export interface SetupZendeskObserverOptions {
   /** Ref to store the observer instance */
   observerRef: RefObject<MutationObserver | null>;
 }
+
+// Track active retry timeouts per observer ref to prevent stacking
+const activeRetryTimeouts = new WeakMap<
+  RefObject<MutationObserver | null>,
+  ReturnType<typeof setTimeout>
+>();
 
 /**
  * Sets up a MutationObserver on the Zendesk iframe.
@@ -66,16 +69,34 @@ export function setupZendeskObserver(
 
   const handleRetry = (): (() => void) | null => {
     if (retryOnNotReady && isMountedRef.current) {
+      // Clear any existing retry timeout to prevent stacking
+      const existingTimeout = activeRetryTimeouts.get(observerRef);
+
+      if (existingTimeout) {
+        clearTimeout(existingTimeout);
+      }
+
       const retryTimeout = setTimeout(() => {
+        // Clear the tracked timeout before attempting retry
+        activeRetryTimeouts.delete(observerRef);
+
         // Double-check mounted state before recursive call
         if (isMountedRef.current) {
           setupZendeskObserver(options);
         }
       }, DOM_READY_DELAY_MS);
 
+      // Track this retry timeout
+      activeRetryTimeouts.set(observerRef, retryTimeout);
+
       // Return cleanup function to clear retry timeout if component unmounts
       return () => {
-        clearTimeout(retryTimeout);
+        const timeout = activeRetryTimeouts.get(observerRef);
+
+        if (timeout) {
+          clearTimeout(timeout);
+          activeRetryTimeouts.delete(observerRef);
+        }
       };
     }
 

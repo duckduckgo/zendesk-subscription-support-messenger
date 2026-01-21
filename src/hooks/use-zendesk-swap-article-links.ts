@@ -124,14 +124,21 @@ export function useZendeskSwapArticleLinks({
 
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
-    // Listen for new messages and swap article links
-    zE('messenger:on', 'unreadMessages', () => {
-      // Clear any pending timeout
+    // Listen for new messages and swap article links. Only process when `count
+    // === 0` (indicating response content has been added to the DOM). The
+    // callback may fire multiple times per response, so we debounce with
+    // a timeout.
+    zE('messenger:on', 'unreadMessages', (count) => {
+      if (count !== 0) {
+        return;
+      }
+
+      // Clear any pending timeout to debounce multiple calls
       if (timeout) {
         clearTimeout(timeout);
       }
 
-      // Swap article links after a short delay to allow DOM rendering
+      // Swap article links after a short delay to ensure DOM is fully rendered
       timeout = setTimeout(() => {
         if (isMountedRef.current) {
           processArticleLinks(isMountedRef);
@@ -139,7 +146,8 @@ export function useZendeskSwapArticleLinks({
       }, DOM_READY_DELAY_MS);
     });
 
-    // Set up MutationObserver to watch for new article links being added to the iframe
+    // Set up MutationObserver to watch for new article links being added to the
+    // iframe
     observerTimeout = setTimeout(() => {
       if (!isMountedRef.current) {
         return;
@@ -148,15 +156,31 @@ export function useZendeskSwapArticleLinks({
       observerCleanup = setupZendeskObserver({
         onMutation: (iframeDoc) => {
           updateArticleLinks(iframeDoc);
+
+          // Clear fallback interval once MutationObserver successfully
+          // processes links
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
         },
         target: 'body',
         retryOnNotReady: false,
         isMountedRef,
         observerRef,
       });
+
+      // Clear fallback interval once observer is set up (observer will handle
+      // future mutations)
+      if (intervalId && observerRef.current) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
     }, OBSERVER_SETUP_DELAY_MS);
 
-    // Also set up a periodic check as fallback (in case MutationObserver doesn't work)
+    // Also set up a periodic check as fallback (in case MutationObserver
+    // doesn't work) This interval will be cleared once the MutationObserver is
+    // successfully set up
     intervalId = setInterval(() => {
       if (isMountedRef.current) {
         // No retries, just process if available
