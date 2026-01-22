@@ -1,36 +1,230 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DuckDuckGo Automated Support Assistant
+
+A Next.js application that integrates the Zendesk Web Widget messaging interface for automated customer support. The application provides a consent form, embeds the Zendesk widget, and tracks user interactions via analytics pixels.
+
+## Overview
+
+This application serves as a support ticket deflection tool that:
+
+1. **Displays a consent form** before loading the Zendesk script and widget
+2. **Renders the Zendesk messaging widget** in embedded mode
+3. **Customizes the widget** with DuckDuckGo branding and theme colors
+4. **Logs interactions** via anonymous pixel events (clicks, messages, link navigation)
+5. **Swaps article links** to point to DuckDuckGo help pages instead of Zendesk articles
+
+## Architecture
+
+### Application Flow
+
+```
+User visits page
+  ↓
+Consent form displayed
+  ↓
+User clicks "Continue to Chat"
+  ↓
+Zendesk script loads
+  ↓
+Widget renders in embedded mode
+  ↓
+Hooks initialize (link swapping, click handlers, styles)
+  ↓
+User interacts with widget
+  ↓
+Events anonymously logged via pixels.js
+```
+
+### Key Components
+
+- **`app/page.tsx`** - Main page component managing widget lifecycle and event handlers
+- **`components/consent-form/`** - Privacy consent form shown before widget loads
+- **`components/footer/`** - Site footer with links and company information
+
+### Zendesk Integration
+
+The application uses three main hooks for Zendesk integration (see [`src/hooks/README.md`](./src/hooks/README.md) for details):
+
+- **`useZendeskSwapArticleLinks`** - Replaces Zendesk article URLs with DuckDuckGo help page URLs
+- **`useZendeskClickHandlers`** - Attaches click handlers to buttons and links for anonymous event logging
+- **`useZendeskIframeStyles`** - Injects custom CSS styles into the widget iframe
+
+### Utilities
+
+- **`utils/zendesk-iframe.ts`** - Functions to access the Zendesk messaging widget iframe and its document
+- **`utils/zendesk-observer.ts`** - Sets up MutationObserver on the Zendesk iframe for DOM change detection
+- **`utils/build-article-url.ts`** - Builds complete article URLs using the URL constructor
+- **`utils/update-article-links.ts`** - Updates article links in a document based on article ID mapping
+- **`utils/get-css-variable.ts`** - Reads CSS variable values from the document root
+
+### Logging
+
+The application uses a custom `pixels.js` script (`public/scripts/pixels.js`) for anonymous logging of events. No PII or device fingerprinting.
+
+- **Page loads** - Fired when page loads (via `PageLoadPixel` component)
+- **Button clicks** - logs button interactions (send button, Yes/No buttons)
+- **Link clicks** - Tracks knowledge base article link clicks
+
+Anonymous pixel events are sent to DuckDuckGo analytics endpoints.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js (version specified in `.nvmrc`)
+- npm or compatible package manager
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+For HTTPS development (useful for testing Zendesk widget):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev:tls
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) (or https://localhost:3000 for TLS) to view the application.
 
-## Learn More
+### Building
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+npm start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Zendesk Widget
 
-## Deploy on Vercel
+Zendesk configuration is in `src/config/zendesk.ts`:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **`WEB_WIDGET_KEY`** - Zendesk Web Widget key
+- **`ZENDESK_SCRIPT_URL`** - Zendesk script URL
+- **`ZENDESK_BASE_URL`** - Base URL for help pages
+- **`ARTICLE_LINK_MAP`** - Mapping of Zendesk article IDs to help page paths
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Analytics
+
+Pixel tracking configuration can be set via `window.PIXEL_CONFIG` before the script loads:
+
+```javascript
+window.PIXEL_CONFIG = {
+  baseUrl: 'https://improving.duckduckgo.com/t/',
+  eventPrefix: 'subscriptionsupport_',
+  disableDeduplication: false, // Set to true to allow duplicate pixels
+  ...
+};
+```
+
+## Project Structure
+
+```
+src/
+├── app/                                  # Next.js App Router pages
+│   ├── layout.tsx                        # Root layout with header, footer, theme provider
+│   └── page.tsx                          # Main page with Zendesk integration
+├── components/                           # React components
+│   ├── button/                           # Reusable button component
+│   ├── consent-form/                     # Privacy consent form
+│   ├── footer/                           # Site footer
+│   └── page-load-pixel/                  # Page load event dispatcher
+├── config/                               # Configuration constants
+│   ├── common.ts                         # Common site configuration
+│   ├── fonts.ts                          # Font configuration
+│   └── zendesk.ts                        # Zendesk widget configuration
+├── constants/                            # Application constants
+│   ├── breakpoints.ts                    # Responsive breakpoint constants
+│   ├── footerLinks.ts                    # Footer link definitions
+│   ├── zendesk-selectors.ts              # CSS selectors for Zendesk elements
+│   ├── zendesk-styles.ts                 # Custom CSS for Zendesk iframe
+│   └── zendesk-timing.ts                 # Timing constants for retries/delays
+├── hooks/                                # React hooks
+│   ├── README.md                         # Documentation for Zendesk integration hooks
+│   ├── use-media-query.ts                # Responsive design hook
+│   ├── use-zendesk-click-handlers.ts     # Click event handlers
+│   ├── use-zendesk-iframe-styles.ts      # Style injection
+│   └── use-zendesk-swap-article-links.ts # Article link swapping
+├── types/                                # TypeScript type definitions
+│   └── zendesk.d.ts                      # Extended Zendesk Web Widget types
+└── utils/                                # Utility functions
+    ├── build-article-url.ts              # URL building utility
+    ├── get-css-variable.ts               # CSS variable reader
+    ├── update-article-links.ts           # Link updating utility
+    ├── zendesk-iframe.ts                 # Iframe access utilities
+    └── zendesk-observer.ts               # MutationObserver setup utility
+```
+
+## Key Features
+
+### Consent Flow
+
+Users must accept the privacy policy before the Zendesk script loads and the widget is rendered. The consent form includes:
+
+- Privacy policy text
+- Cancel button (redirects to subscription support)
+- Continue button (loads script)
+
+### Widget Customization
+
+The Zendesk widget is customized via the `messenger:set` API:
+
+- **Theme colors** - Uses CSS variables from design system where available
+- **Header hidden** - Cleaner embedded experience
+- **Cookie settings** - Set to 'functional' for privacy compliance
+
+### Link Swapping
+
+Article links in Zendesk responses are automatically swapped to point to DuckDuckGo help pages:
+
+- Maps Zendesk article IDs to help page paths
+- Processes links on initial load and when new messages arrive
+- Uses retry logic to handle timing issues
+- Allows user to read help page articles without having to authenticate
+
+### Responsive Design
+
+The application is fully responsive:
+
+- Mobile-first approach
+- Breakpoints defined in `constants/breakpoints.ts`
+- Footer collapses on smaller screens
+- Widget height adjusts for mobile viewports
+
+## Development
+
+### Code Quality
+
+- **ESLint** - Code linting with DuckDuckGo config
+- **Prettier** - Code formatting
+- **Husky** - Git hooks for pre-commit linting/formatting
+- **TypeScript** - Type safety throughout
+
+### Best Practices
+
+- **CSS Modules** - Scoped styling per component
+- **CSS Variables** - Design system colors via CSS variables
+- **Defensive Programming** - Mounted state checks, error handling, retry logic
+- **Documentation** - JSDoc comments on all utility functions and hooks
+
+## Deployment
+
+The application is designed for static site generation and can be deployed to any static hosting platform (Vercel, Netlify, GitHub Pages, etc.).
+
+Build output is optimized for production with:
+
+- Font optimization via `next/font`
+- CSS optimization
+- Image optimization
+- Code splitting
+
+## Related Documentation
+
+- [Zendesk Integration Hooks](./src/hooks/README.md) - Detailed documentation for Zendesk integration hooks

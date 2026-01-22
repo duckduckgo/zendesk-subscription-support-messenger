@@ -53,8 +53,7 @@ export function useZendeskClickHandlers({
     onButtonClick,
     onLinkClick,
   });
-  // Track which documents we've attached handlers to (using WeakSet to avoid memory leaks)
-  // Initialize WeakSets once per component instance - useRef only calls the initializer once
+  // Track which documents we've attached handlers to
   const documentsWithClickHandler = useRef<WeakSet<Document>>(
     new WeakSet<Document>(),
   );
