@@ -90,10 +90,9 @@ export default function Home() {
         theme: {
           message: getCSSVariable('--sds-color-palette-blue-60'),
           action: getCSSVariable('--sds-color-palette-blue-60'),
-          onMessage: getCSSVariable('--sds-color-text-01'),
           onAction: '#FAFAFA',
           businessMessage: '#FFFFFF',
-          onBusinessMessage: '#222222',
+          onBusinessMessage: getCSSVariable('--sds-color-text-01'),
           background: '#F2F2F2',
           onBackground: '#666666',
           error: '#FF1744',
