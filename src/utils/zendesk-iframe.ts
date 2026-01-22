@@ -1,13 +1,12 @@
 /**
- * Utilities for accessing the Zendesk messaging widget iframe.
- */
-
-/**
  * Gets the Zendesk messaging widget iframe element.
- * Finds the iframe nested after the web_widget iframe based on DOM structure.
  *
- * @param cachedIframe - Previously cached iframe reference (optional)
- * @returns The messaging widget iframe or null if not found
+ * @function getMessagingIframe
+ * @param {HTMLIFrameElement | null} cachedIframe - Previously cached iframe
+ * reference (optional)
+ *
+ * @returns {HTMLIFrameElement | null} The messaging widget iframe or null if
+ * not found
  */
 export function getMessagingIframe(
   cachedIframe: HTMLIFrameElement | null,
@@ -63,10 +62,12 @@ export function getMessagingIframe(
 
 /**
  * Gets the content document of the Zendesk messaging widget iframe.
- * Returns null if iframe is not found or if cross-origin restrictions apply.
  *
- * @param cachedIframe - Previously cached iframe reference (optional)
- * @returns The iframe's content document or null
+ * @function getMessagingIframeDocument
+ * @param {HTMLIFrameElement | null} cachedIframe - Previously cached iframe
+ * reference (optional)
+ *
+ * @returns {Document | null} The iframe's content document or null
  */
 export function getMessagingIframeDocument(
   cachedIframe: HTMLIFrameElement | null,

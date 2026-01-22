@@ -7,7 +7,7 @@ import {
   DOM_READY_DELAY_MS,
   INITIAL_RENDER_DELAY_MS,
   OBSERVER_SETUP_DELAY_MS,
-  MAX_RETRIES_STANDARD,
+  DEFAULT_MAX_RETRIES,
 } from '@/constants/zendesk-timing';
 import { setupZendeskObserver } from '@/utils/zendesk-observer';
 
@@ -19,6 +19,7 @@ interface UseZendeskIframeStylesOptions {
 /**
  * Injects CSS styles into the Zendesk widget iframe.
  *
+ * @function useZendeskIframeStyles
  * @param {UseZendeskIframeStylesOptions['zendeskReady']} options.zendeskReady
  * - Indicates widget is available
  * @param {UseZendeskIframeStylesOptions['styles']} options.styles - styles to
@@ -51,7 +52,7 @@ export function useZendeskIframeStyles({
   // Injects styles into the Zendesk iframe document. Retries if iframe is not
   // available yet.
   const injectStyles = useCallback(
-    (retries = MAX_RETRIES_STANDARD, delay = DOM_READY_DELAY_MS): void => {
+    (retries = DEFAULT_MAX_RETRIES, delay = DOM_READY_DELAY_MS): void => {
       const iframe = getMessagingIframe(null);
 
       if (!iframe) {

@@ -8,9 +8,9 @@ import { ZENDESK_ARTICLE_LINK_SELECTOR } from '@/constants/zendesk-selectors';
  * @function updateArticleLinks
  * @param {Document} doc - The document containing article links
  *
- * @returns {void}
+ * @returns {number} The number of links that were found and updated
  */
-export function updateArticleLinks(doc: Document): void {
+export function updateArticleLinks(doc: Document): number {
   // Create an array of article IDs
   const articleIds = Object.keys(ARTICLE_LINK_MAP);
 
@@ -18,6 +18,8 @@ export function updateArticleLinks(doc: Document): void {
   const anchorElements = doc.querySelectorAll<HTMLAnchorElement>(
     ZENDESK_ARTICLE_LINK_SELECTOR,
   );
+
+  let updatedCount = 0;
 
   anchorElements.forEach((anchorEl) => {
     const href = anchorEl.getAttribute('href');
@@ -33,6 +35,9 @@ export function updateArticleLinks(doc: Document): void {
       const newHref = buildArticleUrl(ARTICLE_LINK_MAP[matchedId]);
 
       anchorEl.setAttribute('href', newHref);
+      updatedCount++;
     }
   });
+
+  return updatedCount;
 }

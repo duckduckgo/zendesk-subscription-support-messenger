@@ -21,6 +21,7 @@ Example config:
     trackButtonId: true,  // Whether to include button ID (optional, defaults to true)
     trackButtonClass: true,  // Whether to include button class (optional, defaults to true)
     maxButtonTextLength: 100,  // Maximum length of button text to send (optional, defaults to 100)
+    disableDeduplication: false,  // Whether to disable duplicate pixel prevention (optional, defaults to false)
   };
 
 Pixel format:
@@ -65,6 +66,7 @@ Manual Event Tracking:
     trackButtonId: false, // Whether to include button ID in pixel
     trackButtonClass: false, // Whether to include button class in pixel
     maxButtonTextLength: 100, // Maximum length of button text to send
+    disableDeduplication: true, // Whether to disable duplicate pixel prevention
   };
 
   // Get configuration from window.PIXEL_CONFIG or use defaults
@@ -188,11 +190,14 @@ Manual Event Tracking:
 
     pixelUrl = pixelUrl + extraDataString;
 
-    if (hasFired[pixelUrl]) {
-      return;
-    }
+    // Skip duplicate prevention if disabled in config
+    if (!config.disableDeduplication) {
+      if (hasFired[pixelUrl]) {
+        return;
+      }
 
-    hasFired[pixelUrl] = true;
+      hasFired[pixelUrl] = true;
+    }
 
     if ('sendBeacon' in navigator) {
       // https://developer.mozilla.org/en-US/docs/Web/API/Beacon_API

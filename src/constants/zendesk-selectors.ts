@@ -1,15 +1,4 @@
 /**
- * CSS selectors for Zendesk widget elements.
- * Centralized selectors used across multiple files to ensure consistency.
- */
-
-/**
- * Selector for Zendesk button elements (both regular buttons and icon buttons)
- */
-export const ZENDESK_BUTTON_SELECTOR =
-  '[data-garden-id="buttons.button"], [data-garden-id="buttons.icon_button"]';
-
-/**
  * Selector for Zendesk icon button elements specifically
  */
 export const ZENDESK_ICON_BUTTON_SELECTOR =

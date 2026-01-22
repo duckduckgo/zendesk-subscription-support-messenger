@@ -7,8 +7,10 @@ import { ZENDESK_BASE_URL } from '@/config/zendesk';
  * - Trailing slashes in the base URL
  * - Leading slashes in the path
  *
+ * @function buildArticleUrl
  * @param {string} path - The article path (relative to baseUrl, with or without
  * a leading slash)
+ *
  * @returns {string} Complete article URL
  *
  * @example

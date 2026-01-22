@@ -1,9 +1,4 @@
 /**
- * Theme constants for the application.
- * The application respects system theme preference only (no user preference storage).
- */
-
-/**
  * Resolved theme values (actual theme being applied).
  * The application automatically follows the user's OS/browser theme preference.
  */

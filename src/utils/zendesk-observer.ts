@@ -32,9 +32,9 @@ const activeRetryTimeouts = new WeakMap<
  * @function setupZendeskObserver
  * @param {SetupZendeskObserverOptions} options - Configuration options
  *
- * @returns Cleanup function to disconnect observer and clear timeouts, or null
- * if setup failed. The cleanup function should be called in the useEffect
- * cleanup to prevent memory leaks.
+ * @returns {(function(): void) | null} Cleanup function to disconnect observer
+ * and clear timeouts, or null if setup failed. The cleanup function should be
+ * called in the useEffect cleanup to prevent memory leaks.
  *
  * @example
  * ```ts

@@ -5,7 +5,6 @@ import {
 
 /**
  * Custom CSS styles to inject into the Zendesk widget iframe.
- * These styles customize the appearance and behavior of the Zendesk messaging widget.
  */
 export const ZENDESK_IFRAME_STYLES = `
   div[role="status"] + div {

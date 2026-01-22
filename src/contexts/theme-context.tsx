@@ -31,9 +31,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 /**
  * Gets the system theme preference by checking the user's OS/browser preference.
- * Uses the prefers-color-scheme media query to detect if the user prefers dark mode.
+ * Uses the prefers-color-scheme media query to detect if the user prefers dark
+ * mode.
  *
- * @returns The system theme preference ('light' or 'dark')
+ * @function getSystemTheme
+ *
+ * @returns {ResolvedThemeType} The system theme preference ('light' or 'dark')
  */
 function getSystemTheme(): ResolvedThemeType {
   // During SSR, window is undefined, so default to light
@@ -131,8 +134,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
  * Hook to access the theme context.
  * Must be used within a ThemeProvider component.
  *
- * @returns The theme context value containing resolvedTheme
- * @throws Error if used outside of ThemeProvider
+ * @function useTheme
+ *
+ * @returns {ThemeContextValue} The theme context value containing resolvedTheme
+ *
+ * @throws {Error} Error if used outside of ThemeProvider
  *
  * @example
  * ```tsx

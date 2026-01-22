@@ -15,16 +15,16 @@ import {
   ZENDESK_SEND_BUTTON_IDENTIFIER,
   ZENDESK_YES_BUTTON_IDENTIFIER,
   ZENDESK_NO_BUTTON_IDENTIFIER,
-  ZENDESK_TALKTOAHUMAN_BUTTON_IDENTIFIER,
 } from '@/constants/zendesk-selectors';
 import { ZENDESK_IFRAME_STYLES } from '@/constants/zendesk-styles';
+import { getCSSVariable } from '@/utils/get-css-variable';
 
 export default function Home() {
   const [zendeskReady, setZendeskReady] = useState(false);
   const [loadWidget, setLoadWidget] = useState(false);
   const [firstMessageSent, setFirstMessageSent] = useState(false);
 
-  // Swap article links with custom URLs
+  // Swap ZD article link URLs for help page URLs
   useZendeskSwapArticleLinks({
     zendeskReady,
   });
@@ -51,11 +51,6 @@ export default function Home() {
           'button-query': 'Was-this-helpful',
           'button-text': innerText,
         });
-      }
-
-      // Check for `Talk to a human` button clicks
-      if (innerText === ZENDESK_TALKTOAHUMAN_BUTTON_IDENTIFIER) {
-        /* noop */
       }
     },
     // Handle KB link and 'Support Form' clicks
@@ -93,8 +88,9 @@ export default function Home() {
           hideHeader: true,
         },
         theme: {
-          message: '#2B55CA',
-          action: '#2B55CA',
+          message: getCSSVariable('--sds-color-palette-blue-60'),
+          action: getCSSVariable('--sds-color-palette-blue-60'),
+          onMessage: getCSSVariable('--sds-color-text-01'),
           onAction: '#FAFAFA',
           businessMessage: '#FFFFFF',
           onBusinessMessage: '#222222',
