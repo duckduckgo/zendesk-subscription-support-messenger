@@ -11,11 +11,12 @@ Configuration:
 Example config:
   window.PIXEL_CONFIG = {
     baseUrl: "https://improving.duckduckgo.com/t/",  // Default DuckDuckGo analytics endpoint
-    pathPrefix: "/duckduckgo-help-pages/",  // Path prefix to strip (optional)
+    pathPrefix: "/duckduckgo-help-pages/",  // Path prefix to strip (optional, only used if includePathname is true)
     pathPrefixToSanitize: "duckduckgo-help-pages-",  // Additional prefix to remove from sanitized paths (optional)
     allowedHostnames: ["help.duckduckgo.com"],  // Hostnames allowed to send full URLs (optional)
     externalLinkAllowList: {},  // Map of external URLs allowed to send full URLs (optional)
     eventPrefix: "subscription_support_",  // Prefix for event names in pixel URL (optional, defaults to "subscription_support_")
+    includePathname: false,  // Whether to include pathname in pixel URL (optional, defaults to true, set to false for SPAs)
     buttonSelector: "article button",  // CSS selector for buttons to track (optional, defaults to "article button")
     trackButtonText: true,  // Whether to include button text (optional, defaults to true)
     trackButtonId: true,  // Whether to include button ID (optional, defaults to true)
@@ -24,8 +25,11 @@ Example config:
     disableDeduplication: false,  // Whether to disable duplicate pixel prevention (optional, defaults to false)
   };
 
-Pixel format:
+Pixel format (with pathname):
   [baseUrl][eventPrefix][sanitized-pathname]_[event]?[extra-data]
+
+Pixel format (without pathname, for SPAs):
+  [baseUrl][eventPrefix]_[event]?[extra-data]
 
 Examples:
   https://improving.duckduckgo.com/t/help_company-advertising-and-affiliates_load
@@ -61,7 +65,8 @@ Manual Event Tracking:
     allowedHostnames: [],
     externalLinkAllowList: {},
     eventPrefix: 'subscriptionsupport_',
-    buttonSelector: 'button', // CSS selector for buttons to track (supports any valid CSS selector)
+    includePathname: false, // Whether to include pathname in pixel URL (set to false for SPAs)
+    buttonSelector: 'NA', // CSS selector for buttons to track (supports any valid CSS selector)
     trackButtonText: true, // Whether to include button text in pixel
     trackButtonId: false, // Whether to include button ID in pixel
     trackButtonClass: false, // Whether to include button class in pixel
@@ -115,7 +120,9 @@ Manual Event Tracking:
       return;
     }
 
-    firePixel(sanitize(eventName), extraData || {});
+    // Don't sanitize event names - they're controlled by application code
+    // and should preserve underscores and dots as intended
+    firePixel(eventName, extraData || {});
   };
 
   /**
@@ -137,7 +144,7 @@ Manual Event Tracking:
             )}`,
           );
 
-    firePixel('static-err', {
+    firePixel('jsexception', {
       msg: err.message,
       cause: '',
       page: location.pathname,
@@ -150,33 +157,40 @@ Manual Event Tracking:
    * @param {Object} extraData - Additional data to send as query parameters
    */
   function firePixel(event, extraData) {
-    let pathname = location.pathname;
+    let basePixelUrl = config.baseUrl + config.eventPrefix;
 
-    // Strip configured path prefix if present
-    if (config.pathPrefix && pathname.startsWith(config.pathPrefix)) {
-      pathname = pathname.replace(
-        new RegExp(
-          '^' + config.pathPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-        ),
-        '',
+    // Include pathname in pixel URL if configured (skip for SPAs)
+    if (config.includePathname !== false) {
+      let pathname = location.pathname;
+
+      // Strip configured path prefix if present
+      if (config.pathPrefix && pathname.startsWith(config.pathPrefix)) {
+        pathname = pathname.replace(
+          new RegExp(
+            '^' + config.pathPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+          ),
+          '',
+        );
+      }
+
+      // Remove wrapping slashes if present
+      pathname = pathname.replace(/^\/?(.*)\/?$/, '$1');
+
+      // Replace slashes with dashes
+      pathname = pathname.replace(/\//g, '-');
+
+      const sanitizedPath = sanitize(
+        pathname === '/' || pathname === '' ? 'home' : pathname,
       );
+
+      basePixelUrl = basePixelUrl + sanitizedPath + '_';
     }
-
-    // Remove wrapping slashes if present
-    pathname = pathname.replace(/^\/?(.*)\/?$/, '$1');
-
-    // Replace slashes with dashes
-    pathname = pathname.replace(/\//g, '-');
-
-    const sanitizedPath = sanitize(
-      pathname === '/' || pathname === '' ? 'home' : pathname,
-    );
-
-    const basePixelUrl = config.baseUrl + config.eventPrefix + sanitizedPath;
 
     extraData = extraData || {};
 
-    let pixelUrl = basePixelUrl + '_' + event;
+    // When pathname is included, we add '_' after sanitizedPath to separate it from event
+    // When pathname is excluded, eventPrefix already ends with '_', so we just append event directly
+    let pixelUrl = basePixelUrl + event;
     let extraDataString = '';
 
     Object.keys(extraData).forEach(function (extraDataKey) {
@@ -241,19 +255,8 @@ Manual Event Tracking:
     // Add event listener on the document to trigger load pixel
     // This is required because SPAs (like Next.js App Router) only do soft navigation
     document.addEventListener('pageLoaded', function () {
-      firePixel('load');
+      firePixel('impression');
     });
-
-    // // Use event delegation for links and buttons to support dynamically added content
-    // // This ensures buttons/links added after page load are still tracked
-    //
-    // // Link clicks: Fire when links within the article are clicked
-    // document.addEventListener('click', function (e) {
-    //   const link = e.target.closest('article a');
-    //   if (link) {
-    //     handleLinkClick({ currentTarget: link });
-    //   }
-    // });
 
     // Button clicks: Fire when buttons matching the selector are clicked
     // Uses event delegation to support dynamically added buttons

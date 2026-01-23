@@ -24,12 +24,20 @@ export default function Home() {
   const [loadWidget, setLoadWidget] = useState(false);
   const [firstMessageSent, setFirstMessageSent] = useState(false);
 
+  const onContinue = () => {
+    window.firePixelEvent?.('consent');
+
+    setLoadWidget(true);
+  };
+
   // Swap ZD article link URLs for help page URLs
   useZendeskSwapArticleLinks({
     zendeskReady,
   });
 
-  // Add click handlers to Zendesk buttons and links
+  // Add click handlers to Zendesk buttons and links to facilitate sending
+  // pixels. For more information about the pixels we're sending see {@link
+  // https://app.asana.com/1/137249556945/project/1211050482669423/task/1212831137706946?focus=true}
   useZendeskClickHandlers({
     zendeskReady,
     onButtonClick: (el) => {
@@ -37,7 +45,7 @@ export default function Home() {
 
       // Check for first time `send` button clicks
       if (title === ZENDESK_SEND_BUTTON_IDENTIFIER && !firstMessageSent) {
-        window.firePixelEvent?.('first-message');
+        window.firePixelEvent?.('message_first');
 
         setFirstMessageSent(true);
       }
@@ -47,24 +55,23 @@ export default function Home() {
         innerText === ZENDESK_YES_BUTTON_IDENTIFIER ||
         innerText === ZENDESK_NO_BUTTON_IDENTIFIER
       ) {
-        window.firePixelEvent?.('button-click', {
-          'button-query': 'Was-this-helpful',
-          'button-text': innerText,
-        });
+        window.firePixelEvent?.(`helpful_${innerText.toLowerCase()}`);
       }
     },
     // Handle KB link and 'Support Form' clicks
     onLinkClick: (el) => {
-      // @note: if specifically targeting the support form link, use
-      // `innerText.includes('Support form')`. ZD has a carriage return after
-      // the text
-
-      try {
-        window.firePixelEvent?.('link-click', {
-          slug: new URL(el.href).pathname,
-        });
-      } catch (error) {
-        window.fireJse?.(error);
+      // @note: using `includes()` due to a hidden character after "form" on the
+      // Zendesk button
+      if (el.innerText.includes('Support form')) {
+        window.firePixelEvent?.('link_ticket');
+      } else {
+        try {
+          window.firePixelEvent?.(
+            `helplink_${new URL(el.href).pathname.split('/').at(-1)}`,
+          );
+        } catch (error) {
+          window.fireJse?.(error);
+        }
       }
     },
   });
@@ -142,7 +149,7 @@ export default function Home() {
           </div>
         )}
 
-        {!loadWidget && <ConsentForm onContinue={() => setLoadWidget(true)} />}
+        {!loadWidget && <ConsentForm onContinue={() => onContinue()} />}
       </main>
       {loadWidget && (
         <Script

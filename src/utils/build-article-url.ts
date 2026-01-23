@@ -3,9 +3,9 @@ import { ZENDESK_BASE_URL } from '@/config/zendesk';
 /**
  * Builds a complete article URL from the provided path using the URL constructor.
  *
- * The URL constructor handles path normalization automatically, including:
- * - Trailing slashes in the base URL
- * - Leading slashes in the path
+ * The URL constructor treats paths starting with '/' as absolute, which would replace
+ * the base URL's pathname. To preserve the base pathname, we ensure the base URL
+ * has a trailing slash and remove the leading slash from the path to make it relative.
  *
  * @function buildArticleUrl
  * @param {string} path - The article path (relative to baseUrl, with or without
@@ -20,5 +20,14 @@ import { ZENDESK_BASE_URL } from '@/config/zendesk';
  * ```
  */
 export function buildArticleUrl(path: string): string {
-  return new URL(path, ZENDESK_BASE_URL).href;
+  // Ensure base URL has trailing slash to preserve pathname
+  const baseUrl = ZENDESK_BASE_URL.endsWith('/')
+    ? ZENDESK_BASE_URL
+    : `${ZENDESK_BASE_URL}/`;
+
+  // Remove leading slash from path to make it relative to base URL pathname
+  // This prevents the URL constructor from treating it as an absolute path
+  const relativePath = path.startsWith('/') ? path.slice(1) : path;
+
+  return new URL(relativePath, baseUrl).href;
 }

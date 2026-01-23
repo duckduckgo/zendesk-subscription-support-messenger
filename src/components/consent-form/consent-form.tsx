@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/button/button';
 import { MAIN_SITE_URL } from '@/config/common';
+import { LOAD_ZD_BUTTON_TEST_ID } from '@/constants/test-ids';
 import { REDIRECT_DELAY_MS } from '@/constants/zendesk-timing';
 import styles from './consent-form.module.css';
 
@@ -82,6 +83,7 @@ export default function ConsentForm({ onContinue }: ConsentFormProps) {
             skipBaseStyles
             className={`${styles.button} ${styles.continueButton}`}
             onClick={onContinue}
+            data-testid={LOAD_ZD_BUTTON_TEST_ID}
           />
         </div>
       </div>
