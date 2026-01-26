@@ -77,13 +77,13 @@ window.PIXEL_CONFIG = {
 
 #### Pixel schema
 
-- **Page impression** - `subscriptionsupport.impression` - The first time user lands on the page
-- **User consent** - `subscriptionsupport.consent` - User provides consent to privacy policy / TOU
-- **First message** - `subscriptionsupport.message.first` - The first question / message per session that the user submits
-- **Convert to ticket** - `subscriptionsupport.link.ticket` - If / when the user clicks the “Support form” button to create a ticket
-- **Error** - `subscriptionsupport.jsexception` - JavaScript Error object
-- **Yes / No clicks**: `subscriptionsupport.helpful.yes` or `subscriptionsupport.helpful.no` - User clicked either “Yes” or “No” button when asked “Was this helpful?"
-- **Article link clicks with slug** - `subscriptionsupport.helplink.$slug` - User clicked a help page link (provided by the chat bot) $slug example: cancel-or-change-subscription (The DDG help page slug)
+- **Page impression** - `subscriptionsupport_impression` - The first time user lands on the page
+- **User consent** - `subscriptionsupport_consent` - User provides consent to privacy policy / TOU
+- **First message** - `subscriptionsupport_message_first` - The first question / message per session that the user submits
+- **Convert to ticket** - `subscriptionsupport_link_ticket` - When the user clicks the "Support form" link to create a ticket
+- **Error** - `subscriptionsupport_jsexception` - JavaScript Error object
+- **Yes / No clicks**: `subscriptionsupport_helpful_yes` or `subscriptionsupport_helpful_no` - User clicked either "Yes" or "No" button when asked "Was this helpful?"
+- **Article link clicks with slug** - `subscriptionsupport_helplink_$slug` - User clicked a help page link (provided by the chat bot). Example: `subscriptionsupport_helplink_getting-started` (The DDG help page slug)
 
 ## Getting Started
 

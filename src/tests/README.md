@@ -47,8 +47,8 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
     → `/privacy-pro/using-privacy-pro-outside-us`
   - "Getting Started" (44195037080467)
     → `/privacy-pro/getting-started`
-  - "I Lost My Device" (44195025522323)
-    → `/privacy-pro/i-lost-my-device`
+  - "What is DuckDuckGo Personal Information Removal?" (44195052225555)
+    → `/privacy-pro/personal-information-removal/getting-started`
 - Confirms URLs changed from `duckduckgo-85720.zendesk.com` to `duckduckgo.com/duckduckgo-help-pages`
 
 **3. ✅ Message Input & Send**
@@ -65,8 +65,9 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
   - `subscriptionsupport_consent` - when "Continue to Chat" clicked
   - `subscriptionsupport_impression` - when widget loads
   - `subscriptionsupport_message_first` - when first message sent
+  - `subscriptionsupport_helplink_getting-started` - when article link clicked
+  - `subscriptionsupport_link_ticket` - when Support form link clicked
   - `subscriptionsupport_helpful_yes` - when Yes button clicked
-  - `subscriptionsupport_helplink_*` - when article link clicked
 
 **5. ✅ Custom Styles Injection**
 
@@ -81,12 +82,18 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
    ✅ 3 article links swapped correctly
    ✅ Message entered in chatbot
    ✅ Message sent successfully
-   ✅ 2+ pixel events fired to improving.duckduckgo.com
+   ✅ Article link clicked
+   ✅ Support form link clicked
+   ✅ Yes button clicked
+   ✅ 6+ pixel events fired to improving.duckduckgo.com
 
 📊 Pixel events:
    - https://improving.duckduckgo.com/t/subscriptionsupport_consent
    - https://improving.duckduckgo.com/t/subscriptionsupport_impression
    - https://improving.duckduckgo.com/t/subscriptionsupport_message_first
+   - https://improving.duckduckgo.com/t/subscriptionsupport_helplink_getting-started
+   - https://improving.duckduckgo.com/t/subscriptionsupport_link_ticket
+   - https://improving.duckduckgo.com/t/subscriptionsupport_helpful_yes
 ```
 
 ## Running Tests

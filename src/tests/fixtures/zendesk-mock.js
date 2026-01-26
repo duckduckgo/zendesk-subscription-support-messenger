@@ -58,10 +58,33 @@
     if (!iframeDoc) return;
 
     // Load the realistic iframe content (pre-href swap)
+    // This HTML structure matches production Zendesk widget
     const realisticContent = `<!DOCTYPE html>
 <html dir="ltr" lang="en-us">
 <head>
   <style data-styled="" data-styled-version="4.4.1"></style>
+  <style data-zendesk-custom-styles="true">
+    div[role="status"] + div {
+      padding: 10px 1px;
+      width: 95%;
+      margin: 0 auto;
+    }
+
+    #composer-input {
+      border-radius: 8px;
+      background-color: #FFFFFF;
+    }
+
+    div[role="dialog"][aria-label="Messaging window"] {
+      border: none;
+      border-radius: 8px;
+    }
+
+    ul:has(button[data-garden-id="buttons.button"]) {
+      max-width: unset;
+      justify-content: center;
+    }
+  </style>
 </head>
 <body>
   <div>
@@ -81,71 +104,133 @@
                     </div>
                   </div>
 
-                  <!-- Article cards with ORIGINAL Zendesk URLs -->
+                  <!-- Article 1: Subscribing Outside the United States -->
+                  <span aria-live="assertive">Subscribing Outside the United States</span>
                   <div data-slide-message="true">
                     <div data-slides="true">
-
-                      <!-- Article 1: Subscribing Outside the United States -->
                       <div>
-                        <h3>Subscribing Outside the United States</h3>
-                        <a aria-label="View article: 'Subscribing Outside the United States'"
-                           href="https://duckduckgo-85720.zendesk.com/hc/en-us/articles/44195025991699-Subscribing-Outside-the-United-States"
-                           target="_blank"
-                           rel="noopener noreferrer">
-                          <span>View article</span>
-                        </a>
+                        <div>
+                          <div>
+                            <h3>Subscribing Outside the United States</h3>
+                          </div>
+                        </div>
+                        <div>
+                          <div>
+                            <a aria-label="View article: 'Subscribing Outside the United States'"
+                               type="button"
+                               href="https://duckduckgo-85720.zendesk.com/hc/en-us/articles/44195025991699-Subscribing-Outside-the-United-States"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               data-garden-id="buttons.button"
+                               data-garden-version="8.76.7">
+                              <span>View article</span>
+                            </a>
+                          </div>
+                        </div>
                       </div>
 
-                      <!-- Article 2: Getting Started -->
+                      <!-- Article 2: Getting Started With The DuckDuckGo Subscription -->
                       <div>
-                        <h3>Getting Started With The DuckDuckGo Subscription</h3>
-                        <a aria-label="View article: 'Getting Started With The DuckDuckGo Subscription'"
-                           href="https://duckduckgo-85720.zendesk.com/hc/en-us/articles/44195037080467-Getting-Started-With-The-DuckDuckGo-Subscription"
-                           target="_blank"
-                           rel="noopener noreferrer">
-                          <span>View article</span>
-                        </a>
+                        <div>
+                          <div>
+                            <h3>Getting Started With The DuckDuckGo Subscription</h3>
+                          </div>
+                        </div>
+                        <div>
+                          <div>
+                            <a aria-label="View article: 'Getting Started With The DuckDuckGo Subscription'"
+                               type="button"
+                               href="https://duckduckgo-85720.zendesk.com/hc/en-us/articles/44195037080467-Getting-Started-With-The-DuckDuckGo-Subscription"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               data-garden-id="buttons.button"
+                               data-garden-version="8.76.7">
+                              <span>View article</span>
+                            </a>
+                          </div>
+                        </div>
                       </div>
-
-                      <!-- Article 3: I Lost My Device -->
-                      <div>
-                        <h3>I Lost My Device</h3>
-                        <a aria-label="View article: 'I Lost My Device'"
-                           href="https://duckduckgo-85720.zendesk.com/hc/en-us/articles/44195025522323-i-lost-my-device"
-                           target="_blank"
-                           rel="noopener noreferrer">
-                          <span>View article</span>
-                        </a>
-                      </div>
-
                     </div>
                   </div>
 
-                  <!-- Yes/No feedback buttons -->
+                  <!-- Support form link -->
                   <div>
-                    <div>Was this helpful?</div>
-                    <ul>
-                      <li><button type="button">Yes</button></li>
-                      <li><button type="button">No</button></li>
-                    </ul>
+                    <div>
+                      <span>DDG Subscriptions Support says: </span>
+                      <span>Share your details here and we'll get back to you.</span>
+                      <div>
+                        <div>
+                          <a type="button"
+                             href="https://duckduckgo.com/subscription-support"
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             data-garden-id="buttons.button"
+                             data-garden-version="8.76.7">
+                            <span>Support form</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Article 3: What is DuckDuckGo Personal Information Removal? -->
+                  <span aria-live="assertive">What is DuckDuckGo Personal Information Removal?</span>
+                  <div data-slide-message="true">
+                    <div data-slides="true">
+                      <div>
+                        <div>
+                          <div>
+                            <h3>What is DuckDuckGo Personal Information Removal?</h3>
+                          </div>
+                        </div>
+                        <div>
+                          <div>
+                            <a aria-label="View article: 'What is DuckDuckGo Personal Information Removal?'"
+                               type="button"
+                               href="https://duckduckgo-85720.zendesk.com/hc/en-us/articles/44195052225555-What-is-DuckDuckGo-Personal-Information-Removal"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               data-garden-id="buttons.button"
+                               data-garden-version="8.76.7">
+                              <span>View article</span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- "Was this helpful?" text -->
+                  <div>
+                    <div>
+                      <span>DDG Subscriptions Support says: </span>
+                      <span>Was this helpful?</span>
+                    </div>
                   </div>
 
                 </div>
               </div>
 
+              <div role="status"></div>
+
               <!-- Composer -->
               <div>
                 <div>
-                  <textarea id="composer-input"
-                            rows="1"
-                            placeholder="Type a message"
-                            style="height: 40px;"></textarea>
-                  <button data-garden-id="buttons.icon_button"
-                          title="Send message"
-                          type="button"
-                          style="display: none;">
-                    Send
-                  </button>
+                  <div role="region" aria-labelledby="composer-input">
+                    <div>
+                      <textarea id="composer-input"
+                                rows="1"
+                                placeholder="Type a message"
+                                aria-invalid="false"
+                                style="height: 40px;"></textarea>
+                      <button data-garden-id="buttons.icon_button"
+                              title="Send message"
+                              type="button"
+                              style="display: none;">
+                        Send
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -153,6 +238,24 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Yes/No feedback buttons (rendered separately from chat log) -->
+  <div>
+    <div>
+      <ul>
+        <li>
+          <button data-garden-id="buttons.button"
+                  data-garden-version="8.76.7"
+                  type="button">Yes</button>
+        </li>
+        <li>
+          <button data-garden-id="buttons.button"
+                  data-garden-version="8.76.7"
+                  type="button">No</button>
+        </li>
+      </ul>
     </div>
   </div>
 
@@ -222,6 +325,7 @@
         if (targetElementId && !isRendered) {
           isRendered = true;
           createIframeStructure(targetElementId);
+
           console.log(`[Zendesk Mock] Widget rendered in #${targetElementId}`);
         }
       } else if (action === 'open') {
@@ -246,6 +350,7 @@
           callbacks[event] = [];
         }
         callbacks[event].push(callback);
+
         console.log(`[Zendesk Mock] Registered callback for ${event}`);
 
         // If widget is already rendered and this is unreadMessages, trigger immediately

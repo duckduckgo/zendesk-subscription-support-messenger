@@ -136,8 +136,12 @@ test.describe('Complete Zendesk Widget Flow', () => {
       else if (href.includes('privacy-pro/getting-started')) {
         article2Href = href;
       }
-      // Article 3: ARTICLE_LINK_MAP['44195025522323']
-      else if (href.includes('privacy-pro/i-lost-my-device')) {
+      // Article 3: ARTICLE_LINK_MAP['44195052225555']
+      else if (
+        href.includes(
+          'privacy-pro/personal-information-removal/getting-started',
+        )
+      ) {
         article3Href = href;
       }
     }
@@ -154,7 +158,9 @@ test.describe('Complete Zendesk Widget Flow', () => {
 
     expect(article3Href).toBeTruthy();
     expect(article3Href).toContain('duckduckgo.com/duckduckgo-help-pages');
-    expect(article3Href).toContain('privacy-pro/i-lost-my-device');
+    expect(article3Href).toContain(
+      'privacy-pro/personal-information-removal/getting-started',
+    );
     console.log('✅ Article 3 link swapped:', article3Href);
 
     console.log(
@@ -205,11 +211,15 @@ test.describe('Complete Zendesk Widget Flow', () => {
     // STEP 6: Click an article link and verify pixel
     // ==========================================
 
-    // Find the "I Lost My Device" article link from our earlier iteration
+    // Find the "Personal Information Removal" article link
     let article3Link = null;
     for (const link of articleLinks) {
       const href = await link.getAttribute('href');
-      if (href?.includes('privacy-pro/i-lost-my-device')) {
+      if (
+        href?.includes(
+          'privacy-pro/personal-information-removal/getting-started',
+        )
+      ) {
         article3Link = link;
         break;
       }
@@ -223,16 +233,36 @@ test.describe('Complete Zendesk Widget Flow', () => {
 
     // Verify helplink pixel event fired with the slug
     const helplinkEvent = pixelRequests.find((url) =>
-      url.includes('helplink_i-lost-my-device'),
+      url.includes('helplink_getting-started'),
     );
     expect(helplinkEvent).toBeTruthy();
     console.log('✅ Article link click pixel fired:', helplinkEvent);
 
     // ==========================================
-    // STEP 7: Click Yes button and verify pixel
+    // STEP 7: Click Support form link and verify pixel
     // ==========================================
 
-    const yesButton = iframe.locator('button:has-text("Yes")');
+    const supportFormLink = iframe.locator('a:has-text("Support form")');
+    await expect(supportFormLink).toBeVisible();
+    await supportFormLink.click();
+
+    // Wait for pixel event to fire
+    await page.waitForTimeout(500);
+
+    // Verify link_ticket pixel event fired
+    const linkTicketEvent = pixelRequests.find((url) =>
+      url.includes('link_ticket'),
+    );
+    expect(linkTicketEvent).toBeTruthy();
+    console.log('✅ Support form link click pixel fired:', linkTicketEvent);
+
+    // ==========================================
+    // STEP 8: Click Yes button and verify pixel
+    // ==========================================
+
+    const yesButton = iframe.locator(
+      'button[data-garden-id="buttons.button"]:has-text("Yes")',
+    );
     await expect(yesButton).toBeVisible();
     await yesButton.click();
 
@@ -247,17 +277,18 @@ test.describe('Complete Zendesk Widget Flow', () => {
     console.log('✅ Yes button click pixel fired:', helpfulYesEvent);
 
     // ==========================================
-    // STEP 8: Verify all pixel network calls
+    // STEP 9: Verify all pixel network calls
     // ==========================================
 
     // Expected pixel events:
     // 1. consent - when "Continue to Chat" clicked
     // 2. impression - page load
     // 3. message_first - when first message sent
-    // 4. helplink_i-lost-my-device - when article link clicked
-    // 5. helpful_yes - when Yes button clicked
+    // 4. helplink_getting-started - when article link clicked
+    // 5. link_ticket - when Support form link clicked
+    // 6. helpful_yes - when Yes button clicked
 
-    expect(pixelRequests.length).toBeGreaterThanOrEqual(5);
+    expect(pixelRequests.length).toBeGreaterThanOrEqual(6);
 
     // Verify consent event
     const consentEvent = pixelRequests.find((url) => url.includes('consent'));
@@ -276,6 +307,9 @@ test.describe('Complete Zendesk Widget Flow', () => {
     // Verify helplink event
     expect(helplinkEvent).toContain('https://improving.duckduckgo.com/t/');
 
+    // Verify link_ticket event
+    expect(linkTicketEvent).toContain('https://improving.duckduckgo.com/t/');
+
     // Verify helpful_yes event
     expect(helpfulYesEvent).toContain('https://improving.duckduckgo.com/t/');
 
@@ -293,8 +327,9 @@ test.describe('Complete Zendesk Widget Flow', () => {
     console.log('   ✅ Message entered in chatbot');
     console.log('   ✅ Message sent successfully');
     console.log('   ✅ Article link clicked');
+    console.log('   ✅ Support form link clicked');
     console.log('   ✅ Yes button clicked');
-    console.log('   ✅ 5+ pixel events fired to improving.duckduckgo.com');
+    console.log('   ✅ 6+ pixel events fired to improving.duckduckgo.com');
   });
 
   test('should verify custom styles are injected into iframe', async ({
@@ -384,16 +419,18 @@ test.describe('Complete Zendesk Widget Flow', () => {
 
     // Click an article link
     const articleLink = iframe
-      .locator('a[aria-label*="I Lost My Device"]')
+      .locator(
+        'a[aria-label*="What is DuckDuckGo Personal Information Removal"]',
+      )
       .first();
     await articleLink.click();
 
     // Wait for click handler to fire pixel event
     await page.waitForTimeout(500);
 
-    // Verify helplink pixel event fired
+    // Verify helplink pixel event fired (should contain the article slug)
     const helpLinkEvent = pixelRequests.find((url) =>
-      url.includes('helplink_'),
+      url.includes('helplink_getting-started'),
     );
     expect(helpLinkEvent).toBeTruthy();
     console.log('✅ Article link click tracked:', helpLinkEvent);
