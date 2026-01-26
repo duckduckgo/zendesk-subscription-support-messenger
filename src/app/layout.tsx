@@ -8,7 +8,7 @@ import LogoHorizontalLight from '@/icons/logo-horizontal-light.svg';
 import BackgroundImage from '../../public/static-assets/images/background.svg';
 import Footer from '@/components/footer/footer';
 import { duckSansDisplay, duckSansProduct, proximaNova } from '@/config/fonts';
-import { SITE_TITLE } from '@/config/common';
+import { SITE_TITLE, basePath } from '@/config/common';
 import './globals.css';
 import styles from './layout.module.css';
 
@@ -28,6 +28,13 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${duckSansDisplay.variable} ${duckSansProduct.variable} ${proximaNova.variable}`}
     >
+      <head>
+        <link
+          rel="preload"
+          href={`${basePath}/static-assets/images/background.svg`}
+          as="image"
+        />
+      </head>
       <body>
         {/* 
           Blocking script to prevent FOUC (Flash of Unstyled Content).

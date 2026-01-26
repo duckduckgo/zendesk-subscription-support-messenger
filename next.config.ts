@@ -1,20 +1,10 @@
 import type { NextConfig } from 'next';
+import { basePath } from './src/config/common';
 
 /**
  * Next.js configuration.
  * Optimized for static site generation and performance.
  */
-
-// Determine if using custom domain (e.g., subscription-support.duckduckgo.com)
-// Custom domains don't need basePath, GitHub Pages default URLs do
-const useCustomDomain = process.env.CUSTOM_DOMAIN === 'true';
-
-// Only use basePath for GitHub Pages default URL (username.github.io/repo-name)
-// Custom domains are served at root and don't need a basePath
-const basePath =
-  process.env.NODE_ENV === 'production' && !useCustomDomain
-    ? '/zendesk-subscription-support-messenger'
-    : '';
 
 const nextConfig: NextConfig = {
   // Enable React Compiler for automatic optimizations
