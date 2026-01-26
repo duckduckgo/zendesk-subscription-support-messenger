@@ -128,22 +128,28 @@ export default function Home() {
 
   return (
     <>
-      <main className={styles.main}>
+      <main id="main-content" className={styles.main}>
         {loadWidget && (
           <div className={`${styles.card} ${styles.target}`}>
             {!zendeskReady && (
-              <div className={styles.spinnerContainer}>
-                <div className={styles.spinner}></div>
+              <div
+                className={styles.spinnerContainer}
+                role="status"
+                aria-live="polite"
+                aria-label="Loading chat widget"
+              >
+                <div className={styles.spinner} aria-hidden="true"></div>
               </div>
             )}
             {zendeskReady && (
-              <div className={styles.chatCardHeader}>
-                <p>{SITE_TITLE}</p>
-              </div>
+              <h2 className={styles.chatCardHeader}>{SITE_TITLE}</h2>
             )}
             <div
               className={styles.chatContent}
               id={EMBEDDED_TARGET_ELEMENT}
+              role="region"
+              aria-label="Support chat"
+              aria-live="polite"
               style={{ display: zendeskReady ? 'block' : 'none' }}
             ></div>
           </div>

@@ -1,3 +1,21 @@
+.skipLink {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--Buttons-Solid-Primary-Default, #3969ef);
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 100;
+  border-radius: 4px;
+}
+
+.skipLink:focus {
+  top: 0;
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
 .container {
   min-height: 100vh;
   background-color: #f7f7f7;

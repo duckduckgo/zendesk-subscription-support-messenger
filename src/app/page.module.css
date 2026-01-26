@@ -60,31 +60,26 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
+
 .chatCardHeader {
   display: flex;
   flex-direction: column;
   gap: 8px;
   align-self: stretch;
-
-  p {
-    color: #222222;
-    font-family: var(--Font-Family-Display, 'DuckSans Display');
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 24px;
-  }
-}
-
-.chatCardHeader {
   width: 100%;
-  align-self: flex-start;
-
-  p {
-    font-size: 24px;
-    line-height: 28px;
-    letter-spacing: -0.24px;
-  }
+  color: #222222;
+  font-family: var(--Font-Family-Display, 'DuckSans Display');
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: -0.24px;
+  margin: 0;
 }
 
 .chatContent {
@@ -149,7 +144,7 @@
     min-height: 400px;
   }
 
-  .chatCardHeader p {
+  .chatCardHeader {
     font-size: 17px;
     line-height: 20px;
   }
