@@ -1,6 +1,6 @@
 # DuckDuckGo Automated Support Assistant
 
-A Next.js application that integrates the Zendesk Web Widget messaging interface for automated customer support. The application provides a consent form, embeds the Zendesk widget, and tracks user interactions via analytics pixels.
+A Next.js application that integrates the Zendesk Web Widget messaging interface for automated customer support. The application provides a consent form, embeds the Zendesk widget, and logs user interactions via anonymous pixels.
 
 ## Overview
 
@@ -60,11 +60,30 @@ The application uses three main hooks for Zendesk integration (see [`src/hooks/R
 
 The application uses a custom `pixels.js` script (`public/scripts/pixels.js`) for anonymous logging of events. No PII or device fingerprinting.
 
-- **Page loads** - Fired when page loads (via `PageLoadPixel` component)
+- **Page impression** - Fired when page loads (via `PageLoadPixel` component)
 - **Button clicks** - logs button interactions (send button, Yes/No buttons)
-- **Link clicks** - Tracks knowledge base article link clicks
+- **Link clicks** - Logs knowledge base article link clicks
 
-Anonymous pixel events are sent to DuckDuckGo analytics endpoints.
+Pixel configuration can be set via `window.PIXEL_CONFIG` before the script loads:
+
+```javascript
+window.PIXEL_CONFIG = {
+  baseUrl: 'https://improving.duckduckgo.com/t/',
+  eventPrefix: 'subscriptionsupport_',
+  disableDeduplication: false, // Set to true to allow duplicate pixels
+  ...
+};
+```
+
+#### Pixel schema
+
+- **Page impression** - `subscriptionsupport.impression` - The first time user lands on the page
+- **User consent** - `subscriptionsupport.consent` - User provides consent to privacy policy / TOU
+- **First message** - `subscriptionsupport.message.first` - The first question / message per session that the user submits
+- **Convert to ticket** - `subscriptionsupport.link.ticket` - If / when the user clicks the “Support form” button to create a ticket
+- **Error** - `subscriptionsupport.jsexception` - JavaScript Error object
+- **Yes / No clicks**: `subscriptionsupport.helpful.yes` or `subscriptionsupport.helpful.no` - User clicked either “Yes” or “No” button when asked “Was this helpful?"
+- **Article link clicks with slug** - `subscriptionsupport.helplink.$slug` - User clicked a help page link (provided by the chat bot) $slug example: cancel-or-change-subscription (The DDG help page slug)
 
 ## Getting Started
 
@@ -102,27 +121,21 @@ npm start
 
 ## Configuration
 
+### Common Configuration
+
+Common site configuration is in `src/config/common.ts`:
+
+- **`MAIN_SITE_URL`** - Main DuckDuckGo site URL
+- **`SITE_TITLE`** - Application title
+- **`HELP_PAGES_BASE_URL`** - Base URL for help pages
+
 ### Zendesk Widget
 
 Zendesk configuration is in `src/config/zendesk.ts`:
 
 - **`WEB_WIDGET_KEY`** - Zendesk Web Widget key
 - **`ZENDESK_SCRIPT_URL`** - Zendesk script URL
-- **`ZENDESK_BASE_URL`** - Base URL for help pages
 - **`ARTICLE_LINK_MAP`** - Mapping of Zendesk article IDs to help page paths
-
-### Analytics
-
-Pixel tracking configuration can be set via `window.PIXEL_CONFIG` before the script loads:
-
-```javascript
-window.PIXEL_CONFIG = {
-  baseUrl: 'https://improving.duckduckgo.com/t/',
-  eventPrefix: 'subscriptionsupport_',
-  disableDeduplication: false, // Set to true to allow duplicate pixels
-  ...
-};
-```
 
 ## Project Structure
 

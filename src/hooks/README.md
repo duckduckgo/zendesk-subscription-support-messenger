@@ -6,7 +6,7 @@ This directory contains React hooks for integrating with the Zendesk Web Widget 
 
 ### `useZendeskSwapArticleLinks`
 
-Swaps Zendesk article link URLs with custom help page URLs. Processes links when the widget becomes ready and listens for new messages via the `unreadMessages` callback.
+Swaps Zendesk private article link URLs with public help page URLs. Processes links when the widget becomes ready and listens for new messages via the `unreadMessages` callback.
 
 **Usage:**
 
@@ -26,7 +26,7 @@ useZendeskSwapArticleLinks({
 
 - Uses `unreadMessages` callback to detect when message content has been added to the DOM
 - Retries up to `DEFAULT_MAX_RETRIES` times if links aren't found initially
-- Maps Zendesk article IDs to help page paths via `ARTICLE_LINK_MAP`
+- Maps Zendesk article IDs to help page paths via `ARTICLE_LINK_MAP`. This map was manually created but will be automated in future iterations
 
 ---
 

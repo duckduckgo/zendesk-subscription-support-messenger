@@ -8,7 +8,8 @@ import { ZENDESK_ARTICLE_LINK_SELECTOR } from '@/constants/zendesk-selectors';
  * @function updateArticleLinks
  * @param {Document} doc - The document containing article links
  *
- * @returns {number} The number of links that were found and updated
+ * @returns {number} The number of links that were found and updated for retry
+ * logic
  */
 export function updateArticleLinks(doc: Document): number {
   // Create an array of article IDs

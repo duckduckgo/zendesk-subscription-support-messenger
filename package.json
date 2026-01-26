@@ -10,6 +10,9 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -27,6 +30,7 @@
   },
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config",
+    "@playwright/test": "^1.57.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

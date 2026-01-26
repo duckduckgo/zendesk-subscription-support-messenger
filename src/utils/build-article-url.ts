@@ -1,4 +1,4 @@
-import { ZENDESK_BASE_URL } from '@/config/zendesk';
+import { HELP_PAGES_BASE_URL } from '@/config/common';
 
 /**
  * Builds a complete article URL from the provided path using the URL constructor.
@@ -21,9 +21,9 @@ import { ZENDESK_BASE_URL } from '@/config/zendesk';
  */
 export function buildArticleUrl(path: string): string {
   // Ensure base URL has trailing slash to preserve pathname
-  const baseUrl = ZENDESK_BASE_URL.endsWith('/')
-    ? ZENDESK_BASE_URL
-    : `${ZENDESK_BASE_URL}/`;
+  const baseUrl = HELP_PAGES_BASE_URL.endsWith('/')
+    ? HELP_PAGES_BASE_URL
+    : `${HELP_PAGES_BASE_URL}/`;
 
   // Remove leading slash from path to make it relative to base URL pathname
   // This prevents the URL constructor from treating it as an absolute path

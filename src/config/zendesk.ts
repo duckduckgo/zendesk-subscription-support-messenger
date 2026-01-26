@@ -1,8 +1,5 @@
-import { MAIN_SITE_URL } from './common';
-
 export const WEB_WIDGET_KEY = '5b61a0c7-ef59-4296-9880-526703b24e69';
 export const ZENDESK_SCRIPT_URL = `https://static.zdassets.com/ekr/snippet.js?key=${WEB_WIDGET_KEY}`;
-export const ZENDESK_BASE_URL = `${MAIN_SITE_URL}/duckduckgo-help-pages`;
 export const EMBEDDED_TARGET_ELEMENT = 'messaging-container';
 
 /**
