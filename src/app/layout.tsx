@@ -5,6 +5,7 @@ import Script from 'next/script';
 import { ThemeProvider } from '@/contexts/theme-context';
 import { ResolvedTheme, PREFERS_COLOR_SCHEME_DARK } from '@/constants/theme';
 import LogoHorizontalLight from '@/icons/logo-horizontal-light.svg';
+import BackgroundImage from '../../public/static-assets/images/background.svg';
 import Footer from '@/components/footer/footer';
 import { duckSansDisplay, duckSansProduct, proximaNova } from '@/config/fonts';
 import { SITE_TITLE } from '@/config/common';
@@ -68,7 +69,12 @@ export default function RootLayout({
         <Script src="/scripts/pixels.js" strategy="afterInteractive" />
         {/* Wrap app in providers */}
         <ThemeProvider>
-          <div className={styles.container}>
+          <div
+            className={styles.container}
+            style={{
+              backgroundImage: `url(${BackgroundImage.src})`,
+            }}
+          >
             <header className={styles.header}>
               <Image
                 src={LogoHorizontalLight}

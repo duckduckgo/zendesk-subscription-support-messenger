@@ -18,6 +18,12 @@ const nextConfig: NextConfig = {
       ? '/zendesk-subscription-support-messenger'
       : '',
 
+  // Asset prefix must match basePath for static assets to load correctly
+  assetPrefix:
+    process.env.NODE_ENV === 'production'
+      ? '/zendesk-subscription-support-messenger'
+      : '',
+
   // Disable automatic image optimization for static export
   images: {
     unoptimized: true,
