@@ -34,7 +34,7 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
 
 **1. ✅ Iframe Rendering**
 
-- Clicks "Continue to Chat" button
+- Clicks the consent button
 - Verifies iframe renders inside `#messaging-container`
 - Confirms both web widget and messaging iframes are attached
 
@@ -62,7 +62,7 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
 
 - Intercepts network calls to `https://improving.duckduckgo.com/t/*`
 - Verifies pixel events fire correctly:
-  - `subscriptionsupport_consent` - when "Continue to Chat" clicked
+  - `subscriptionsupport_consent` - when the consent button is clicked
   - `subscriptionsupport_impression` - when widget loads
   - `subscriptionsupport_message_first` - when first message sent
   - `subscriptionsupport_helplink_getting-started` - when article link clicked

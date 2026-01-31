@@ -7,7 +7,7 @@ import { join } from 'path';
  * Comprehensive Integration Test for Zendesk Widget
  *
  * Tests the complete user flow with high confidence:
- * 1. ✅ Click "Continue to Chat" → iframe renders
+ * 1. ✅ Click the consent button → iframe renders
  * 2. ✅ Link hrefs are swapped using ARTICLE_LINK_MAP
  * 3. ✅ Enter message in chatbot input
  * 4. ✅ Send the message
@@ -48,7 +48,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
     });
 
     // ==========================================
-    // STEP 1: Navigate and click "Continue to Chat"
+    // STEP 1: Navigate and click the consent button
     // ==========================================
 
     await page.goto('/');
@@ -281,7 +281,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
     // ==========================================
 
     // Expected pixel events:
-    // 1. consent - when "Continue to Chat" clicked
+    // 1. consent - when the consent button is clicked
     // 2. impression - page load
     // 3. message_first - when first message sent
     // 4. helplink_getting-started - when article link clicked

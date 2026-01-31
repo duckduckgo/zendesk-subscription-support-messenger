@@ -21,7 +21,7 @@ User visits page
   ↓
 Consent form displayed
   ↓
-User clicks "Continue to Chat"
+User clicks the consent button
   ↓
 Zendesk script loads
   ↓
@@ -177,4 +177,32 @@ src/
 
 ## Deployment
 
-@todo - jingram
+This application is configured to deploy to GitHub Pages via GitHub Actions.
+
+### GitHub Environment Variables
+
+The build process uses the `CUSTOM_DOMAIN` environment variable to determine if the app is being deployed to a custom domain. Set this variable in your GitHub repository:
+
+1. Go to your GitHub repository
+2. Click on **Settings** (top navigation)
+3. In the left sidebar, expand **Secrets and variables**
+4. Click on **Actions**
+5. Click on the **Variables** tab (not Secrets)
+6. Click **New repository variable**
+7. Set:
+   - **Name**: `CUSTOM_DOMAIN`
+   - **Value**: `true` (if using a custom domain) or `false` (if using github.io URL)
+8. Click **Add variable**
+
+### Manual Deployment
+
+The workflow automatically runs on pushes to the `main` branch, but you can also trigger it manually:
+
+1. Go to your GitHub repository
+2. Click on the **Actions** tab
+3. In the left sidebar, click on **Deploy**
+4. On the right side, click the **Run workflow** button
+5. Select the branch (typically `main`)
+6. Click the green **Run workflow** button
+
+The deployment will build the application, run tests, and deploy to GitHub Pages.

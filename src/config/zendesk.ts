@@ -1,6 +1,8 @@
 export const WEB_WIDGET_KEY = '5b61a0c7-ef59-4296-9880-526703b24e69';
 export const ZENDESK_SCRIPT_URL = `https://static.zdassets.com/ekr/snippet.js?key=${WEB_WIDGET_KEY}`;
 export const EMBEDDED_TARGET_ELEMENT = 'messaging-container';
+export const DECLINE_BUTTON_TEXT = 'Decline';
+export const CONSENT_BUTTON_TEXT = 'I Agree';
 
 /**
  * Map of Zendesk article IDs to their corresponding public help page path.
