@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useReducer } from 'react';
 import Script from 'next/script';
 import styles from './page.module.css';
 import PageLoadPixel from '@/components/page-load-pixel/page-load-pixel';
@@ -18,17 +18,18 @@ import {
 } from '@/constants/zendesk-selectors';
 import { ZENDESK_IFRAME_STYLES } from '@/constants/zendesk-styles';
 import { getCSSVariable } from '@/utils/get-css-variable';
+import { getSlugFromUrl } from '@/utils/get-slug-from-url';
+import { widgetReducer, initialWidgetState } from '@/reducers/widget-reducer';
 
 export default function Home() {
-  const [zendeskReady, setZendeskReady] = useState(false);
-  const [loadWidget, setLoadWidget] = useState(false);
-  const [firstMessageSent, setFirstMessageSent] = useState(false);
+  const [widgetState, dispatch] = useReducer(widgetReducer, initialWidgetState);
+  const { zendeskReady, loadWidget, firstMessageSent } = widgetState;
 
-  const onContinue = () => {
+  const onContinue = useCallback(() => {
     window.firePixelEvent?.('consent');
 
-    setLoadWidget(true);
-  };
+    dispatch({ type: 'SET_LOAD_WIDGET' });
+  }, []);
 
   // Swap ZD article link URLs for help page URLs
   useZendeskSwapArticleLinks({
@@ -47,7 +48,7 @@ export default function Home() {
       if (title === ZENDESK_SEND_BUTTON_IDENTIFIER && !firstMessageSent) {
         window.firePixelEvent?.('message_first');
 
-        setFirstMessageSent(true);
+        dispatch({ type: 'SET_FIRST_MESSAGE_SENT' });
       }
 
       // Check for `Yes` or `No` clicks when asked 'Was this helpful?'
@@ -66,9 +67,7 @@ export default function Home() {
         window.firePixelEvent?.('link_ticket');
       } else {
         try {
-          window.firePixelEvent?.(
-            `helplink_${new URL(el.href).pathname.split('/').at(-1)}`,
-          );
+          window.firePixelEvent?.(`helplink_${getSlugFromUrl(el.href)}`);
         } catch (error) {
           window.fireJse?.(error);
         }
@@ -82,11 +81,11 @@ export default function Home() {
     styles: ZENDESK_IFRAME_STYLES,
   });
 
-  const handleOnError = (error: Error) => {
-    window.fireJse?.(error);
-  };
+  const handleOnError = useCallback((e: Error) => {
+    window.fireJse?.(e);
+  }, []);
 
-  const handleOnLoad = () => {
+  const handleOnLoad = useCallback(() => {
     try {
       // Set cookies and theme customization first
       zE('messenger:set', 'cookies', 'functional');
@@ -119,12 +118,12 @@ export default function Home() {
 
       // Set ready after a delay to allow widget to render
       setTimeout(() => {
-        setZendeskReady(true);
+        dispatch({ type: 'SET_ZENDESK_READY' });
       }, ZENDESK_READY_DELAY_MS);
     } catch (error) {
       window.fireJse?.(error);
     }
-  };
+  }, [dispatch]);
 
   return (
     <>
@@ -155,14 +154,14 @@ export default function Home() {
           </div>
         )}
 
-        {!loadWidget && <ConsentForm onContinue={() => onContinue()} />}
+        {!loadWidget && <ConsentForm onContinue={onContinue} />}
       </main>
       {loadWidget && (
         <Script
           id="ze-snippet"
           src={ZENDESK_SCRIPT_URL}
-          onLoad={() => handleOnLoad()}
-          onError={(e) => handleOnError(e)}
+          onLoad={handleOnLoad}
+          onError={handleOnError}
         />
       )}
       <PageLoadPixel />

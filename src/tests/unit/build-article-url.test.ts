@@ -1,10 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { buildArticleUrl } from '@/utils/build-article-url';
 
-/**
- * Unit tests for buildArticleUrl utility
- * Pure function - tests run in Node context (no browser needed)
- */
 test.describe('buildArticleUrl', () => {
   test('should build URL with leading slash in path', () => {
     const result = buildArticleUrl('/privacy-pro/i-lost-my-device');

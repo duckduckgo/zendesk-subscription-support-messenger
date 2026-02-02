@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { SCRIPT_CHECK_INTERVAL_MS } from '@/constants/zendesk-timing';
 
 /**
  * Portable PageLoadPixel Component
@@ -19,14 +20,21 @@ export default function PageLoadPixel({
 
   // Check if script is ready
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     const checkScript = () => {
       if (window?.pixelsScriptReady) {
         setScriptReady(true);
       } else {
-        setTimeout(checkScript, 50);
+        timeoutId = setTimeout(checkScript, SCRIPT_CHECK_INTERVAL_MS);
       }
     };
+
     checkScript();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   // Fire event when script is ready

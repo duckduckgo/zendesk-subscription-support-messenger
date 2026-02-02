@@ -27,3 +27,8 @@ export const REDIRECT_DELAY_MS = 500;
  * Delay after Zendesk render before marking as ready
  */
 export const ZENDESK_READY_DELAY_MS = 500;
+
+/**
+ * Interval for checking if external scripts are ready
+ */
+export const SCRIPT_CHECK_INTERVAL_MS = 50;
