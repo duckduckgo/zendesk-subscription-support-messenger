@@ -55,6 +55,7 @@ The application uses three main hooks for Zendesk integration (see [`src/hooks/R
 - **`utils/build-article-url.ts`** - Builds complete article URLs using the URL constructor
 - **`utils/update-article-links.ts`** - Updates article links in a document based on article ID mapping
 - **`utils/get-css-variable.ts`** - Reads CSS variable values from the document root
+- **`utils/get-slug-from-url.ts`** - Extracts and sanitizes the last path segment from a URL for use in pixel event tracking
 
 ### Logging
 
@@ -165,11 +166,23 @@ src/
 │   ├── use-zendesk-click-handlers.ts     # Click event handlers
 │   ├── use-zendesk-iframe-styles.ts      # Style injection
 │   └── use-zendesk-swap-article-links.ts # Article link swapping
+├── reducers/                             # State reducers
+│   └── widget-reducer.ts                 # Widget lifecycle state reducer
+├── tests/                                # Test files
+│   ├── fixtures/                         # Test fixtures and mocks
+│   │   └── zendesk-mock.js               # Zendesk widget mock for testing
+│   ├── integration/                      # Integration tests
+│   │   └── complete-flow.test.ts         # End-to-end user flow tests
+│   ├── unit/                             # Unit tests
+│   │   ├── build-article-url.test.ts     # URL building utility tests
+│   │   └── get-slug-from-url.test.ts     # URL slug extraction tests
+│   └── README.md                         # Testing documentation
 ├── types/                                # TypeScript type definitions
 │   └── zendesk.d.ts                      # Extended Zendesk Web Widget types
 └── utils/                                # Utility functions
     ├── build-article-url.ts              # URL building utility
     ├── get-css-variable.ts               # CSS variable reader
+    ├── get-slug-from-url.ts              # URL slug extraction and sanitization
     ├── update-article-links.ts           # Link updating utility
     ├── zendesk-iframe.ts                 # Iframe access utilities
     └── zendesk-observer.ts               # MutationObserver setup utility
