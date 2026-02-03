@@ -15,7 +15,13 @@ export const ZENDESK_IFRAME_STYLES = `
 
   ${ZENDESK_INPUT_SELECTOR} {
     border-radius: 8px;
-    background-color: #FFFFFF;
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(216, 220, 222);
+  }
+
+  .receipt-enter-done > div > div > div,
+  .receipt-appear > div > div > div {
+    transform: translateY(-2px) scale(1) !important;
   }
 
   ${ZENDESK_INPUT_SELECTOR} textarea,
