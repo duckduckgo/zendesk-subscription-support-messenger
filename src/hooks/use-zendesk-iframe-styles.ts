@@ -10,6 +10,7 @@ import {
   DEFAULT_MAX_RETRIES,
 } from '@/constants/zendesk-timing';
 import { setupZendeskObserver } from '@/utils/zendesk-observer';
+import { ZENDESK_SEND_BUTTON_SELECTOR } from '@/constants/zendesk-selectors';
 
 interface UseZendeskIframeStylesOptions {
   zendeskReady: boolean;
@@ -47,7 +48,12 @@ export function useZendeskIframeStyles({
     ((retries?: number, delay?: number) => void) | null
   >(null);
   const observerRef = useRef<MutationObserver | null>(null);
+  const buttonObserverRef = useRef<MutationObserver | null>(null);
   const isMountedRef = useRef(true);
+  // Track buttons that have already had their SVG replaced to avoid duplicates
+  const replacedButtonsRef = useRef<WeakSet<HTMLElement>>(
+    new WeakSet<HTMLElement>(),
+  );
 
   // Injects styles into the Zendesk iframe document. Retries if iframe is not
   // available yet.
@@ -114,6 +120,45 @@ export function useZendeskIframeStyles({
     [styles],
   );
 
+  // Replaces the SVG in the send button with a custom icon
+  const replaceSendButtonSvg = useCallback((iframeDoc: Document): void => {
+    try {
+      // Find the send button using the proper selector
+      const sendButton = iframeDoc.querySelector<HTMLElement>(
+        ZENDESK_SEND_BUTTON_SELECTOR,
+      );
+
+      if (!sendButton) {
+        return;
+      }
+
+      // Skip if we've already replaced this button's SVG
+      if (replacedButtonsRef.current.has(sendButton)) {
+        return;
+      }
+
+      const svg = sendButton.querySelector('svg');
+
+      if (svg) {
+        sendButton.dataset.customized = 'true';
+
+        // Replace with external SVG file
+        svg.outerHTML = `
+          <img src="static-assets/images/Send-Plane-Solid-16.svg" 
+               width="20" 
+               height="20" 
+               alt="Send" 
+               style="display: block;" />
+        `;
+
+        // Mark this button as replaced
+        replacedButtonsRef.current.add(sendButton);
+      }
+    } catch (error) {
+      window.fireJse?.(error);
+    }
+  }, []);
+
   // Store `injectStyles` in a ref to enable recursive calls. ESLint flags
   // self-referential calls within useCallback
   useEffect(() => {
@@ -142,6 +187,7 @@ export function useZendeskIframeStyles({
 
     // Set up MutationObserver to re-inject styles if iframe reloads
     let observerCleanup: (() => void) | null = null;
+    let buttonObserverCleanup: (() => void) | null = null;
 
     // Set up observer after a delay to ensure iframe is ready
     observerTimeout = setTimeout(() => {
@@ -149,6 +195,7 @@ export function useZendeskIframeStyles({
         return;
       }
 
+      // Observer for style injection (watches head)
       observerCleanup = setupZendeskObserver({
         onMutation: (iframeDoc) => {
           // Check if style element was removed (iframe reloaded)
@@ -165,6 +212,23 @@ export function useZendeskIframeStyles({
         isMountedRef,
         observerRef,
       });
+
+      // Observer for send button SVG replacement (watches body)
+      // The send button appears dynamically when user clicks in textarea
+      buttonObserverCleanup = setupZendeskObserver({
+        onMutation: (iframeDoc) => {
+          // Try to replace SVG whenever DOM mutations occur
+          replaceSendButtonSvg(iframeDoc);
+        },
+        onSetup: (iframeDoc) => {
+          // Try immediately in case button already exists
+          replaceSendButtonSvg(iframeDoc);
+        },
+        target: 'body',
+        retryOnNotReady: false,
+        isMountedRef,
+        observerRef: buttonObserverRef,
+      });
     }, OBSERVER_SETUP_DELAY_MS);
 
     return () => {
@@ -180,9 +244,13 @@ export function useZendeskIframeStyles({
         clearTimeout(observerTimeout);
       }
 
-      // Clean up observer
+      // Clean up observers
       if (observerCleanup) {
         observerCleanup();
+      }
+
+      if (buttonObserverCleanup) {
+        buttonObserverCleanup();
       }
 
       if (observerRef.current) {
@@ -190,6 +258,12 @@ export function useZendeskIframeStyles({
 
         observerRef.current = null;
       }
+
+      if (buttonObserverRef.current) {
+        buttonObserverRef.current.disconnect();
+
+        buttonObserverRef.current = null;
+      }
     };
-  }, [zendeskReady, styles, injectStyles]);
+  }, [zendeskReady, styles, injectStyles, replaceSendButtonSvg]);
 }
