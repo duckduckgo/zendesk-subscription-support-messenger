@@ -234,3 +234,14 @@
     text-align: left;
   }
 }
+
+/* Smaller gap on mobile devices for better text visibility */
+@media (max-width: 480px) {
+  .footerLinksWrapper {
+    gap: 16px;
+  }
+
+  .footerLinksWrapper > .footerSection {
+    min-width: 120px;
+  }
+}
