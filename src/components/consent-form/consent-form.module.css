@@ -55,8 +55,16 @@
   background: #f2f2f2;
   overflow-y: auto;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 
   .section {
+    flex: 1 1 0%; /* Use 0% basis for proper flex behavior */
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+
     p {
       color: #222222;
       font-family: var(--Font-Family-Product, 'DuckSans Product');
@@ -65,6 +73,9 @@
       font-weight: 400;
       line-height: 24px;
       margin-block: 1em;
+      overflow-wrap: break-word; /* Wrap long words at word boundaries when necessary */
+      max-width: 100%;
+      box-sizing: border-box;
     }
   }
 }
