@@ -52,4 +52,13 @@ export const ZENDESK_IFRAME_STYLES = `
     max-width: unset;
     justify-content: center;
   }
+  
+  a[type="button"] span,
+  button[data-garden-id="${ZENDESK_BUTTON_DATA_ATTR}"] {
+    text-transform: capitalize;
+  }
+
+  button[data-garden-id="${ZENDESK_BUTTON_DATA_ATTR}"] {
+    width: 110px !important;
+  }
 `;

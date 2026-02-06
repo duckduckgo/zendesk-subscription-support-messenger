@@ -239,10 +239,10 @@ test.describe('Complete Zendesk Widget Flow', () => {
     console.log('✅ Article link click pixel fired:', helplinkEvent);
 
     // ==========================================
-    // STEP 7: Click Support form link and verify pixel
+    // STEP 7: Click Support Form link and verify pixel
     // ==========================================
 
-    const supportFormLink = iframe.locator('a:has-text("Support form")');
+    const supportFormLink = iframe.locator('a:has-text("Support Form")');
     await expect(supportFormLink).toBeVisible();
     await supportFormLink.click();
 
@@ -254,7 +254,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
       url.includes('link_ticket'),
     );
     expect(linkTicketEvent).toBeTruthy();
-    console.log('✅ Support form link click pixel fired:', linkTicketEvent);
+    console.log('✅ Support Form link click pixel fired:', linkTicketEvent);
 
     // ==========================================
     // STEP 8: Click Yes button and verify pixel
@@ -285,7 +285,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
     // 2. impression - page load
     // 3. message_first - when first message sent
     // 4. helplink_getting-started - when article link clicked
-    // 5. link_ticket - when Support form link clicked
+    // 5. link_ticket - when Support Form link clicked
     // 6. helpful_yes - when Yes button clicked
 
     expect(pixelRequests.length).toBeGreaterThanOrEqual(6);
@@ -327,7 +327,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
     console.log('   ✅ Message entered in chatbot');
     console.log('   ✅ Message sent successfully');
     console.log('   ✅ Article link clicked');
-    console.log('   ✅ Support form link clicked');
+    console.log('   ✅ Support Form link clicked');
     console.log('   ✅ Yes button clicked');
     console.log('   ✅ 6+ pixel events fired to improving.duckduckgo.com');
   });

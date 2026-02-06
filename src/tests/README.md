@@ -66,7 +66,7 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
   - `subscriptionsupport_impression` - when widget loads
   - `subscriptionsupport_message_first` - when first message sent
   - `subscriptionsupport_helplink_getting-started` - when article link clicked
-  - `subscriptionsupport_link_ticket` - when Support form link clicked
+  - `subscriptionsupport_link_ticket` - when Support Form link clicked
   - `subscriptionsupport_helpful_yes` - when Yes button clicked
 
 **5. ✅ Custom Styles Injection**
@@ -83,7 +83,7 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
    ✅ Message entered in chatbot
    ✅ Message sent successfully
    ✅ Article link clicked
-   ✅ Support form link clicked
+   ✅ Support Form link clicked
    ✅ Yes button clicked
    ✅ 6+ pixel events fired to improving.duckduckgo.com
 

@@ -61,9 +61,9 @@ export default function Home() {
     },
     // Handle KB link and 'Support Form' clicks
     onLinkClick: (el) => {
-      // @note: using `includes()` due to a hidden character after "form" on the
-      // Zendesk button
-      if (el.innerText.includes('Support form')) {
+      // @note: using `includes()` to handle hidden character after "Form" on
+      // the Zendesk button along with `toLowerCase()` to handle case variations
+      if (el.innerText.toLowerCase().includes('support form')) {
         window.firePixelEvent?.('link_ticket');
       } else {
         try {
@@ -147,7 +147,7 @@ export default function Home() {
               className={styles.chatContent}
               id={EMBEDDED_TARGET_ELEMENT}
               role="region"
-              aria-label="Support chat"
+              aria-label="Support Chat"
               aria-live="polite"
               style={{ display: zendeskReady ? 'block' : 'none' }}
             ></div>
