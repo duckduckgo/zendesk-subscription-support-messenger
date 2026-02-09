@@ -1,0 +1,28 @@
+.mainHeading {
+  color: var(--sds-color-text-01);
+  text-align: center;
+  font-family: var(--Font-Family-Display, 'DuckSans Display');
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 40px;
+  letter-spacing: -0.36px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .mainHeading {
+    font-size: 24px;
+    line-height: 28px;
+    letter-spacing: -0.48px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainHeading {
+    font-size: 24px;
+    line-height: 28px;
+    letter-spacing: -0.48px;
+  }
+}

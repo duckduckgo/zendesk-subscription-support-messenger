@@ -1,15 +1,3 @@
-.mainHeading {
-  color: var(--sds-color-text-01);
-  text-align: center;
-  font-family: var(--Font-Family-Display, 'DuckSans Display');
-  font-size: 64px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 64px;
-  letter-spacing: -1.28px;
-  margin-bottom: 32px;
-}
-
 .card {
   display: flex;
   max-width: 768px;
@@ -31,21 +19,30 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  align-self: flex-start;
+  width: 100%;
 
   p {
     color: #222222;
-    font-family: var(--Font-Family-Display, 'DuckSans Display');
-    font-size: 20px;
+    font-family: var(--Font-Family-Product, 'DuckSans Product');
+    font-size: 16px;
     font-style: normal;
-    font-weight: 700;
     line-height: 24px;
-    text-align: center;
+    font-weight: 400;
+    text-align: left;
+
+    span {
+      display: block;
+      margin-top: 12px;
+      line-height: 20px;
+      font-weight: 700;
+    }
   }
 }
 
 .content {
   display: flex;
-  height: 480px;
+  height: 350px;
   padding: 16px;
   align-items: flex-start;
   gap: 16px;
@@ -60,7 +57,8 @@
   box-sizing: border-box;
 
   .section {
-    flex: 1 1 0%; /* Use 0% basis for proper flex behavior */
+    flex: 1 1 0%;
+    /* Use 0% basis for proper flex behavior */
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
@@ -73,7 +71,8 @@
       font-weight: 400;
       line-height: 24px;
       margin-block: 1em;
-      overflow-wrap: break-word; /* Wrap long words at word boundaries when necessary */
+      overflow-wrap: break-word;
+      /* Wrap long words at word boundaries when necessary */
       max-width: 100%;
       box-sizing: border-box;
     }
@@ -140,20 +139,13 @@
 }
 
 @media (max-width: 768px) {
-  .mainHeading {
-    font-size: 24px;
-    line-height: 28px;
-    letter-spacing: -0.48px;
-    margin-bottom: 24px;
-  }
-
   .card {
     padding: 20px;
     gap: 20px;
   }
 
   .content {
-    height: 400px;
+    height: 325px;
     min-height: 300px;
   }
 
@@ -173,12 +165,6 @@
 }
 
 @media (max-width: 480px) {
-  .mainHeading {
-    font-size: 24px;
-    line-height: 28px;
-    letter-spacing: -0.48px;
-  }
-
   .card {
     padding: 16px;
     gap: 16px;

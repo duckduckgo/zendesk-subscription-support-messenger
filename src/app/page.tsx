@@ -5,11 +5,11 @@ import Script from 'next/script';
 import styles from './page.module.css';
 import PageLoadPixel from '@/components/page-load-pixel/page-load-pixel';
 import ConsentForm from '@/components/consent-form/consent-form';
+import MainHeading from '@/components/main-heading/main-heading';
 import { useZendeskSwapArticleLinks } from '@/hooks/use-zendesk-swap-article-links';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
 import { useZendeskClickHandlers } from '@/hooks/use-zendesk-click-handlers';
 import { EMBEDDED_TARGET_ELEMENT, ZENDESK_SCRIPT_URL } from '@/config/zendesk';
-import { SITE_TITLE } from '@/config/common';
 import { ZENDESK_READY_DELAY_MS } from '@/constants/zendesk-timing';
 import {
   ZENDESK_SEND_BUTTON_IDENTIFIER,
@@ -128,6 +128,7 @@ export default function Home() {
   return (
     <>
       <main id="main-content" className={styles.main}>
+        <MainHeading />
         {loadWidget && (
           <div className={`${styles.card} ${styles.target}`}>
             {!zendeskReady && (
@@ -139,9 +140,6 @@ export default function Home() {
               >
                 <div className={styles.spinner} aria-hidden="true"></div>
               </div>
-            )}
-            {zendeskReady && (
-              <h2 className={styles.chatCardHeader}>{SITE_TITLE}</h2>
             )}
             <div
               className={styles.chatContent}
