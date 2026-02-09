@@ -3,9 +3,6 @@ import {
   ZENDESK_INPUT_SELECTOR,
 } from './zendesk-selectors';
 
-/**
- * Custom CSS styles to inject into the Zendesk widget iframe.
- */
 export const ZENDESK_IFRAME_STYLES = `
   div[role="status"] + div {
     padding: 10px 1px;
@@ -60,5 +57,10 @@ export const ZENDESK_IFRAME_STYLES = `
 
   button[data-garden-id="${ZENDESK_BUTTON_DATA_ATTR}"] {
     width: 110px !important;
+  }
+
+  div:has(> div > div > a[aria-label^="View article"]) {
+    background-color: #F2F2F2;
+    border-color: #E5E7EB;
   }
 `;

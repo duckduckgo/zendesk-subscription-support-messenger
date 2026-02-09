@@ -97,9 +97,9 @@ export default function Home() {
           message: getCSSVariable('--sds-color-palette-blue-60'),
           action: getCSSVariable('--sds-color-palette-blue-60'),
           onAction: '#FAFAFA',
-          businessMessage: '#FFFFFF',
+          businessMessage: '#F2F2F2', // Chat response background
           onBusinessMessage: getCSSVariable('--sds-color-text-01'),
-          background: '#F2F2F2',
+          background: 'transparent', // Chat window background
           onBackground: '#666666',
           error: '#FF1744',
           onError: '#FFFFFF',
