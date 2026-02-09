@@ -16,11 +16,19 @@ export default function ConsentForm({ onContinue }: ConsentFormProps) {
     <div className={styles.card}>
       <div className={styles.cardHeader}>
         <p>
-          Friendly intro paragraph that explains what this is, what it can help
-          with, and that it is optional. Something like: Our support assistant
-          can help answer common questions about your subscription. This is
-          optional—you can always contact us directly instead.
-          <span>By continuing, you agree to the following:</span>
+          Please review and agree to start a support chat (if you want to).
+          Supports chats are available 24/7 and can answer many frequently asked
+          questions immediately. However, if you&apos;d prefer only to speak
+          with our human support team via email, contact us using the{' '}
+          <a
+            href={`${MAIN_SITE_URL}/subscription-support`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.link}
+          >
+            subscriber support form
+          </a>
+          . We try to answer questions within 2 business days.
         </p>
       </div>
 

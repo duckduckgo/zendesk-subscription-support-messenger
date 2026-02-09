@@ -128,7 +128,7 @@ export default function Home() {
   return (
     <>
       <main id="main-content" className={styles.main}>
-        <MainHeading />
+        {!loadWidget ? <MainHeading isConsentScreen /> : <MainHeading />}
         {loadWidget && (
           <div className={`${styles.card} ${styles.target}`}>
             {!zendeskReady && (

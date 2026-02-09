@@ -14,7 +14,7 @@ import styles from './layout.module.css';
 
 export const metadata: Metadata = {
   title: SITE_TITLE,
-  description: 'DuckDuckGo automated support assistant powered by Zendesk',
+  description: "DuckDuckGo's automated support assistant powered by Zendesk",
 };
 
 export default function RootLayout({

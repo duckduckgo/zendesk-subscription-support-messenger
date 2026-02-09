@@ -49,6 +49,12 @@ export const ZENDESK_IFRAME_STYLES = `
     max-width: unset;
     justify-content: center;
   }
+
+  /* Target outermost div containing Yes/No buttons */
+  div:has(> ul > li > button[data-garden-id="${ZENDESK_BUTTON_DATA_ATTR}"]) {
+    display: flex;
+    justify-content: center;
+  }
   
   a[type="button"] span,
   button[data-garden-id="${ZENDESK_BUTTON_DATA_ATTR}"] {

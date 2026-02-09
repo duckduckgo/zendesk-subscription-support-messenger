@@ -30,14 +30,29 @@
     line-height: 24px;
     font-weight: 400;
     text-align: left;
-
-    span {
-      display: block;
-      margin-top: 12px;
-      line-height: 20px;
-      font-weight: 700;
-    }
   }
+}
+
+.link {
+  color: var(--sds-color-palette-blue-60);
+  /* Inherit all other styles from parent paragraph */
+  font-family: inherit;
+  font-size: inherit;
+  font-style: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--sds-color-palette-blue-60);
+  outline-offset: 2px;
+  text-decoration: underline;
+  border-radius: 2px;
 }
 
 .content {
@@ -159,8 +174,8 @@
   }
 
   .cardHeader p {
-    font-size: 18px;
-    line-height: 22px;
+    font-size: 16px;
+    line-height: 20px;
   }
 }
 
@@ -172,6 +187,6 @@
 
   .content {
     padding: 12px;
-    height: 350px;
+    height: 250px;
   }
 }

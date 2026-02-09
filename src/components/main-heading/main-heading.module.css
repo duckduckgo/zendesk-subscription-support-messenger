@@ -7,13 +7,12 @@
   font-weight: 700;
   line-height: 40px;
   letter-spacing: -0.36px;
+  text-wrap: balance;
   margin-bottom: 32px;
 }
 
 @media (max-width: 768px) {
   .mainHeading {
-    font-size: 24px;
-    line-height: 28px;
     letter-spacing: -0.48px;
     margin-bottom: 24px;
   }
@@ -21,7 +20,7 @@
 
 @media (max-width: 480px) {
   .mainHeading {
-    font-size: 24px;
+    font-size: 28px;
     line-height: 28px;
     letter-spacing: -0.48px;
   }
