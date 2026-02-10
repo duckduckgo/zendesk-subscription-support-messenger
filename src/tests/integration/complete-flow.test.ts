@@ -55,7 +55,9 @@ test.describe('Complete Zendesk Widget Flow', () => {
 
     // Verify consent form is visible
     await expect(
-      page.locator('h1:has-text("DuckDuckGo Automated Support Assistant")'),
+      page.locator(
+        'h1:has-text("Welcome to DuckDuckGo\'s Automated Support Assistant")',
+      ),
     ).toBeVisible();
 
     const continueButton = page.getByTestId(LOAD_ZD_BUTTON_TEST_ID);
