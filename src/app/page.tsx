@@ -6,6 +6,7 @@ import styles from './page.module.css';
 import PageLoadPixel from '@/components/page-load-pixel/page-load-pixel';
 import ConsentForm from '@/components/consent-form/consent-form';
 import MainHeading from '@/components/main-heading/main-heading';
+import FireButton from '@/components/fire-button/fire-button';
 import { useZendeskSwapArticleLinks } from '@/hooks/use-zendesk-swap-article-links';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
 import { useZendeskClickHandlers } from '@/hooks/use-zendesk-click-handlers';
@@ -81,6 +82,17 @@ export default function Home() {
     styles: ZENDESK_IFRAME_STYLES,
   });
 
+  const handleFireButtonClick = useCallback(() => {
+    zE('messenger', 'resetWidget', function () {
+      // `resetWidget` clears all but the clientId
+      localStorage.clear();
+      // clear `ZD-widgetOpen`
+      sessionStorage.clear();
+      // Force reload to remove ZD script and associated elements
+      window.location.reload();
+    });
+  }, []);
+
   const handleOnError = useCallback((e: Error) => {
     window.fireJse?.(e);
   }, []);
@@ -127,6 +139,7 @@ export default function Home() {
 
   return (
     <>
+      {zendeskReady && <FireButton onClick={handleFireButtonClick} />}
       <main id="main-content" className={styles.main}>
         <MainHeading />
         {loadWidget && (

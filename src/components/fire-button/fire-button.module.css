@@ -1,0 +1,33 @@
+.fireButton {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.fireButton:hover {
+  opacity: 0.8;
+}
+
+.fireButton:focus-visible {
+  outline: 2px solid var(--sds-color-palette-blue-60, #3969ef);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .fireButton {
+    top: 20px;
+    right: 16px;
+  }
+}
