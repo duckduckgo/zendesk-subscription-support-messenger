@@ -1,0 +1,23 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background-color: transparent;
+  pointer-events: all;
+  overflow: hidden;
+}
+
+.overlay [data-lottie-player] {
+  width: 100vw;
+  height: 100vh;
+}
+
+.overlay [data-lottie-player] svg {
+  width: 100vw !important;
+  height: 100vh !important;
+}

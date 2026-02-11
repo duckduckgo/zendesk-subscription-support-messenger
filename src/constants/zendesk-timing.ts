@@ -32,3 +32,8 @@ export const ZENDESK_READY_DELAY_MS = 500;
  * Interval for checking if external scripts are ready
  */
 export const SCRIPT_CHECK_INTERVAL_MS = 50;
+
+/**
+ * Delay reset after burn is initiated
+ */
+export const ZENDESK_RESET_DELAY_MS = 1000;

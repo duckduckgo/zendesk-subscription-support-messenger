@@ -1,17 +1,21 @@
 'use client';
 
-import { useCallback, useReducer } from 'react';
+import { useCallback, useReducer, useState } from 'react';
 import Script from 'next/script';
 import styles from './page.module.css';
 import PageLoadPixel from '@/components/page-load-pixel/page-load-pixel';
 import ConsentForm from '@/components/consent-form/consent-form';
 import MainHeading from '@/components/main-heading/main-heading';
 import FireButton from '@/components/fire-button/fire-button';
+import BurnOverlay from '@/components/burn-animation/burn-overlay';
 import { useZendeskSwapArticleLinks } from '@/hooks/use-zendesk-swap-article-links';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
 import { useZendeskClickHandlers } from '@/hooks/use-zendesk-click-handlers';
 import { EMBEDDED_TARGET_ELEMENT, ZENDESK_SCRIPT_URL } from '@/config/zendesk';
-import { ZENDESK_READY_DELAY_MS } from '@/constants/zendesk-timing';
+import {
+  ZENDESK_READY_DELAY_MS,
+  ZENDESK_RESET_DELAY_MS,
+} from '@/constants/zendesk-timing';
 import {
   ZENDESK_SEND_BUTTON_IDENTIFIER,
   ZENDESK_YES_BUTTON_IDENTIFIER,
@@ -25,6 +29,7 @@ import { widgetReducer, initialWidgetState } from '@/reducers/widget-reducer';
 export default function Home() {
   const [widgetState, dispatch] = useReducer(widgetReducer, initialWidgetState);
   const { zendeskReady, loadWidget, firstMessageSent } = widgetState;
+  const [isBurning, setIsBurning] = useState(false);
 
   const onContinue = useCallback(() => {
     window.firePixelEvent?.('consent');
@@ -83,14 +88,23 @@ export default function Home() {
   });
 
   const handleFireButtonClick = useCallback(() => {
-    zE('messenger', 'resetWidget', function () {
-      // `resetWidget` clears all but the clientId
-      localStorage.clear();
-      // clear `ZD-widgetOpen`
-      sessionStorage.clear();
-      // Force reload to remove ZD script and associated elements
-      window.location.reload();
-    });
+    // Start the burn animation
+    setIsBurning(true);
+
+    setTimeout(() => {
+      // Reset Zendesk widget
+      zE('messenger', 'resetWidget', function () {
+        // `resetWidget` clears all but the clientId
+        localStorage.clear();
+        // clear `ZD-widgetOpen`
+        sessionStorage.clear();
+      });
+    }, ZENDESK_RESET_DELAY_MS);
+  }, []);
+
+  const handleBurnComplete = useCallback(() => {
+    // Reload the page after animation completes
+    window.location.reload();
   }, []);
 
   const handleOnError = useCallback((e: Error) => {
@@ -139,6 +153,7 @@ export default function Home() {
 
   return (
     <>
+      {isBurning && <BurnOverlay onComplete={handleBurnComplete} />}
       {zendeskReady && <FireButton onClick={handleFireButtonClick} />}
       <main id="main-content" className={styles.main}>
         <MainHeading />
