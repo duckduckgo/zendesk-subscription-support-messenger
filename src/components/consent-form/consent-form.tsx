@@ -16,19 +16,23 @@ export default function ConsentForm({ onContinue }: ConsentFormProps) {
     <div className={styles.card}>
       <div className={styles.cardHeader}>
         <p>
-          Please review and agree to start a support chat (if you want to).
-          Supports chats are available 24/7 and can answer many frequently asked
-          questions immediately. However, if you&apos;d prefer only to speak
-          with our human support team via email, contact us using the{' '}
+          Subscriber support chat is available 24/7 and can answer many common
+          questions immediately. However, if you’d prefer to speak with our
+          human support team via email instead, you can use the subscriber
+          support form to{' '}
           <a
             href={`${MAIN_SITE_URL}/subscription-support`}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.link}
           >
-            subscriber support form
+            contact us
           </a>
           . We try to answer questions within 2 business days.
+          <span>
+            By clicking &quot;Continue to Chat&quot;, you agree to the
+            following:
+          </span>
         </p>
       </div>
 
