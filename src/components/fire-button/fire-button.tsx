@@ -1,20 +1,48 @@
 import Image from 'next/image';
-import FireIcon from '../../../public/static-assets/images/Fire-96.svg';
+import FireIconColorLarge from '../../../public/static-assets/images/Fire-96.svg';
+import FireIconSmall from '../../../public/static-assets/images/Fire-Solid-16.svg';
 import styles from './fire-button.module.css';
 
 interface FireButtonProps {
   onClick: () => void;
+  appearance?: 'icon' | 'button';
 }
 
-export default function FireButton({ onClick }: FireButtonProps) {
+/**
+ * FireButton component displays a button to clear conversation data.
+ *
+ * @param props - Component props
+ * @param props.onClick - Click handler
+ * @param props.appearance - Button appearance style ('icon' or 'button')
+ *
+ * @returns Fire button element
+ */
+export default function FireButton({
+  onClick,
+  appearance = 'icon',
+}: FireButtonProps) {
+  if (appearance === 'button') {
+    return (
+      <button
+        className={styles.fireButtonSolid}
+        onClick={onClick}
+        aria-label="Clear conversation data"
+        type="button"
+      >
+        <Image src={FireIconSmall} alt="" width={16} height={16} />
+        <span>Clear Conversation Data</span>
+      </button>
+    );
+  }
+
   return (
     <button
-      className={styles.fireButton}
+      className={styles.fireButtonIcon}
       onClick={onClick}
-      aria-label="Fire action"
+      aria-label="Clear conversation data"
       type="button"
     >
-      <Image src={FireIcon} alt="" width={48} height={48} />
+      <Image src={FireIconColorLarge} alt="" width={48} height={48} />
     </button>
   );
 }

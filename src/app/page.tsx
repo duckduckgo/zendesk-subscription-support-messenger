@@ -8,6 +8,9 @@ import ConsentForm from '@/components/consent-form/consent-form';
 import MainHeading from '@/components/main-heading/main-heading';
 import FireButton from '@/components/fire-button/fire-button';
 import BurnOverlay from '@/components/burn-animation/burn-overlay';
+import HorizontalRule from '@/components/horizontal-rule/horizontal-rule';
+import ChatNavigation from '@/components/chat-navigation/chat-navigation';
+import ConfirmDialog from '@/components/confirm-dialog/confirm-dialog';
 import { useZendeskSwapArticleLinks } from '@/hooks/use-zendesk-swap-article-links';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
 import { useZendeskClickHandlers } from '@/hooks/use-zendesk-click-handlers';
@@ -30,12 +33,13 @@ export default function Home() {
   const [widgetState, dispatch] = useReducer(widgetReducer, initialWidgetState);
   const { zendeskReady, loadWidget, firstMessageSent } = widgetState;
   const [isBurning, setIsBurning] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const onContinue = useCallback(() => {
     window.firePixelEvent?.('consent');
 
     dispatch({ type: 'SET_LOAD_WIDGET' });
-  }, []);
+  }, [dispatch]);
 
   // Swap ZD article link URLs for help page URLs
   useZendeskSwapArticleLinks({
@@ -88,6 +92,13 @@ export default function Home() {
   });
 
   const handleFireButtonClick = useCallback(() => {
+    setShowConfirmDialog(true);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    // Close dialog
+    setShowConfirmDialog(false);
+
     // Start the burn animation
     setIsBurning(true);
 
@@ -98,12 +109,24 @@ export default function Home() {
         localStorage.clear();
         // clear `ZD-widgetOpen`
         sessionStorage.clear();
+
+        // Reset state to clear UI elements
+        dispatch({ type: 'RESET_STATE' });
       });
     }, ZENDESK_RESET_DELAY_MS);
+  }, [dispatch]);
+
+  const handleCancelDelete = useCallback(() => {
+    setShowConfirmDialog(false);
   }, []);
 
   const handleBurnComplete = useCallback(() => {
-    // Reload the page after animation completes
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    });
+
     window.location.reload();
   }, []);
 
@@ -154,7 +177,11 @@ export default function Home() {
   return (
     <>
       {isBurning && <BurnOverlay onComplete={handleBurnComplete} />}
-      {zendeskReady && <FireButton onClick={handleFireButtonClick} />}
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
       <main id="main-content" className={styles.main}>
         <MainHeading />
         {loadWidget && (
@@ -177,6 +204,18 @@ export default function Home() {
               aria-live="polite"
               style={{ display: zendeskReady ? 'block' : 'none' }}
             ></div>
+            {zendeskReady && (
+              <>
+                <HorizontalRule />
+                <div className={styles.chatFooter}>
+                  <ChatNavigation />
+                  <FireButton
+                    appearance="button"
+                    onClick={handleFireButtonClick}
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
 

@@ -1,7 +1,7 @@
 .mainHeading {
   color: var(--sds-color-text-01);
   text-align: center;
-  font-family: var(--Font-Family-Display, 'DuckSans Display');
+  font-family: var(--Font-Family-Display);
   font-size: 36px;
   font-style: normal;
   font-weight: 700;

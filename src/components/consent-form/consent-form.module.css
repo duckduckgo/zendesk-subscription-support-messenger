@@ -23,8 +23,8 @@
   width: 100%;
 
   p {
-    color: #222222;
-    font-family: var(--Font-Family-Product, 'DuckSans Product');
+    color: var(--sds-color-text-01);
+    font-family: var(--Font-Family-Product);
     font-size: 16px;
     font-style: normal;
     line-height: 24px;
@@ -69,7 +69,7 @@
   gap: 16px;
   align-self: stretch;
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--color-border-subtle);
   background: #f2f2f2;
   overflow-y: auto;
   overflow-x: hidden;
@@ -85,8 +85,8 @@
     box-sizing: border-box;
 
     p {
-      color: #222222;
-      font-family: var(--Font-Family-Product, 'DuckSans Product');
+      color: var(--sds-color-text-01);
+      font-family: var(--Font-Family-Product);
       font-size: 16px;
       font-style: normal;
       font-weight: 400;
@@ -116,10 +116,10 @@
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1.25px solid rgba(0, 0, 0, 0.12);
+  border: 1.25px solid var(--color-border-subtle);
   background-color: var(--Buttons-Solid-Primary-Default, #3969ef);
   color: var(--Buttons-Text-Primary, #fff);
-  font-family: var(--Font-Family-Product, 'DuckSans Product');
+  font-family: var(--Font-Family-Product);
   font-size: 16px;
   font-style: normal;
   font-weight: 700;

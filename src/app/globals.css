@@ -162,6 +162,19 @@
   --sds-color-text-01: #222222;
   --sds-color-palette-blue-60: #2b55ca;
   --sds-color-palette-black: #000000;
+
+  /* UI Colors */
+  --color-border-subtle: rgba(0, 0, 0, 0.12);
+  --color-text-subtle: #666666;
+  --color-overlay: rgba(0, 0, 0, 0.6);
+
+  /* Button Colors */
+  --color-button-secondary-bg: rgba(0, 0, 0, 0.06);
+  --color-button-secondary-bg-hover: rgba(0, 0, 0, 0.1);
+
+  /* Destructive Action Colors */
+  --color-destructive: rgb(235, 16, 45);
+  --color-destructive-hover: rgb(207, 14, 40);
 }
 
 [data-theme='light'] {

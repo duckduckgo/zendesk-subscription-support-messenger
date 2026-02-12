@@ -72,8 +72,8 @@
   gap: 8px;
   align-self: stretch;
   width: 100%;
-  color: #222222;
-  font-family: var(--Font-Family-Display, 'DuckSans Display');
+  color: var(--sds-color-text-01);
+  font-family: var(--Font-Family-Display);
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
@@ -88,11 +88,20 @@
   align-self: stretch;
 }
 
+.chatFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px;
+  gap: 16px;
+  width: 100%;
+}
+
 .divider {
   width: 100%;
   height: 1px;
   border: none;
-  background-color: rgba(0, 0, 0, 0.12);
+  background-color: var(--color-border-subtle);
   margin: 8px 0;
 }
 
@@ -108,7 +117,7 @@
 
 .helpTitle {
   color: var(--sds-color-text-01);
-  font-family: var(--Font-Family-Product, 'DuckSans Product');
+  font-family: var(--Font-Family-Product);
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
@@ -118,7 +127,7 @@
 
 .link {
   color: var(--sds-color-palette-blue-60);
-  font-family: var(--Font-Family-Proxima-Nova, 'Proxima Nova');
+  font-family: var(--Font-Family-Proxima-Nova);
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -146,6 +155,21 @@
   .chatCardHeader {
     font-size: 17px;
     line-height: 20px;
+  }
+
+  .chatFooter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .chatFooter > nav {
+    order: 2;
+  }
+
+  .chatFooter > button {
+    order: 1;
+    align-self: stretch;
   }
 }
 

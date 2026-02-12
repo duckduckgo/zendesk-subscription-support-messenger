@@ -1,12 +1,3 @@
-/**
- * Widget state reducer for managing Zendesk widget lifecycle state.
- *
- * Consolidates related widget state (ready status, loading, message tracking)
- * into a single reducer to prevent re-render cascades and improve performance.
- *
- * @module widget-reducer
- */
-
 export type WidgetState = {
   /** Whether the Zendesk widget has finished initializing */
   zendeskReady: boolean;
@@ -19,7 +10,8 @@ export type WidgetState = {
 export type WidgetAction =
   | { type: 'SET_ZENDESK_READY' }
   | { type: 'SET_LOAD_WIDGET' }
-  | { type: 'SET_FIRST_MESSAGE_SENT' };
+  | { type: 'SET_FIRST_MESSAGE_SENT' }
+  | { type: 'RESET_STATE' };
 
 export const initialWidgetState: WidgetState = {
   zendeskReady: false,
@@ -47,6 +39,8 @@ export function widgetReducer(
       return { ...state, loadWidget: true };
     case 'SET_FIRST_MESSAGE_SENT':
       return { ...state, firstMessageSent: true };
+    case 'RESET_STATE':
+      return initialWidgetState;
     default:
       return state;
   }

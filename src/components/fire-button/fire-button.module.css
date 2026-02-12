@@ -1,4 +1,4 @@
-.fireButton {
+.fireButtonIcon {
   position: absolute;
   top: 30px;
   right: 30px;
@@ -15,18 +15,52 @@
   transition: opacity 0.2s ease-in-out;
 }
 
-.fireButton:hover {
+.fireButtonIcon:hover {
   opacity: 0.8;
 }
 
-.fireButton:focus-visible {
+.fireButtonIcon:focus-visible {
   outline: 2px solid var(--sds-color-palette-blue-60, #3969ef);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
+.fireButtonSolid {
+  background: var(--color-button-secondary-bg);
+  border: none;
+  border-radius: 12px;
+  padding: 0 16px;
+  cursor: pointer;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease-in-out;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fireButtonSolid span {
+  font-family: var(--Font-Family-Product);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--sds-color-text-01);
+}
+
+.fireButtonSolid:hover {
+  background: var(--color-button-secondary-bg-hover);
+}
+
+.fireButtonSolid:focus-visible {
+  outline: 2px solid var(--sds-color-palette-blue-60, #3969ef);
+  outline-offset: 2px;
+}
+
 @media (max-width: 768px) {
-  .fireButton {
+  .fireButtonIcon {
     top: 20px;
     right: 16px;
   }

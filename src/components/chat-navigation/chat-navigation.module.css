@@ -1,0 +1,43 @@
+.chatNavigation {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.heading {
+  font-family: var(--Font-Family-Product);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--sds-color-text-01, #333333);
+  margin: 0;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.link {
+  font-family: var(--Font-Family-Proxima-Nova);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 145%;
+  color: var(--sds-color-palette-blue-60);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--sds-color-palette-blue-60);
+  outline-offset: 2px;
+  text-decoration: underline;
+  border-radius: 2px;
+}
