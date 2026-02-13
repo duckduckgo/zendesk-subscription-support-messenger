@@ -1,5 +1,10 @@
-import { test, expect } from '@playwright/test';
-import { LOAD_ZD_BUTTON_TEST_ID } from '@/constants/test-ids';
+import { test, expect, type Page } from '@playwright/test';
+import {
+  CANCEL_DELETE_DATA_BUTTON_TEST_ID,
+  CONFIRM_DELETE_DATA_BUTTON_TEST_ID,
+  DELETE_DATA_BUTTON_TEST_ID,
+  LOAD_ZD_BUTTON_TEST_ID,
+} from '@/constants/test-ids';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -16,40 +21,59 @@ import { join } from 'path';
  * This test can run in CI with mocked Zendesk script.
  */
 
+// Load mock script once at module level
+const mockScript = readFileSync(
+  join(__dirname, '../fixtures/zendesk-mock.js'),
+  'utf-8',
+);
+
+// Helper function to set up Zendesk mock
+async function setupZendeskMock(page: Page) {
+  await page.route('https://static.zdassets.com/ekr/snippet.js*', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/javascript',
+      body: mockScript,
+    });
+  });
+}
+
+// Helper function to load the widget and wait for it to be ready
+async function loadWidget(page: Page) {
+  await page.goto('/');
+  await page.getByTestId(LOAD_ZD_BUTTON_TEST_ID).click();
+
+  // Wait for widget to be ready
+  await page.waitForSelector(
+    '#messaging-container iframe#zendesk-messaging-iframe',
+    { timeout: 5000 },
+  );
+
+  await page.waitForTimeout(1500);
+}
+
+// Helper function to set up pixel interception
+async function setupPixelInterception(page: Page): Promise<string[]> {
+  const pixelRequests: string[] = [];
+
+  await page.route('https://improving.duckduckgo.com/t/*', (route) => {
+    const url = route.request().url();
+    pixelRequests.push(url);
+    console.log('📊 Pixel event:', url);
+    route.fulfill({ status: 200, body: '' });
+  });
+
+  return pixelRequests;
+}
+
 test.describe('Complete Zendesk Widget Flow', () => {
   test('should render iframe, swap links, send message, and fire pixel events', async ({
     page,
   }) => {
-    // ==========================================
-    // SETUP: Mock Zendesk script and intercept pixel requests
-    // ==========================================
-
-    const mockScript = readFileSync(
-      join(__dirname, '../fixtures/zendesk-mock.js'),
-      'utf-8',
-    );
-
-    await page.route('https://static.zdassets.com/ekr/snippet.js*', (route) => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/javascript',
-        body: mockScript,
-      });
-    });
+    await setupZendeskMock(page);
 
     // Intercept pixel network calls
-    const pixelRequests: string[] = [];
-
-    await page.route('https://improving.duckduckgo.com/t/*', (route) => {
-      const url = route.request().url();
-      pixelRequests.push(url);
-      console.log('📊 Pixel event:', url);
-      route.fulfill({ status: 200, body: '' });
-    });
-
-    // ==========================================
-    // STEP 1: Navigate and click the consent button
-    // ==========================================
+    const pixelRequests = await setupPixelInterception(page);
 
     await page.goto('/');
 
@@ -59,6 +83,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
     ).toBeVisible();
 
     const continueButton = page.getByTestId(LOAD_ZD_BUTTON_TEST_ID);
+
     await expect(continueButton).toBeVisible();
 
     // Click the button
@@ -68,10 +93,6 @@ test.describe('Complete Zendesk Widget Flow', () => {
     await page.waitForTimeout(500);
     expect(pixelRequests.some((url) => url.includes('consent'))).toBe(true);
     console.log('✅ Consent pixel fired');
-
-    // ==========================================
-    // STEP 2: Verify iframe renders in messaging-container
-    // ==========================================
 
     // Wait for web widget iframe
     await page.waitForSelector(
@@ -96,10 +117,6 @@ test.describe('Complete Zendesk Widget Flow', () => {
     await expect(messagingIframe).toBeAttached();
 
     console.log('✅ Iframe rendered in messaging-container');
-
-    // ==========================================
-    // STEP 3: Wait for hooks to activate and verify link swapping
-    // ==========================================
 
     // Access iframe content
     const iframe = page.frameLocator('#zendesk-messaging-iframe');
@@ -167,10 +184,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
       '✅ All article links swapped correctly using ARTICLE_LINK_MAP',
     );
 
-    // ==========================================
-    // STEP 4: Enter message in chatbot input
-    // ==========================================
-
+    // Enter message in chatbot input
     const textarea = iframe.locator('#composer-input');
     await expect(textarea).toBeVisible();
 
@@ -181,10 +195,6 @@ test.describe('Complete Zendesk Widget Flow', () => {
     const textareaValue = await textarea.inputValue();
     expect(textareaValue).toBe(testMessage);
     console.log('✅ Message entered in chatbot input:', testMessage);
-
-    // ==========================================
-    // STEP 5: Send the message
-    // ==========================================
 
     // Wait for send button to appear (mock shows it when user types)
     await page.waitForTimeout(300);
@@ -207,12 +217,9 @@ test.describe('Complete Zendesk Widget Flow', () => {
 
     console.log('✅ Message sent successfully');
 
-    // ==========================================
-    // STEP 6: Click an article link and verify pixel
-    // ==========================================
-
-    // Find the "Personal Information Removal" article link
+    // Click an article link and verify pixel. Find the "PIR" article link
     let article3Link = null;
+
     for (const link of articleLinks) {
       const href = await link.getAttribute('href');
       if (
@@ -238,11 +245,9 @@ test.describe('Complete Zendesk Widget Flow', () => {
     expect(helplinkEvent).toBeTruthy();
     console.log('✅ Article link click pixel fired:', helplinkEvent);
 
-    // ==========================================
-    // STEP 7: Click Support Form link and verify pixel
-    // ==========================================
-
+    // Click Support Form link and verify pixel
     const supportFormLink = iframe.locator('a:has-text("Support Form")');
+
     await expect(supportFormLink).toBeVisible();
     await supportFormLink.click();
 
@@ -253,16 +258,15 @@ test.describe('Complete Zendesk Widget Flow', () => {
     const linkTicketEvent = pixelRequests.find((url) =>
       url.includes('link_ticket'),
     );
+
     expect(linkTicketEvent).toBeTruthy();
     console.log('✅ Support Form link click pixel fired:', linkTicketEvent);
 
-    // ==========================================
-    // STEP 8: Click Yes button and verify pixel
-    // ==========================================
-
+    // Click Yes button and verify pixel
     const yesButton = iframe.locator(
       'button[data-garden-id="buttons.button"]:has-text("Yes")',
     );
+
     await expect(yesButton).toBeVisible();
     await yesButton.click();
 
@@ -273,12 +277,11 @@ test.describe('Complete Zendesk Widget Flow', () => {
     const helpfulYesEvent = pixelRequests.find((url) =>
       url.includes('helpful_yes'),
     );
+
     expect(helpfulYesEvent).toBeTruthy();
     console.log('✅ Yes button click pixel fired:', helpfulYesEvent);
 
-    // ==========================================
-    // STEP 9: Verify all pixel network calls
-    // ==========================================
+    // Verify all pixel network calls
 
     // Expected pixel events:
     // 1. consent - when the consent button is clicked
@@ -292,6 +295,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
 
     // Verify consent event
     const consentEvent = pixelRequests.find((url) => url.includes('consent'));
+
     expect(consentEvent).toBeTruthy();
     expect(consentEvent).toContain('https://improving.duckduckgo.com/t/');
 
@@ -317,10 +321,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
     console.log('📊 Total pixel events fired:', pixelRequests.length);
     console.log('📊 Pixel events:', pixelRequests);
 
-    // ==========================================
     // SUMMARY
-    // ==========================================
-
     console.log('\n🎉 Complete flow test passed!');
     console.log('   ✅ Iframe rendered in messaging-container');
     console.log('   ✅ 3 article links swapped correctly');
@@ -335,39 +336,19 @@ test.describe('Complete Zendesk Widget Flow', () => {
   test('should verify custom styles are injected into iframe', async ({
     page,
   }) => {
-    const mockScript = readFileSync(
-      join(__dirname, '../fixtures/zendesk-mock.js'),
-      'utf-8',
-    );
-
-    await page.route('https://static.zdassets.com/ekr/snippet.js*', (route) => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/javascript',
-        body: mockScript,
-      });
-    });
-
-    await page.goto('/');
-    await page.getByTestId(LOAD_ZD_BUTTON_TEST_ID).click();
-
-    // Wait for iframe
-    await page.waitForSelector(
-      '#messaging-container iframe#zendesk-messaging-iframe',
-      { timeout: 5000 },
-    );
-
-    // Wait for hooks to activate
-    await page.waitForTimeout(1500);
+    await setupZendeskMock(page);
+    await loadWidget(page);
 
     // Check if custom styles were injected by useZendeskIframeStyles hook
     const stylesInjected = await page.evaluate(() => {
       const messagingIframe = document.querySelector(
         '#zendesk-messaging-iframe',
       ) as HTMLIFrameElement;
+
       if (!messagingIframe) return false;
 
       const iframeDoc = messagingIframe.contentDocument;
+
       if (!iframeDoc) return false;
 
       // Look for custom style element injected by hook
@@ -385,35 +366,12 @@ test.describe('Complete Zendesk Widget Flow', () => {
   test('should track article link clicks with pixel events', async ({
     page,
   }) => {
-    const mockScript = readFileSync(
-      join(__dirname, '../fixtures/zendesk-mock.js'),
-      'utf-8',
-    );
-
-    await page.route('https://static.zdassets.com/ekr/snippet.js*', (route) => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/javascript',
-        body: mockScript,
-      });
-    });
+    await setupZendeskMock(page);
 
     // Intercept pixel requests
-    const pixelRequests: string[] = [];
-    await page.route('https://improving.duckduckgo.com/t/*', (route) => {
-      pixelRequests.push(route.request().url());
-      route.fulfill({ status: 200, body: '' });
-    });
+    const pixelRequests = await setupPixelInterception(page);
 
-    await page.goto('/');
-    await page.getByTestId(LOAD_ZD_BUTTON_TEST_ID).click();
-
-    // Wait for iframe and hooks
-    await page.waitForSelector(
-      '#messaging-container iframe#zendesk-messaging-iframe',
-      { timeout: 5000 },
-    );
-    await page.waitForTimeout(1500);
+    await loadWidget(page);
 
     const iframe = page.frameLocator('#zendesk-messaging-iframe');
 
@@ -432,6 +390,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
     const helpLinkEvent = pixelRequests.find((url) =>
       url.includes('helplink_getting-started'),
     );
+
     expect(helpLinkEvent).toBeTruthy();
     console.log('✅ Article link click tracked:', helpLinkEvent);
   });
@@ -439,35 +398,12 @@ test.describe('Complete Zendesk Widget Flow', () => {
   test('should track Yes/No button clicks with pixel events', async ({
     page,
   }) => {
-    const mockScript = readFileSync(
-      join(__dirname, '../fixtures/zendesk-mock.js'),
-      'utf-8',
-    );
-
-    await page.route('https://static.zdassets.com/ekr/snippet.js*', (route) => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/javascript',
-        body: mockScript,
-      });
-    });
+    await setupZendeskMock(page);
 
     // Intercept pixel requests
-    const pixelRequests: string[] = [];
-    await page.route('https://improving.duckduckgo.com/t/*', (route) => {
-      pixelRequests.push(route.request().url());
-      route.fulfill({ status: 200, body: '' });
-    });
+    const pixelRequests = await setupPixelInterception(page);
 
-    await page.goto('/');
-    await page.getByTestId(LOAD_ZD_BUTTON_TEST_ID).click();
-
-    // Wait for iframe and hooks
-    await page.waitForSelector(
-      '#messaging-container iframe#zendesk-messaging-iframe',
-      { timeout: 5000 },
-    );
-    await page.waitForTimeout(1500);
+    await loadWidget(page);
 
     const iframe = page.frameLocator('#zendesk-messaging-iframe');
 
@@ -481,5 +417,170 @@ test.describe('Complete Zendesk Widget Flow', () => {
     const yesEvent = pixelRequests.find((url) => url.includes('helpful_yes'));
     expect(yesEvent).toBeTruthy();
     console.log('✅ Yes button click tracked:', yesEvent);
+  });
+
+  test('should clear conversation data and return to consent screen', async ({
+    page,
+  }) => {
+    await setupZendeskMock(page);
+    await loadWidget(page);
+
+    // Pre-populate storage to verify it gets cleared
+    await page.evaluate(() => {
+      localStorage.setItem('test-key', 'test-value');
+      sessionStorage.setItem('test-session-key', 'test-session-value');
+    });
+
+    // Verify storage was set
+    const storageBefore = await page.evaluate(() => ({
+      localStorage: localStorage.getItem('test-key'),
+      sessionStorage: sessionStorage.getItem('test-session-key'),
+    }));
+
+    expect(storageBefore.localStorage).toBe('test-value');
+    expect(storageBefore.sessionStorage).toBe('test-session-value');
+
+    // Click "Clear Conversation Data" button
+    const clearButton = page.getByTestId(DELETE_DATA_BUTTON_TEST_ID);
+
+    await expect(clearButton).toBeVisible();
+    await clearButton.click();
+
+    // Verify dialog appears
+    const dialog = page.getByRole('dialog');
+
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText('Clear Conversation Data?')).toBeVisible();
+    await expect(
+      dialog.getByText(/are you sure you want to clear/i),
+    ).toBeVisible();
+
+    // Click "Clear Data" to confirm
+    const confirmButton = page.getByTestId(CONFIRM_DELETE_DATA_BUTTON_TEST_ID);
+
+    await expect(confirmButton).toBeVisible();
+    await confirmButton.click();
+
+    // Wait for page reload (burn animation completes)
+    // The reload happens after ZENDESK_RESET_DELAY_MS (1000ms) + burn animation
+    await page.waitForLoadState('networkidle');
+
+    // Verify we're back at consent screen
+    await expect(
+      page.locator('h1:has-text("DuckDuckGo Automated Support Chat")'),
+    ).toBeVisible();
+    await expect(page.getByTestId(LOAD_ZD_BUTTON_TEST_ID)).toBeVisible();
+
+    // Verify storage is cleared
+    // @note: Storage clearing happens in resetWidget callback before reload.
+    // After reload, localStorage should be empty (or only contain Zendesk's
+    // clientId if it persists). We verify that our test keys are gone, which
+    // confirms the clear() was called.
+    const storageState = await page.evaluate(() => {
+      const allLocalStorageKeys = Object.keys(localStorage);
+      const allSessionStorageKeys = Object.keys(sessionStorage);
+
+      return {
+        localStorage: {
+          count: allLocalStorageKeys.length,
+          hasTestKey: allLocalStorageKeys.includes('test-key'),
+          keys: allLocalStorageKeys,
+        },
+        sessionStorage: {
+          count: allSessionStorageKeys.length,
+          hasTestKey: allSessionStorageKeys.includes('test-session-key'),
+          keys: allSessionStorageKeys,
+        },
+      };
+    });
+
+    if (storageState.localStorage.hasTestKey) {
+      await page.waitForTimeout(1000);
+
+      const storageStateRetry = await page.evaluate(() => {
+        const allLocalStorageKeys = Object.keys(localStorage);
+        const allSessionStorageKeys = Object.keys(sessionStorage);
+
+        return {
+          localStorage: {
+            hasTestKey: allLocalStorageKeys.includes('test-key'),
+          },
+          sessionStorage: {
+            hasTestKey: allSessionStorageKeys.includes('test-session-key'),
+            count: allSessionStorageKeys.length,
+          },
+        };
+      });
+
+      expect(storageStateRetry.localStorage.hasTestKey).toBe(false);
+      expect(storageStateRetry.sessionStorage.hasTestKey).toBe(false);
+      expect(storageStateRetry.sessionStorage.count).toBe(0);
+    } else {
+      // Storage was cleared before reload - verify it's still cleared
+      expect(storageState.localStorage.hasTestKey).toBe(false);
+      expect(storageState.sessionStorage.hasTestKey).toBe(false);
+      // SessionStorage should be completely empty
+      expect(storageState.sessionStorage.count).toBe(0);
+    }
+
+    // After reload and state reset, loadWidget should be false, so no widget
+    // should render
+    const widgetRendered = await page.evaluate(() => {
+      const container = document.querySelector('#messaging-container');
+
+      if (!container) return false;
+
+      const iframes = container.querySelectorAll('iframe');
+
+      return iframes.length > 0;
+    });
+
+    expect(widgetRendered).toBe(false);
+    console.log('✅ Storage cleared and widget not rendered');
+  });
+
+  test('should cancel clear conversation dialog without clearing data', async ({
+    page,
+  }) => {
+    await setupZendeskMock(page);
+    await loadWidget(page);
+
+    // Pre-populate storage
+    await page.evaluate(() => {
+      localStorage.setItem('preserve-key', 'preserve-value');
+      sessionStorage.setItem('preserve-session', 'preserve-session-value');
+    });
+
+    // Click clear button
+    const clearButton = page.getByTestId(DELETE_DATA_BUTTON_TEST_ID);
+
+    await clearButton.click();
+
+    // Verify dialog appears
+    const dialog = page.getByRole('dialog');
+
+    await expect(dialog).toBeVisible();
+
+    // Click Cancel
+    const cancelButton = page.getByTestId(CANCEL_DELETE_DATA_BUTTON_TEST_ID);
+    await cancelButton.click();
+
+    // Verify dialog closes
+    await expect(dialog).not.toBeVisible();
+
+    // Verify still on chat screen (widget still visible)
+    await expect(
+      page.locator('#messaging-container iframe#zendesk-messaging-iframe'),
+    ).toBeAttached();
+
+    // Verify storage is NOT cleared
+    const storageState = await page.evaluate(() => ({
+      localStorage: localStorage.getItem('preserve-key'),
+      sessionStorage: sessionStorage.getItem('preserve-session'),
+    }));
+
+    expect(storageState.localStorage).toBe('preserve-value');
+    expect(storageState.sessionStorage).toBe('preserve-session-value');
+    console.log('✅ Dialog cancelled and storage preserved');
   });
 });

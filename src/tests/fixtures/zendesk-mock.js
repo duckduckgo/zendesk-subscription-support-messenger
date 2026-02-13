@@ -332,6 +332,25 @@
         console.log('[Zendesk Mock] Widget opened');
       } else if (action === 'close') {
         console.log('[Zendesk Mock] Widget closed');
+      } else if (action === 'resetWidget') {
+        // Handle resetWidget - calls the callback function
+        const callback = args[0];
+        if (typeof callback === 'function') {
+          console.log('[Zendesk Mock] Resetting widget');
+          // Reset widget state
+          isRendered = false;
+          // Remove iframes if they exist
+          if (webWidgetIframe && webWidgetIframe.parentNode) {
+            webWidgetIframe.parentNode.removeChild(webWidgetIframe);
+          }
+          if (messagingIframe && messagingIframe.parentNode) {
+            messagingIframe.parentNode.removeChild(messagingIframe);
+          }
+          webWidgetIframe = null;
+          messagingIframe = null;
+          // Call the callback (which will clear storage)
+          callback();
+        }
       }
     }
 

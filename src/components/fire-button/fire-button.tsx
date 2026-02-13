@@ -2,6 +2,7 @@ import Image from 'next/image';
 import FireIconColorLarge from '../../../public/static-assets/images/Fire-96.svg';
 import FireIconSmall from '../../../public/static-assets/images/Fire-Solid-16.svg';
 import styles from './fire-button.module.css';
+import { DELETE_DATA_BUTTON_TEST_ID } from '@/constants/test-ids';
 
 interface FireButtonProps {
   onClick: () => void;
@@ -28,6 +29,7 @@ export default function FireButton({
         onClick={onClick}
         aria-label="Clear conversation data"
         type="button"
+        data-testid={DELETE_DATA_BUTTON_TEST_ID}
       >
         <Image src={FireIconSmall} alt="" width={16} height={16} />
         <span>Clear Conversation Data</span>
@@ -41,6 +43,7 @@ export default function FireButton({
       onClick={onClick}
       aria-label="Clear conversation data"
       type="button"
+      data-testid={DELETE_DATA_BUTTON_TEST_ID}
     >
       <Image src={FireIconColorLarge} alt="" width={48} height={48} />
     </button>

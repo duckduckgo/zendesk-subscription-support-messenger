@@ -5,6 +5,10 @@ import Image from 'next/image';
 import FireBurnIcon from '../../../public/static-assets/images/Fire-Burn-96.svg';
 import { Button } from '@/components/button/button';
 import styles from './confirm-dialog.module.css';
+import {
+  CANCEL_DELETE_DATA_BUTTON_TEST_ID,
+  CONFIRM_DELETE_DATA_BUTTON_TEST_ID,
+} from '@/constants/test-ids';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -133,6 +137,7 @@ export default function ConfirmDialog({
             onClick={onCancel}
             type="button"
             skipBaseStyles
+            data-testid={CANCEL_DELETE_DATA_BUTTON_TEST_ID}
           />
           <Button
             ref={confirmButtonRef}
@@ -141,6 +146,7 @@ export default function ConfirmDialog({
             onClick={onConfirm}
             type="button"
             skipBaseStyles
+            data-testid={CONFIRM_DELETE_DATA_BUTTON_TEST_ID}
           />
         </div>
       </div>
