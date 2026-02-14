@@ -7,9 +7,9 @@ This project uses **Playwright** for all testing needs, with a focused test suit
 ## Test Results
 
 ```bash
-✅ 7 passing tests (15s)
+✅ 12 passing tests (~22s)
   - 3 unit tests (pure utility functions)
-  - 4 integration tests (complete user flows)
+  - 9 integration tests (complete user flows)
 ```
 
 ## Architecture
@@ -74,6 +74,18 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
 - Verifies `useZendeskIframeStyles` hook injects custom styles
 - Confirms `<style data-zendesk-custom-styles="true">` exists in iframe
 
+**6. ✅ Clear Conversation Data Flow**
+
+- Tests the "Clear Conversation Data" button functionality
+- Verifies confirmation dialog appears with proper content
+- Tests dialog cancellation (storage preserved, dialog closes)
+- Confirms storage (localStorage/sessionStorage) is cleared on confirmation
+- Verifies user returns to consent screen after clearing
+- Tests dialog keyboard interactions (Escape key, Tab navigation, focus management)
+- Tests overlay click to close dialog
+- Verifies widget is not rendered after state reset
+- Verifies button visibility based on widget state
+
 ### Example Test Output
 
 ```
@@ -94,6 +106,9 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
    - https://improving.duckduckgo.com/t/subscriptionsupport_helplink_getting-started
    - https://improving.duckduckgo.com/t/subscriptionsupport_link_ticket
    - https://improving.duckduckgo.com/t/subscriptionsupport_helpful_yes
+
+✅ Storage cleared and widget not rendered
+✅ Dialog cancelled and storage preserved
 ```
 
 ## Running Tests
@@ -227,6 +242,7 @@ zE('messenger', 'render', { mode: 'embedded', widget: { targetElement: '#id' } }
 zE('messenger:on', 'unreadMessages', callback)
 zE('messenger:set', 'cookies', 'functional')
 zE('messenger:set', 'customization', { theme: {...} })
+zE('messenger', 'resetWidget', callback) // Resets widget and calls callback
 ```
 
 Creates actual iframe structure:
@@ -242,6 +258,12 @@ Includes realistic content:
 - Composer textarea (`#composer-input`) and send button
 - Yes/No feedback buttons for testing click handlers
 - Bot messages and conversation structure
+
+**Mock Features:**
+
+- `resetWidget` support - Resets widget state, removes iframes, and calls callback
+- Proper iframe structure matching production Zendesk widget
+- Realistic timing for callbacks and rendering
 
 This ensures tests verify actual hook behavior, not simulations.
 
@@ -309,6 +331,9 @@ test('complete flow', async ({ page }) => {
 - Style injection via `useZendeskIframeStyles` hook
 - Pixel event tracking to `improving.duckduckgo.com`
 - Message sending and user interactions
+- Clear conversation data flow with dialog confirmation
+- Storage clearing (localStorage/sessionStorage)
+- State reset and return to consent screen
 
 ## Writing New Tests
 
@@ -334,37 +359,22 @@ test.describe('myUtility', () => {
 
 ### Adding an Integration Test
 
-For testing user flows with Zendesk:
+For testing user flows with Zendesk, use the helper functions defined in `complete-flow.test.ts` for cleaner, more maintainable tests:
 
 ```typescript
 import { test, expect } from '@playwright/test';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+// Helper functions are defined at the top of complete-flow.test.ts
+// They can be reused within that file or copied to new test files
 
 test('new user flow', async ({ page }) => {
-  // Load Zendesk mock
-  const mockScript = readFileSync(
-    join(__dirname, '../fixtures/zendesk-mock.js'),
-    'utf-8',
-  );
+  // Set up Zendesk mock (helper function)
+  await setupZendeskMock(page);
 
-  await page.route('https://static.zdassets.com/ekr/snippet.js*', (route) => {
-    route.fulfill({
-      status: 200,
-      contentType: 'application/javascript',
-      body: mockScript,
-    });
-  });
+  // Optionally intercept pixel events (helper function)
+  const pixelRequests = await setupPixelInterception(page);
 
-  // Optionally intercept pixel events
-  const pixelRequests: string[] = [];
-  await page.route('https://improving.duckduckgo.com/t/*', (route) => {
-    pixelRequests.push(route.request().url());
-    route.fulfill({ status: 200, body: '' });
-  });
-
-  // Test your flow
-  await page.goto('/');
+  // Load widget and wait for it to be ready (helper function)
+  await loadWidget(page);
 
   // ... your test steps ...
 
@@ -372,6 +382,14 @@ test('new user flow', async ({ page }) => {
   expect(pixelRequests.length).toBeGreaterThan(0);
 });
 ```
+
+**Helper Functions Available in `complete-flow.test.ts`:**
+
+- `setupZendeskMock(page)` - Sets up the Zendesk script mock route (mock script loaded once at module level)
+- `loadWidget(page)` - Navigates to page, clicks consent button, waits for widget ready (~1500ms)
+- `setupPixelInterception(page)` - Sets up pixel request interception, returns requests array
+
+These helpers eliminate code duplication and ensure consistent test setup. The mock script is loaded once at module level for better performance.
 
 ## Troubleshooting
 
@@ -420,6 +438,7 @@ test('new user flow', async ({ page }) => {
 - Intercept and verify network requests (pixel events)
 - Use the same selectors as your hooks (e.g., `ZENDESK_ARTICLE_LINK_SELECTOR`) for consistency
 - Use `data-testid` attributes for stable element selection
+- Test IDs available: `LOAD_ZD_BUTTON_TEST_ID`, `DELETE_DATA_BUTTON_TEST_ID`, `CONFIRM_DELETE_DATA_BUTTON_TEST_ID`, `CANCEL_DELETE_DATA_BUTTON_TEST_ID`
 - Wait for specific conditions with `waitForSelector()` instead of arbitrary timeouts
 - Test in the real Next.js app environment
 
@@ -430,7 +449,7 @@ test('new user flow', async ({ page }) => {
 - Don't mock what you're testing - only mock external dependencies
 - Don't test implementation details - test user-visible behavior
 - Don't use brittle CSS class selectors - use semantic selectors
-- Don't duplicate test setup - use shared fixtures and helpers
+- Don't duplicate test setup - use shared fixtures and helper functions (`setupZendeskMock`, `loadWidget`, `setupPixelInterception`)
 
 ## Maintenance
 
@@ -506,9 +525,9 @@ When you create a new hook that modifies the widget:
 
    ```typescript
    test('should verify new hook behavior', async ({ page }) => {
-     // Setup (mock, goto, click button)
-     // Wait for hooks to activate
-     await page.waitForTimeout(1500);
+     // Use helper functions for setup
+     await setupZendeskMock(page);
+     await loadWidget(page);
 
      // Verify hook's DOM changes
      const result = await page.evaluate(() => {
@@ -522,12 +541,58 @@ When you create a new hook that modifies the widget:
    });
    ```
 
+### Testing Clear Conversation Data Flow
+
+When testing the clear conversation data functionality:
+
+```typescript
+test('should clear conversation data', async ({ page }) => {
+  await setupZendeskMock(page);
+  await loadWidget(page);
+
+  // Pre-populate storage
+  await page.evaluate(() => {
+    localStorage.setItem('test-key', 'test-value');
+    sessionStorage.setItem('test-session-key', 'test-session-value');
+  });
+
+  // Click clear button
+  const clearButton = page.getByTestId(DELETE_DATA_BUTTON_TEST_ID);
+  await clearButton.click();
+
+  // Verify dialog appears
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+
+  // Confirm deletion
+  const confirmButton = page.getByTestId(CONFIRM_DELETE_DATA_BUTTON_TEST_ID);
+  await confirmButton.click();
+
+  // Wait for reload
+  await page.waitForLoadState('networkidle');
+
+  // Verify storage is cleared
+  const storageState = await page.evaluate(() => ({
+    localStorage: Object.keys(localStorage).length,
+    sessionStorage: Object.keys(sessionStorage).length,
+  }));
+  expect(storageState.sessionStorage).toBe(0);
+});
+```
+
 ## Key Files
 
 **Tests:**
 
-- `src/tests/integration/complete-flow.test.ts` - Comprehensive integration tests (4 tests)
+- `src/tests/integration/complete-flow.test.ts` - Comprehensive integration tests (9 tests)
+  - Complete widget flow with pixel tracking
+  - Custom styles injection verification
+  - Article link click tracking
+  - Yes/No button click tracking
+  - Clear conversation data flow
+  - Dialog cancellation flow
 - `src/tests/unit/build-article-url.test.ts` - Unit tests for utilities (3 tests)
+- `src/tests/unit/get-slug-from-url.test.ts` - Unit tests for utilities (3 tests)
 
 **Fixtures:**
 
@@ -542,37 +607,35 @@ When you create a new hook that modifies the widget:
 
 ### How Integration Tests Work
 
-1. **Mock Setup**
+1. **Mock Setup** (using helper functions)
 
    ```typescript
-   // Load the mock script
-   const mockScript = readFileSync('zendesk-mock.js', 'utf-8');
+   // Set up Zendesk mock (helper function handles script loading)
+   await setupZendeskMock(page);
 
-   // Intercept Zendesk CDN request
-   await page.route('https://static.zdassets.com/ekr/snippet.js*', (route) => {
-     route.fulfill({ body: mockScript });
-   });
+   // Optionally set up pixel interception
+   const pixelRequests = await setupPixelInterception(page);
    ```
 
-2. **User Action**
+2. **User Action** (using helper functions)
 
    ```typescript
-   // Navigate and click button
-   await page.goto('/');
-   await page.getByTestId('load-zd-button').click();
+   // Load widget (helper function handles navigation, consent click, and waiting)
+   await loadWidget(page);
    ```
 
 3. **Widget Renders**
 
    ```typescript
-   // Mock creates iframes
-   await page.waitForSelector('#messaging-container iframe');
+   // Widget is ready after loadWidget() completes
+   // Mock creates iframes automatically
    ```
 
 4. **Hooks Activate**
 
    ```typescript
-   // Wait for hooks (zendeskReady + callbacks)
+   // Hooks activate automatically (loadWidget waits for them)
+   // Additional waits may be needed for specific hook effects
    await page.waitForTimeout(1500);
    ```
 
@@ -583,6 +646,16 @@ When you create a new hook that modifies the widget:
    const link = iframe.locator('a[aria-label*="Article"]');
    await expect(link).toHaveAttribute('href', /duckduckgo\.com/);
    ```
+
+**Helper Functions:**
+
+The test suite includes optimized helper functions to reduce code duplication:
+
+- `setupZendeskMock(page)` - Loads and routes the Zendesk mock script (loaded once at module level)
+- `loadWidget(page)` - Navigates to page, clicks consent, waits for widget ready (~1500ms)
+- `setupPixelInterception(page)` - Sets up pixel request interception, returns requests array
+
+These helpers make tests more maintainable and consistent.
 
 ### Why 1500ms Wait?
 
@@ -606,4 +679,4 @@ For issues or questions:
 
 ---
 
-**Summary:** A focused test suite providing high confidence for CI deployment. Tests the complete user journey with realistic mocks, verifying iframe rendering, link swapping, message sending, and pixel tracking.
+**Summary:** A focused test suite providing high confidence for CI deployment. Tests the complete user journey with realistic mocks, verifying iframe rendering, link swapping, message sending, pixel tracking, and the clear conversation data flow. Uses optimized helper functions to reduce duplication and improve maintainability.
