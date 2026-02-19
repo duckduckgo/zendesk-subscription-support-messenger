@@ -17,7 +17,9 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className={styles.footerContent}>
         <div className={styles.footerLinksWrapper}>
-          <div className={styles.footerSection}>
+          <div
+            className={`${styles.footerSection} ${styles.footerSectionLearnMore}`}
+          >
             <h4 className={styles.footerTitle}>LEARN MORE</h4>
             {learnMoreLinks.map((link) => (
               <a
@@ -35,7 +37,9 @@ export default function Footer() {
             ))}
           </div>
 
-          <div className={styles.footerSection}>
+          <div
+            className={`${styles.footerSection} ${styles.footerSectionOtherResources}`}
+          >
             <h4 className={styles.footerTitle}>OTHER RESOURCES</h4>
             {otherResourcesLinks.map((link) => (
               <a
@@ -51,7 +55,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className={styles.footerSection}>
+        <div className={`${styles.footerSection} ${styles.footerSectionAbout}`}>
           <h4 className={styles.footerTitle}>ABOUT DUCKDUCKGO</h4>
           <p className={styles.footerText}>
             At DuckDuckGo, we believe the best way to protect your personal

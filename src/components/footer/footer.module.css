@@ -3,6 +3,7 @@
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+  padding: 0 16px;
 }
 
 .footerContent {
@@ -39,7 +40,7 @@
   flex-shrink: 0;
 }
 
-.footerSection:last-child {
+.footerSectionAbout {
   flex: 1;
 }
 
@@ -65,7 +66,8 @@
   letter-spacing: 2.1px;
   text-transform: uppercase;
   margin-bottom: 18px;
-  overflow-wrap: break-word; /* Wrap long words at word boundaries when necessary */
+  overflow-wrap: break-word;
+  /* Wrap long words at word boundaries when necessary */
 }
 
 .footerLink,
@@ -188,7 +190,17 @@
   visibility: visible !important;
 }
 
-@media (max-width: 1248px) {
+@media (max-width: 1279px) {
+  .footerContent {
+    gap: unset;
+  }
+
+  .footerLinksWrapper {
+    gap: unset;
+  }
+}
+
+@media (max-width: 800px) {
   .footer {
     padding: 0 16px;
   }
@@ -200,7 +212,7 @@
   }
 
   /* Reorder: About section first, then links side by side */
-  .footerSection:last-child {
+  .footerSectionAbout {
     order: -1;
     width: 100%;
     flex: none;
@@ -209,7 +221,7 @@
   .footerLinksWrapper {
     order: 0;
     display: flex;
-    gap: 32px;
+    gap: 28px;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -217,11 +229,22 @@
   }
 
   .footerLinksWrapper > .footerSection {
-    flex: 1 1 0%; /* Use 0% basis to allow proper flex shrinking */
+    flex: 1 1 0%;
+    /* Use 0% basis to allow proper flex shrinking */
     min-width: 0;
     max-width: 100%;
-    overflow-wrap: break-word; /* Wrap long words at word boundaries when necessary */
+    overflow-wrap: break-word;
+    /* Wrap long words at word boundaries when necessary */
     box-sizing: border-box;
+  }
+
+  /* Swap LEARN MORE and OTHER RESOURCES sections */
+  .footerSectionLearnMore {
+    order: 1;
+  }
+
+  .footerSectionOtherResources {
+    order: 2;
   }
 
   .copyright {
