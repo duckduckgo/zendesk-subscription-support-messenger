@@ -3,6 +3,7 @@
 import styles from './footer.module.css';
 import { learnMoreLinks, otherResourcesLinks } from '@/constants/footerLinks';
 import { MAIN_SITE_URL } from '@/config/common';
+import NewTabLabel from '@/components/new-tab-label/new-tab-label';
 
 export default function Footer() {
   const buildHref = (href: string): string => {
@@ -33,6 +34,7 @@ export default function Footer() {
                 {link.badge && (
                   <span className={styles.badge}>{link.badge}</span>
                 )}
+                <NewTabLabel />
               </a>
             ))}
           </div>
@@ -50,6 +52,7 @@ export default function Footer() {
                 rel={link.rel ?? undefined}
               >
                 {link.text}
+                <NewTabLabel />
               </a>
             ))}
           </div>
@@ -69,6 +72,7 @@ export default function Footer() {
               href={`${MAIN_SITE_URL}/compare-privacy`}
             >
               choose DuckDuckGo over Chrome and other browsers
+              <NewTabLabel />
             </a>{' '}
             to search and browse online. Our built-in search engine is like
             Google but never tracks your searches. And our browsing protections,
@@ -82,6 +86,7 @@ export default function Footer() {
               href={`${MAIN_SITE_URL}/duckduckgo-help-pages/company/how-duckduckgo-makes-money`}
             >
               privacy-respecting search ads
+              <NewTabLabel />
             </a>
             , not by exploiting your data. Take back control of your personal
             information with the browser designed for data protection, not data
@@ -93,6 +98,7 @@ export default function Footer() {
               href={`${MAIN_SITE_URL}/mac`}
             >
               Mac
+              <NewTabLabel />
             </a>
             ,{' '}
             <a
@@ -102,6 +108,7 @@ export default function Footer() {
               href={`${MAIN_SITE_URL}/windows`}
             >
               Windows
+              <NewTabLabel />
             </a>
             ,{' '}
             <a
@@ -111,6 +118,7 @@ export default function Footer() {
               href="https://apps.apple.com/app/duckduckgo-privacy-browser/id663592361?platform=iphone"
             >
               iOS
+              <NewTabLabel />
             </a>
             , and{' '}
             <a
@@ -120,6 +128,7 @@ export default function Footer() {
               href="https://play.google.com/store/apps/details?id=com.duckduckgo.mobile.android"
             >
               Android
+              <NewTabLabel />
             </a>
             .
           </p>

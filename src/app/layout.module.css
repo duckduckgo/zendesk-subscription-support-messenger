@@ -10,7 +10,7 @@
   border-radius: 4px;
 }
 
-.skipLink:focus {
+.skipLink:focus-visible {
   top: 0;
   outline: 2px solid white;
   outline-offset: 2px;

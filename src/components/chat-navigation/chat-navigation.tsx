@@ -1,5 +1,6 @@
 import { MAIN_SITE_URL } from '@/config/common';
 import styles from './chat-navigation.module.css';
+import NewTabLabel from '@/components/new-tab-label/new-tab-label';
 
 /**
  * ChatNavigation component displays help links at the bottom of the chat widget.
@@ -18,6 +19,7 @@ export default function ChatNavigation() {
           className={styles.link}
         >
           FAQs and Support
+          <NewTabLabel />
         </a>
         <a
           href={`${MAIN_SITE_URL}/feedback`}
@@ -26,6 +28,7 @@ export default function ChatNavigation() {
           className={styles.link}
         >
           Send Feedback
+          <NewTabLabel />
         </a>
       </div>
     </nav>

@@ -121,10 +121,14 @@ export default function Home() {
   }, []);
 
   const handleBurnComplete = useCallback(() => {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: 'smooth',
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
     });
 
     window.location.reload();

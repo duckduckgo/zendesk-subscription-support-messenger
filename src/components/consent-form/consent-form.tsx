@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/button/button';
 import { MAIN_SITE_URL } from '@/config/common';
+import NewTabLabel from '@/components/new-tab-label/new-tab-label';
 import { LOAD_ZD_BUTTON_TEST_ID } from '@/constants/test-ids';
 import { REDIRECT_DELAY_MS } from '@/constants/zendesk-timing';
 import { DECLINE_BUTTON_TEXT, CONSENT_BUTTON_TEXT } from '@/config/zendesk';
@@ -27,6 +28,7 @@ export default function ConsentForm({ onContinue }: ConsentFormProps) {
             className={styles.link}
           >
             contact us
+            <NewTabLabel />
           </a>
           . We try to answer questions within 2 business days.
           <span>
