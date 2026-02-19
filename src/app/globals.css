@@ -183,17 +183,18 @@
   color-scheme: light;
 }
 
+/* We don't have a dark theme... yet */
 [data-theme='dark'] {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #ffffff;
+  --foreground: #171717;
   color-scheme: dark;
 }
 
 /* Default to system preference before JS loads */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
     color-scheme: dark;
   }
 }
