@@ -1,16 +1,16 @@
 .footer {
-  max-width: 1248px;
+  max-width: 1368px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
-  padding: 0 16px;
+  padding: 0 64px;
 }
 
 .footerContent {
   display: flex;
   padding: 44px 0 64px 0;
   align-items: flex-start;
-  gap: 68px;
+  gap: clamp(16px, 5%, 68px);
   align-self: stretch;
   border-top: 1px solid var(--color-border-subtle);
   border-bottom: 1px solid var(--color-border-subtle);
@@ -22,17 +22,12 @@
 .footerLinksWrapper {
   display: flex;
   gap: 68px;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .footerSection {
   font-size: 13px;
-}
-
-.footerLinksWrapper {
-  display: flex;
-  gap: 68px;
-  flex: 0 0 auto;
 }
 
 .footerLinksWrapper > .footerSection {
@@ -40,8 +35,15 @@
   flex-shrink: 0;
 }
 
+.footerLinksWrapper > .footerSectionLearnMore,
+.footerLinksWrapper > .footerSectionOtherResources {
+  flex: 0 1 227px;
+  min-width: 127px;
+}
+
 .footerSectionAbout {
   flex: 1;
+  min-width: 405px;
 }
 
 .footerLinksContainer {
@@ -209,6 +211,7 @@
     flex-direction: column;
     gap: 30px;
     padding: 32px 0 40px 0;
+    border-top: unset;
   }
 
   /* Reorder: About section first, then links side by side */
