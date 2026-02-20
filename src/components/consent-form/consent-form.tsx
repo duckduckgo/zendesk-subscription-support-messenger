@@ -1,11 +1,14 @@
 'use client';
 
 import { Button } from '@/components/button/button';
-import { MAIN_SITE_URL } from '@/config/common';
+import {
+  MAIN_SITE_URL,
+  DECLINE_BUTTON_TEXT,
+  CONSENT_BUTTON_TEXT,
+} from '@/config/common';
 import NewTabLabel from '@/components/new-tab-label/new-tab-label';
 import { LOAD_ZD_BUTTON_TEST_ID } from '@/constants/test-ids';
 import { REDIRECT_DELAY_MS } from '@/constants/zendesk-timing';
-import { DECLINE_BUTTON_TEXT, CONSENT_BUTTON_TEXT } from '@/config/zendesk';
 import styles from './consent-form.module.css';
 
 interface ConsentFormProps {

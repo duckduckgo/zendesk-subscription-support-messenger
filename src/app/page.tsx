@@ -14,7 +14,8 @@ import ConfirmDialog from '@/components/confirm-dialog/confirm-dialog';
 import { useZendeskSwapArticleLinks } from '@/hooks/use-zendesk-swap-article-links';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
 import { useZendeskClickHandlers } from '@/hooks/use-zendesk-click-handlers';
-import { EMBEDDED_TARGET_ELEMENT, ZENDESK_SCRIPT_URL } from '@/config/zendesk';
+import { EMBEDDED_TARGET_ELEMENT } from '@/config/common';
+import { ZENDESK_SCRIPT_URL } from '@/config/zendesk';
 import {
   ZENDESK_READY_DELAY_MS,
   ZENDESK_RESET_DELAY_MS,
