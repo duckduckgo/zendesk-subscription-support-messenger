@@ -5,6 +5,7 @@ export const HELP_PAGES_BASE_URL = `${MAIN_SITE_URL}/duckduckgo-help-pages`;
 export const EMBEDDED_TARGET_ELEMENT = 'messaging-container';
 export const DECLINE_BUTTON_TEXT = 'Cancel';
 export const CONSENT_BUTTON_TEXT = 'Continue to Chat';
+export const NEW_CHAT_BUTTON_TEXT = 'Start New Chat';
 export const CONSENT_STORAGE_KEY = 'ddg_consent';
 
 /**

@@ -419,21 +419,22 @@ test.describe('Complete Zendesk Widget Flow', () => {
     console.log('✅ Yes button click tracked:', yesEvent);
   });
 
-  test('should clear conversation data and return to consent screen', async ({
+  test('should clear conversation data and show new chat button', async ({
     page,
   }) => {
     await setupZendeskMock(page);
     await loadWidget(page);
 
-    // Pre-populate storage to verify it gets cleared
+    // Pre-populate storage to verify it gets cleared. Use a key ending with
+    // .clientId to test the deleteStorageKeysBySuffix function
     await page.evaluate(() => {
-      localStorage.setItem('test-key', 'test-value');
+      localStorage.setItem('test-key.clientId', 'test-value');
       sessionStorage.setItem('test-session-key', 'test-session-value');
     });
 
     // Verify storage was set
     const storageBefore = await page.evaluate(() => ({
-      localStorage: localStorage.getItem('test-key'),
+      localStorage: localStorage.getItem('test-key.clientId'),
       sessionStorage: sessionStorage.getItem('test-session-key'),
     }));
 
@@ -465,17 +466,18 @@ test.describe('Complete Zendesk Widget Flow', () => {
     // The reload happens after ZENDESK_RESET_DELAY_MS (1000ms) + burn animation
     await page.waitForLoadState('networkidle');
 
-    // Verify we're back at consent screen
+    // Verify we're back at the chat screen (consent is persisted, so "New Chat"
+    // button shows)
     await expect(
       page.locator('h1:has-text("DuckDuckGo Automated Support Chat")'),
     ).toBeVisible();
     await expect(page.getByTestId(LOAD_ZD_BUTTON_TEST_ID)).toBeVisible();
 
-    // Verify storage is cleared
+    // Verify storage is cleared (except consent which persists)
     // @note: Storage clearing happens in resetWidget callback before reload.
-    // After reload, localStorage should be empty (or only contain Zendesk's
-    // clientId if it persists). We verify that our test keys are gone, which
-    // confirms the clear() was called.
+    // After reload, localStorage should only contain ddg_consent. All other
+    // keys should be removed. We verify that our test keys are gone and only
+    // consent remains, which confirms the clear() was called.
     const storageState = await page.evaluate(() => {
       const allLocalStorageKeys = Object.keys(localStorage);
       const allSessionStorageKeys = Object.keys(sessionStorage);
@@ -483,7 +485,11 @@ test.describe('Complete Zendesk Widget Flow', () => {
       return {
         localStorage: {
           count: allLocalStorageKeys.length,
-          hasTestKey: allLocalStorageKeys.includes('test-key'),
+          hasTestKey: allLocalStorageKeys.includes('test-key.clientId'),
+          hasConsent: allLocalStorageKeys.includes('ddg_consent'),
+          hasClientId: allLocalStorageKeys.some((key) =>
+            key.endsWith('.clientId'),
+          ),
           keys: allLocalStorageKeys,
         },
         sessionStorage: {
@@ -503,7 +509,12 @@ test.describe('Complete Zendesk Widget Flow', () => {
 
         return {
           localStorage: {
-            hasTestKey: allLocalStorageKeys.includes('test-key'),
+            hasTestKey: allLocalStorageKeys.includes('test-key.clientId'),
+            hasConsent: allLocalStorageKeys.includes('ddg_consent'),
+            hasClientId: allLocalStorageKeys.some((key) =>
+              key.endsWith('.clientId'),
+            ),
+            count: allLocalStorageKeys.length,
           },
           sessionStorage: {
             hasTestKey: allSessionStorageKeys.includes('test-session-key'),
@@ -515,12 +526,24 @@ test.describe('Complete Zendesk Widget Flow', () => {
       expect(storageStateRetry.localStorage.hasTestKey).toBe(false);
       expect(storageStateRetry.sessionStorage.hasTestKey).toBe(false);
       expect(storageStateRetry.sessionStorage.count).toBe(0);
+      // Verify consent persists after clearing conversation data
+      expect(storageStateRetry.localStorage.hasConsent).toBe(true);
+      // Verify all .clientId keys are removed
+      expect(storageStateRetry.localStorage.hasClientId).toBe(false);
+      // Verify only ddg_consent remains
+      expect(storageStateRetry.localStorage.count).toBe(1);
     } else {
       // Storage was cleared before reload - verify it's still cleared
       expect(storageState.localStorage.hasTestKey).toBe(false);
       expect(storageState.sessionStorage.hasTestKey).toBe(false);
       // SessionStorage should be completely empty
       expect(storageState.sessionStorage.count).toBe(0);
+      // Consent should persist after clearing conversation data
+      expect(storageState.localStorage.hasConsent).toBe(true);
+      // Verify all .clientId keys are removed
+      expect(storageState.localStorage.hasClientId).toBe(false);
+      // Verify only ddg_consent remains
+      expect(storageState.localStorage.count).toBe(1);
     }
 
     // After reload and state reset, loadWidget should be false, so no widget

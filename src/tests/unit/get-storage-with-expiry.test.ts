@@ -21,15 +21,23 @@ function createLocalStorageMock() {
 
 test.describe('getStorageWithExpiry', () => {
   let originalLocalStorage: Storage | undefined;
+  let originalWindow: Window | undefined;
 
   test.beforeEach(() => {
-    // Store original localStorage if it exists
+    // Store original localStorage and window if they exist
     if (typeof global.localStorage !== 'undefined') {
       originalLocalStorage = global.localStorage;
+    }
+    if (typeof global.window !== 'undefined') {
+      originalWindow = global.window;
     }
 
     // Create mock localStorage
     global.localStorage = createLocalStorageMock() as unknown as Storage;
+    // Ensure window exists for isBrowser() check
+    if (typeof global.window === 'undefined') {
+      global.window = global as unknown as Window;
+    }
   });
 
   test.afterEach(() => {
@@ -38,6 +46,12 @@ test.describe('getStorageWithExpiry', () => {
       global.localStorage = originalLocalStorage;
     } else {
       global.localStorage = undefined as unknown as Storage;
+    }
+    // Restore original window if it existed
+    if (originalWindow) {
+      global.window = originalWindow;
+    } else {
+      global.window = undefined as unknown as Window;
     }
   });
 

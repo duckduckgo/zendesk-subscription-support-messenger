@@ -1,16 +1,23 @@
+import { isBrowser } from './is-browser';
+
 /**
  * Retrieves a boolean value from localStorage, checking if it has expired.
  *
  * If the item has expired or doesn't exist, returns null and removes expired
- * items from storage. Handles invalid JSON by returning null.
+ * items from storage. Handles invalid JSON by returning null. Returns null
+ * when called in a server-side environment where localStorage is not available.
  *
  * @function getStorageWithExpiry
  * @param {string} key - The localStorage key to retrieve
  *
- * @returns {boolean | null} The stored boolean value, or null if expired,
- * missing, or invalid
+ * @returns {boolean | null | undefined} The stored boolean value, or null if expired,
+ * missing, invalid, or undefined when called server-side
  */
-export function getStorageWithExpiry(key: string): boolean | null {
+export function getStorageWithExpiry(key: string): boolean | null | undefined {
+  if (!isBrowser()) {
+    return undefined;
+  }
+
   const itemStr = localStorage.getItem(key);
 
   if (!itemStr) {
