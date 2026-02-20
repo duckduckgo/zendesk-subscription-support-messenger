@@ -194,6 +194,11 @@
   .card {
     padding: 16px;
     gap: 16px;
+    min-height: 300px;
+  }
+
+  .startNewChatButton {
+    width: 55%;
   }
 
   .content {

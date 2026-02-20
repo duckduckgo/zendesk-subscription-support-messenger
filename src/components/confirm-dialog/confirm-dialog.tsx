@@ -151,7 +151,7 @@ export default function ConfirmDialog({
         </button>
 
         <div className={styles.iconContainer}>
-          <Image src={FireBurnIcon} alt="" width={96} height={96} />
+          <Image src={FireBurnIcon} alt="" width={128} height={128} />
         </div>
 
         <h2 id="dialog-title" className={styles.title}>
