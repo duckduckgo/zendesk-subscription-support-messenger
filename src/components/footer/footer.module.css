@@ -131,6 +131,8 @@
   font-style: normal;
   font-weight: 400;
   line-height: 145%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .footerText strong {
@@ -219,6 +221,9 @@
     order: -1;
     width: 100%;
     flex: none;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .footerLinksWrapper {
