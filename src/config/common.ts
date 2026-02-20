@@ -23,4 +23,4 @@ export const basePath =
     ? '/zendesk-subscription-support-messenger'
     : '';
 
-export const DAY_MILLISECONDS = 864e5;
+export const DAY_IN_MILLISECONDS = 864e5;

@@ -14,7 +14,11 @@ import ConfirmDialog from '@/components/confirm-dialog/confirm-dialog';
 import { useZendeskSwapArticleLinks } from '@/hooks/use-zendesk-swap-article-links';
 import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
 import { useZendeskClickHandlers } from '@/hooks/use-zendesk-click-handlers';
-import { EMBEDDED_TARGET_ELEMENT } from '@/config/common';
+import {
+  CONSENT_STORAGE_KEY,
+  DAY_IN_MILLISECONDS,
+  EMBEDDED_TARGET_ELEMENT,
+} from '@/config/common';
 import { ZENDESK_SCRIPT_URL } from '@/config/zendesk';
 import {
   ZENDESK_READY_DELAY_MS,
@@ -29,6 +33,8 @@ import { ZENDESK_IFRAME_STYLES } from '@/constants/zendesk-styles';
 import { getCSSVariable } from '@/utils/get-css-variable';
 import { getSlugFromUrl } from '@/utils/get-slug-from-url';
 import { widgetReducer, initialWidgetState } from '@/reducers/widget-reducer';
+import { setStorageWithExpiry } from '@/utils/set-storage-with-expiry';
+import { deleteStorageKeysBySuffix } from '@/utils/delete-storage-keys-by-suffix';
 
 export default function Home() {
   const [widgetState, dispatch] = useReducer(widgetReducer, initialWidgetState);
@@ -38,6 +44,8 @@ export default function Home() {
 
   const onContinue = useCallback(() => {
     window.firePixelEvent?.('consent');
+
+    setStorageWithExpiry(CONSENT_STORAGE_KEY, true, 30 * DAY_IN_MILLISECONDS);
 
     dispatch({ type: 'SET_LOAD_WIDGET' });
   }, [dispatch]);
@@ -107,7 +115,7 @@ export default function Home() {
       // Reset Zendesk widget
       zE('messenger', 'resetWidget', function () {
         // `resetWidget` clears all but the clientId
-        localStorage.clear();
+        deleteStorageKeysBySuffix('.clientId');
         // clear `ZD-widgetOpen`
         sessionStorage.clear();
 
