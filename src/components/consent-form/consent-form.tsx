@@ -6,7 +6,7 @@ import {
   MAIN_SITE_URL,
   DECLINE_BUTTON_TEXT,
   CONSENT_BUTTON_TEXT,
-  NEW_CHAT_BUTTON_TEXT,
+  START_CHAT_BUTTON_TEXT,
   CONSENT_STORAGE_KEY,
 } from '@/config/common';
 import NewTabLabel from '@/components/new-tab-label/new-tab-label';
@@ -49,7 +49,7 @@ export default function ConsentForm({ onContinue }: ConsentFormProps) {
   return (
     <div className={styles.card}>
       {hasConsent === undefined ? null : hasConsent ? (
-        renderContinueButton(NEW_CHAT_BUTTON_TEXT, styles.startNewChatButton)
+        renderContinueButton(START_CHAT_BUTTON_TEXT, styles.startNewChatButton)
       ) : (
         <>
           <div className={styles.cardHeader}>
