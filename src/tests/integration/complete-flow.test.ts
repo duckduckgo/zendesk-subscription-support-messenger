@@ -462,8 +462,8 @@ test.describe('Complete Zendesk Widget Flow', () => {
     await expect(confirmButton).toBeVisible();
     await confirmButton.click();
 
-    // Wait for page reload (burn animation completes)
-    // The reload happens after ZENDESK_RESET_DELAY_MS (1000ms) + burn animation
+    // Wait for page reset (burn animation completes)
+    // The reset happens after ZENDESK_RESET_DELAY_MS (1000ms) + burn animation
     await page.waitForLoadState('networkidle');
 
     // Verify we're back at the chat screen (consent is persisted, so "New Chat"
@@ -474,8 +474,8 @@ test.describe('Complete Zendesk Widget Flow', () => {
     await expect(page.getByTestId(LOAD_ZD_BUTTON_TEST_ID)).toBeVisible();
 
     // Verify storage is cleared (except consent which persists)
-    // @note: Storage clearing happens in resetWidget callback before reload.
-    // After reload, localStorage should only contain ddg_consent. All other
+    // @note: Storage clearing happens in resetWidget callback before reset.
+    // After reset, localStorage should only contain ddg_consent. All other
     // keys should be removed. We verify that our test keys are gone and only
     // consent remains, which confirms the clear() was called.
     const storageState = await page.evaluate(() => {
@@ -533,7 +533,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
       // Verify only ddg_consent remains
       expect(storageStateRetry.localStorage.count).toBe(1);
     } else {
-      // Storage was cleared before reload - verify it's still cleared
+      // Storage was cleared before reset - verify it's still cleared
       expect(storageState.localStorage.hasTestKey).toBe(false);
       expect(storageState.sessionStorage.hasTestKey).toBe(false);
       // SessionStorage should be completely empty
@@ -546,8 +546,7 @@ test.describe('Complete Zendesk Widget Flow', () => {
       expect(storageState.localStorage.count).toBe(1);
     }
 
-    // After reload and state reset, loadWidget should be false, so no widget
-    // should render
+    // After state reset, loadWidget should be false, so no widget should render
     const widgetRendered = await page.evaluate(() => {
       const container = document.querySelector('#messaging-container');
 

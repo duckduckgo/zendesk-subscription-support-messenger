@@ -28,6 +28,8 @@ import {
   ZENDESK_SEND_BUTTON_IDENTIFIER,
   ZENDESK_YES_BUTTON_IDENTIFIER,
   ZENDESK_NO_BUTTON_IDENTIFIER,
+  ZENDESK_SCRIPT_TAG_ID,
+  ZENDESK_HIDDEN_IFRAME_SELECTOR,
 } from '@/constants/zendesk-selectors';
 import { ZENDESK_IFRAME_STYLES } from '@/constants/zendesk-styles';
 import { getCSSVariable } from '@/utils/get-css-variable';
@@ -140,7 +142,43 @@ export default function Home() {
       behavior: prefersReducedMotion ? 'auto' : 'smooth',
     });
 
-    window.location.reload();
+    // Clear contents of messaging-container div (Zendesk iframe, etc.)
+    const messagingContainer = document.getElementById(EMBEDDED_TARGET_ELEMENT);
+    if (messagingContainer) {
+      messagingContainer.innerHTML = '';
+    }
+
+    // Remove hidden Zendesk iframe (data-product="web_widget")
+    const hiddenIframe = document.querySelector(ZENDESK_HIDDEN_IFRAME_SELECTOR);
+    if (hiddenIframe) {
+      hiddenIframe.remove();
+    }
+
+    // Remove ze-snippet script element
+    const zeSnippet = document.getElementById(ZENDESK_SCRIPT_TAG_ID);
+    if (zeSnippet) {
+      zeSnippet.remove();
+    }
+
+    // Clean up Zendesk global objects
+    if (typeof window !== 'undefined') {
+      // Remove zE function if it exists
+      try {
+        delete (window as unknown as { zE?: unknown }).zE;
+      } catch {
+        // Ignore errors if zE is not configurable
+      }
+
+      // Remove zEMessenger if it exists
+      try {
+        delete (window as unknown as { zEMessenger?: unknown }).zEMessenger;
+      } catch {
+        // Ignore errors if zEMessenger is not configurable
+      }
+    }
+
+    // Stop burn animation
+    setIsBurning(false);
   }, []);
 
   const handleOnError = useCallback((e: Error) => {
@@ -236,7 +274,7 @@ export default function Home() {
       </main>
       {loadWidget && (
         <Script
-          id="ze-snippet"
+          id={ZENDESK_SCRIPT_TAG_ID}
           src={ZENDESK_SCRIPT_URL}
           onLoad={handleOnLoad}
           onError={handleOnError}

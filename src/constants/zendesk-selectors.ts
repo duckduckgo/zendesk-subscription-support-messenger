@@ -49,3 +49,14 @@ export const ZENDESK_BUTTON_DATA_ATTR = 'buttons.button';
  * Data attribute value for icon button elements
  */
 export const ZENDESK_ICON_BUTTON_DATA_ATTR = 'buttons.icon_button';
+
+/**
+ * Zendesk script tag
+ */
+export const ZENDESK_SCRIPT_TAG_ID = 'ze-snippet';
+
+/**
+ * Selector for the hidden iframe. Used when resetting the chat
+ */
+export const ZENDESK_HIDDEN_IFRAME_SELECTOR =
+  'iframe[data-product="web_widget"][aria-hidden="true"]';
