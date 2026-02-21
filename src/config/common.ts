@@ -7,6 +7,7 @@ export const DECLINE_BUTTON_TEXT = 'Cancel';
 export const CONSENT_BUTTON_TEXT = 'Continue to Chat';
 export const START_CHAT_BUTTON_TEXT = 'Start Chat';
 export const CONSENT_STORAGE_KEY = 'ddg_consent';
+export const CONSENT_STORAGE_TTL = 30;
 
 /**
  * Determine if using custom domain (e.g., subscription-support.duckduckgo.com)
@@ -23,5 +24,3 @@ export const basePath =
   process.env.NODE_ENV === 'production' && !useCustomDomain
     ? '/zendesk-subscription-support-messenger'
     : '';
-
-export const DAY_IN_MILLISECONDS = 864e5;

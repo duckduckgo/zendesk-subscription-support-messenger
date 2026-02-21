@@ -16,7 +16,7 @@ import { useZendeskIframeStyles } from '@/hooks/use-zendesk-iframe-styles';
 import { useZendeskClickHandlers } from '@/hooks/use-zendesk-click-handlers';
 import {
   CONSENT_STORAGE_KEY,
-  DAY_IN_MILLISECONDS,
+  CONSENT_STORAGE_TTL,
   EMBEDDED_TARGET_ELEMENT,
 } from '@/config/common';
 import { ZENDESK_SCRIPT_URL } from '@/config/zendesk';
@@ -47,7 +47,7 @@ export default function Home() {
   const onContinue = useCallback(() => {
     window.firePixelEvent?.('consent');
 
-    setStorageWithExpiry(CONSENT_STORAGE_KEY, true, 30 * DAY_IN_MILLISECONDS);
+    setStorageWithExpiry(CONSENT_STORAGE_KEY, true, CONSENT_STORAGE_TTL);
 
     dispatch({ type: 'SET_LOAD_WIDGET' });
   }, [dispatch]);

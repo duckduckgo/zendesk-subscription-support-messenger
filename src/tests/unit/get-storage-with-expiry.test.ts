@@ -1,5 +1,22 @@
 import { test, expect } from '@playwright/test';
 import { getStorageWithExpiry } from '@/utils/get-storage-with-expiry';
+import { formatDateString } from '@/utils/set-storage-with-expiry';
+
+/**
+ * Calculates an expiry date by adding days to today's date.
+ *
+ * @function calculateExpiryDate
+ * @param {number} days - Number of days to add to today's date
+ *
+ * @returns {string} Expiry date string in YYYY-MM-DD format
+ */
+function calculateExpiryDate(days: number): string {
+  const today = new Date();
+  const expiryDate = new Date(today);
+  expiryDate.setDate(today.getDate() + days);
+
+  return formatDateString(expiryDate);
+}
 
 // localStorage mock
 function createLocalStorageMock() {
@@ -64,7 +81,7 @@ test.describe('getStorageWithExpiry', () => {
   test('should return stored boolean value when item has not expired', () => {
     const item = {
       value: true,
-      expiry: Date.now() + 86400000, // 24 hours from now
+      expiry: calculateExpiryDate(1), // 1 day from now
     };
 
     localStorage.setItem('test-key', JSON.stringify(item));
@@ -77,7 +94,7 @@ test.describe('getStorageWithExpiry', () => {
   test('should return false when stored value is false', () => {
     const item = {
       value: false,
-      expiry: Date.now() + 86400000,
+      expiry: calculateExpiryDate(1),
     };
 
     localStorage.setItem('test-key', JSON.stringify(item));
@@ -88,9 +105,13 @@ test.describe('getStorageWithExpiry', () => {
   });
 
   test('should return null when expired', () => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
     const item = {
       value: true,
-      expiry: Date.now() - 1000, // Expired 1 second ago
+      expiry: formatDateString(yesterday), // Expired yesterday
     };
 
     localStorage.setItem('expired-key', JSON.stringify(item));
@@ -123,7 +144,7 @@ test.describe('getStorageWithExpiry', () => {
 
   test('should return null when structure is invalid - missing value', () => {
     const item = {
-      expiry: Date.now() + 86400000,
+      expiry: calculateExpiryDate(1),
       // value is missing
     };
 
@@ -134,10 +155,10 @@ test.describe('getStorageWithExpiry', () => {
     expect(result).toBeNull();
   });
 
-  test('should return null when expiry is not a number', () => {
+  test('should return null when expiry is not a string', () => {
     const item = {
       value: true,
-      expiry: 'not-a-number',
+      expiry: 1234567890, // Number instead of date string
     };
 
     localStorage.setItem('invalid-expiry-type-key', JSON.stringify(item));
@@ -150,7 +171,7 @@ test.describe('getStorageWithExpiry', () => {
   test('should return null when value is not a boolean', () => {
     const item = {
       value: 'not-a-boolean',
-      expiry: Date.now() + 86400000,
+      expiry: calculateExpiryDate(1),
     };
 
     localStorage.setItem('invalid-value-type-key', JSON.stringify(item));
@@ -172,6 +193,39 @@ test.describe('getStorageWithExpiry', () => {
     localStorage.setItem('string-item-key', JSON.stringify('just-a-string'));
 
     const result = getStorageWithExpiry('string-item-key');
+
+    expect(result).toBeNull();
+  });
+
+  test('should return value when expiry date is today', () => {
+    const today = formatDateString(new Date());
+
+    const item = {
+      value: true,
+      expiry: today,
+    };
+
+    localStorage.setItem('today-expiry-key', JSON.stringify(item));
+
+    const result = getStorageWithExpiry('today-expiry-key');
+
+    // Should not be expired since expiry is at start of day (midnight)
+    expect(result).toBe(true);
+  });
+
+  test('should return null when expiry date is before today', () => {
+    const today = new Date();
+    const twoDaysAgo = new Date(today);
+    twoDaysAgo.setDate(today.getDate() - 2);
+
+    const item = {
+      value: true,
+      expiry: formatDateString(twoDaysAgo),
+    };
+
+    localStorage.setItem('past-expiry-key', JSON.stringify(item));
+
+    const result = getStorageWithExpiry('past-expiry-key');
 
     expect(result).toBeNull();
   });

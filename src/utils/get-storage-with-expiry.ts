@@ -1,17 +1,19 @@
 import { isBrowser } from './is-browser';
+import { formatDateString } from './set-storage-with-expiry';
 
 /**
  * Retrieves a boolean value from localStorage, checking if it has expired.
+ * Expired and invalid items are automatically removed from storage.
  *
- * If the item has expired or doesn't exist, returns null and removes expired
- * items from storage. Handles invalid JSON by returning null. Returns null
- * when called in a server-side environment where localStorage is not available.
+ * Expiry is compared as date strings (YYYY-MM-DD format), so items expire at
+ * the start of the expiry date (midnight).
  *
  * @function getStorageWithExpiry
  * @param {string} key - The localStorage key to retrieve
  *
- * @returns {boolean | null | undefined} The stored boolean value, or null if expired,
- * missing, invalid, or undefined when called server-side
+ * @returns {boolean | null | undefined} Returns `undefined` when called
+ * server-side, `null` if expired/missing/invalid, or the stored boolean value
+ * if valid and not expired
  */
 export function getStorageWithExpiry(key: string): boolean | null | undefined {
   if (!isBrowser()) {
@@ -31,7 +33,7 @@ export function getStorageWithExpiry(key: string): boolean | null | undefined {
     if (
       typeof item !== 'object' ||
       item === null ||
-      typeof item.expiry !== 'number' ||
+      typeof item.expiry !== 'string' ||
       typeof item.value !== 'boolean'
     ) {
       // Invalid structure
@@ -40,8 +42,10 @@ export function getStorageWithExpiry(key: string): boolean | null | undefined {
       return null;
     }
 
-    // Expired
-    if (Date.now() > item.expiry) {
+    const today = formatDateString(new Date());
+    const isExpired = today > item.expiry;
+
+    if (isExpired) {
       localStorage.removeItem(key);
 
       return null;
