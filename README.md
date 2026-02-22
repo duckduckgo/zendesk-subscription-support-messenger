@@ -39,6 +39,17 @@ Events anonymously logged via pixels.js
 - **`app/page.tsx`** - Main page component managing widget lifecycle and event handlers
 - **`components/consent-form/`** - Privacy consent form shown before widget loads
 - **`components/footer/`** - Site footer with links and company information
+- **`components/burn-animation/`** - Fullscreen burn animation overlay displayed when clearing conversation data
+  - `burn-overlay.tsx` - Overlay wrapper that fetches and displays Lottie animation
+  - `burn-animation.tsx` - Lottie animation component wrapper
+- **`components/fire-button/`** - Button component for clearing conversation data (icon or button appearance)
+- **`components/confirm-dialog/`** - Modal confirmation dialog for clearing conversation data with keyboard navigation and focus management
+- **`components/chat-navigation/`** - Navigation links displayed below the chat widget (FAQs, Feedback)
+- **`components/main-heading/`** - Main page heading component with consistent branding
+- **`components/horizontal-rule/`** - Visual separator component for section divisions
+- **`components/new-tab-label/`** - Screen reader label for links that open in new tabs
+- **`components/button/`** - Reusable button component with customizable styling
+- **`components/page-load-pixel/`** - Component that fires page impression pixel on mount
 
 ### Zendesk Integration
 
@@ -55,7 +66,12 @@ The application uses three main hooks for Zendesk integration (see [`src/hooks/R
 - **`utils/build-article-url.ts`** - Builds complete article URLs using the URL constructor
 - **`utils/update-article-links.ts`** - Updates article links in a document based on article ID mapping
 - **`utils/get-css-variable.ts`** - Reads CSS variable values from the document root
-- **`utils/get-slug-from-url.ts`** - Extracts and sanitizes the last path segment from a URL for use in pixel event tracking
+- **`utils/get-slug-from-url.ts`** - Extracts and sanitizes the last path segment from a URL for use in pixel event logging
+- **`utils/get-storage-with-expiry.ts`** - Retrieves boolean values from localStorage with date-based expiry (YYYY-MM-DD format)
+- **`utils/set-storage-with-expiry.ts`** - Stores boolean values in localStorage with date-based expiry (YYYY-MM-DD format)
+- **`utils/delete-storage-keys-by-suffix.ts`** - Deletes localStorage keys matching a suffix pattern
+- **`utils/is-browser.ts`** - Checks if code is running in a browser environment (SSR safety)
+- **`utils/cleanup-zendesk.ts`** - Cleans up all Zendesk DOM elements, scripts, and global objects when resetting the widget
 
 ### Logging
 
@@ -120,6 +136,34 @@ npm run build
 npm start
 ```
 
+### Testing
+
+The project uses Playwright for testing. See [`src/tests/README.md`](./src/tests/README.md) for comprehensive testing documentation.
+
+```bash
+# Run all tests
+npm test
+
+# Run with UI mode (interactive)
+npm run test:ui
+
+# Run in headed mode (visible browser)
+npm run test:headed
+
+# Run only integration tests
+npm test -- src/tests/integration/
+
+# Run only unit tests
+npm test -- src/tests/unit/
+```
+
+**Test Coverage:**
+
+- ✅ 19 unit tests - Pure utility function tests (build-article-url, get-slug-from-url, get-storage-with-expiry)
+- ✅ 9 integration tests - Complete end-to-end user flow tests with Zendesk widget mocking
+
+Tests run automatically in CI before deployment.
+
 ## Configuration
 
 ### Common Configuration
@@ -142,50 +186,74 @@ Zendesk configuration is in `src/config/zendesk.ts`:
 
 ```
 src/
-├── app/                                  # Next.js App Router pages
-│   ├── layout.tsx                        # Root layout with header, footer, theme provider
-│   └── page.tsx                          # Main page with Zendesk integration
-├── components/                           # React components
-│   ├── button/                           # Reusable button component
-│   ├── consent-form/                     # Privacy consent form
-│   ├── footer/                           # Site footer
-│   └── page-load-pixel/                  # Page load event dispatcher
-├── config/                               # Configuration constants
-│   ├── common.ts                         # Common site configuration
-│   ├── fonts.ts                          # Font configuration
-│   └── zendesk.ts                        # Zendesk widget configuration
-├── constants/                            # Application constants
-│   ├── breakpoints.ts                    # Responsive breakpoint constants
-│   ├── footerLinks.ts                    # Footer link definitions
-│   ├── zendesk-selectors.ts              # CSS selectors for Zendesk elements
-│   ├── zendesk-styles.ts                 # Custom CSS for Zendesk iframe
-│   └── zendesk-timing.ts                 # Timing constants for retries/delays
-├── hooks/                                # React hooks
-│   ├── README.md                         # Documentation for Zendesk integration hooks
-│   ├── use-media-query.ts                # Responsive design hook
-│   ├── use-zendesk-click-handlers.ts     # Click event handlers
-│   ├── use-zendesk-iframe-styles.ts      # Style injection
-│   └── use-zendesk-swap-article-links.ts # Article link swapping
-├── reducers/                             # State reducers
-│   └── widget-reducer.ts                 # Widget lifecycle state reducer
-├── tests/                                # Test files
-│   ├── fixtures/                         # Test fixtures and mocks
-│   │   └── zendesk-mock.js               # Zendesk widget mock for testing
-│   ├── integration/                      # Integration tests
-│   │   └── complete-flow.test.ts         # End-to-end user flow tests
-│   ├── unit/                             # Unit tests
-│   │   ├── build-article-url.test.ts     # URL building utility tests
-│   │   └── get-slug-from-url.test.ts     # URL slug extraction tests
-│   └── README.md                         # Testing documentation
-├── types/                                # TypeScript type definitions
-│   └── zendesk.d.ts                      # Extended Zendesk Web Widget types
-└── utils/                                # Utility functions
-    ├── build-article-url.ts              # URL building utility
-    ├── get-css-variable.ts               # CSS variable reader
-    ├── get-slug-from-url.ts              # URL slug extraction and sanitization
-    ├── update-article-links.ts           # Link updating utility
-    ├── zendesk-iframe.ts                 # Iframe access utilities
-    └── zendesk-observer.ts               # MutationObserver setup utility
+├── app/                                    # Next.js App Router pages
+│   ├── layout.tsx                          # Root layout with header, footer, theme provider
+│   └── page.tsx                            # Main page with Zendesk integration
+├── components/                             # React components
+│   ├── burn-animation/                     # Burn animation overlay for clearing data
+│   ├── button/                             # Reusable button component
+│   ├── chat-navigation/                    # Navigation links below chat widget
+│   ├── confirm-dialog/                     # Confirmation dialog modal
+│   ├── consent-form/                       # Privacy consent form
+│   ├── error-boundary/                     # Error boundary component
+│   ├── fire-button/                        # Clear conversation data button
+│   ├── footer/                             # Site footer
+│   ├── horizontal-rule/                    # Visual separator component
+│   ├── main-heading/                       # Main page heading
+│   ├── new-tab-label/                      # Screen reader label for new tab links
+│   └── page-load-pixel/                    # Page load event dispatcher
+├── config/                                 # Configuration constants
+│   ├── common.ts                           # Common site configuration
+│   ├── fonts.ts                            # Font configuration
+│   └── zendesk.ts                          # Zendesk widget configuration
+├── constants/                              # Application constants
+│   ├── breakpoints.ts                      # Responsive breakpoint constants
+│   ├── footerLinks.ts                      # Footer link definitions
+│   ├── test-ids.ts                         # Test ID constants for Playwright tests
+│   ├── theme.ts                            # Theme constants and types
+│   ├── zendesk-selectors.ts                # CSS selectors for Zendesk elements
+│   ├── zendesk-styles.ts                   # Custom CSS for Zendesk iframe
+│   └── zendesk-timing.ts                   # Timing constants for retries/delays
+├── contexts/                               # React contexts
+│   └── theme-context.tsx                   # Theme context provider (system preference)
+├── hooks/                                  # React hooks
+│   ├── README.md                           # Documentation for Zendesk integration hooks
+│   ├── use-media-query.ts                  # Responsive design hook
+│   ├── use-zendesk-click-handlers.ts       # Click event handlers
+│   ├── use-zendesk-iframe-styles.ts        # Style injection
+│   └── use-zendesk-swap-article-links.ts   # Article link swapping
+├── reducers/                               # State reducers
+│   └── widget-reducer.ts                   # Widget lifecycle state reducer (zendeskReady, loadWidget, firstMessageSent)
+├── tests/                                  # Test files
+│   ├── fixtures/                           # Test fixtures and mocks
+│   │   └── zendesk-mock.js                 # Zendesk widget mock for testing
+│   ├── integration/                        # Integration tests
+│   │   └── complete-flow.test.ts           # End-to-end user flow tests (9 tests)
+│   ├── unit/                               # Unit tests
+│   │   ├── build-article-url.test.ts       # URL building utility tests (3 tests)
+│   │   ├── get-slug-from-url.test.ts       # URL slug extraction tests (3 tests)
+│   │   └── get-storage-with-expiry.test.ts # Storage expiry utility tests (13 tests)
+│   └── README.md                           # Testing documentation
+├── icons/                                  # SVG icon assets
+│   ├── logo-horizontal-dark.svg            # DuckDuckGo logo (dark theme)
+│   ├── logo-horizontal-light.svg           # DuckDuckGo logo (light theme)
+│   ├── logo-stacked-dark.svg               # DuckDuckGo stacked logo (dark theme)
+│   └── logo-stacked-light.svg              # DuckDuckGo stacked logo (light theme)
+├── types/                                  # TypeScript type definitions
+│   ├── lottie.ts                           # Lottie animation type definitions
+│   └── zendesk.d.ts                        # Extended Zendesk Web Widget types
+└── utils/                                  # Utility functions
+    ├── build-article-url.ts                # URL building utility
+    ├── delete-storage-keys-by-suffix.ts    # localStorage key deletion by suffix
+    ├── get-css-variable.ts                 # CSS variable reader
+    ├── get-slug-from-url.ts                # URL slug extraction and sanitization
+    ├── get-storage-with-expiry.ts          # localStorage retrieval with date expiry
+    ├── is-browser.ts                       # Browser environment detection (SSR safety)
+    ├── set-storage-with-expiry.ts          # localStorage storage with date expiry
+    ├── cleanup-zendesk.ts                  # Zendesk widget cleanup utility
+    ├── update-article-links.ts             # Link updating utility
+    ├── zendesk-iframe.ts                   # Iframe access utilities
+    └── zendesk-observer.ts                 # MutationObserver setup utility
 ```
 
 ## Deployment

@@ -7,8 +7,11 @@ This project uses **Playwright** for all testing needs, with a focused test suit
 ## Test Results
 
 ```bash
-✅ 12 passing tests (~22s)
-  - 3 unit tests (pure utility functions)
+✅ 19 passing tests (~22s)
+  - 19 unit tests (pure utility functions)
+    - 3 tests: build-article-url.test.ts
+    - 3 tests: get-slug-from-url.test.ts
+    - 13 tests: get-storage-with-expiry.test.ts
   - 9 integration tests (complete user flows)
 ```
 
@@ -18,12 +21,14 @@ This project uses **Playwright** for all testing needs, with a focused test suit
 
 ```
 src/tests/
-├── unit/                           # Fast, isolated unit tests
-│   └── build-article-url.test.ts   # Pure function tests
-├── integration/                    # End-to-end integration tests
-│   └── complete-flow.test.ts       # 🎯 COMPREHENSIVE FLOW TEST
+├── unit/                               # Fast, isolated unit tests
+│   ├── build-article-url.test.ts       # URL building utility tests
+│   ├── get-slug-from-url.test.ts       # URL slug extraction tests
+│   └── get-storage-with-expiry.test.ts # Storage expiry utility tests
+├── integration/                        # End-to-end integration tests
+│   └── complete-flow.test.ts           # 🎯 COMPREHENSIVE FLOW TEST
 └── fixtures/
-    └── zendesk-mock.js             # Realistic Zendesk widget mock
+    └── zendesk-mock.js                 # Realistic Zendesk widget mock
 ```
 
 ## 🎯 Comprehensive Integration Test
@@ -58,7 +63,7 @@ The main integration test (`complete-flow.test.ts`) provides **high confidence**
 - Clicks send button
 - Confirms message was sent successfully
 
-**4. ✅ Pixel Event Tracking**
+**4. ✅ Pixel Event Logging**
 
 - Intercepts network calls to `https://improving.duckduckgo.com/t/*`
 - Verifies pixel events fire correctly:
@@ -286,7 +291,13 @@ test('should build URL correctly', () => {
 **Coverage:**
 
 - `buildArticleUrl()` - URL construction with various path formats
-- Edge cases: leading/trailing slashes, empty paths, multiple segments
+  - Edge cases: leading/trailing slashes, empty paths, multiple segments
+- `getSlugFromUrl()` - URL slug extraction and sanitization
+  - Edge cases: invalid URLs, special characters, empty paths
+- `getStorageWithExpiry()` - localStorage retrieval with date-based expiry
+  - Valid/invalid storage items, expired items, server-side handling
+  - Date string format validation (YYYY-MM-DD)
+  - Edge cases: missing keys, invalid JSON, type mismatches
 
 ### 2. Integration Tests (`src/tests/integration/`)
 
@@ -327,9 +338,9 @@ test('complete flow', async ({ page }) => {
 
 - Complete user journey: consent → script load → iframe render → hooks → interactions
 - Link swapping via `useZendeskSwapArticleLinks` hook
-- Click tracking via `useZendeskClickHandlers` hook
+- Click logging via `useZendeskClickHandlers` hook
 - Style injection via `useZendeskIframeStyles` hook
-- Pixel event tracking to `improving.duckduckgo.com`
+- Pixel event logging to `improving.duckduckgo.com`
 - Message sending and user interactions
 - Clear conversation data flow with dialog confirmation
 - Storage clearing (localStorage/sessionStorage)
@@ -502,7 +513,7 @@ When you add articles to `ARTICLE_LINK_MAP`:
 
 ### Adding New Pixel Events
 
-When you add pixel tracking:
+When you add pixel logging:
 
 1. **Add pixel call** in your component (e.g., `src/app/page.tsx`):
 
@@ -585,14 +596,19 @@ test('should clear conversation data', async ({ page }) => {
 **Tests:**
 
 - `src/tests/integration/complete-flow.test.ts` - Comprehensive integration tests (9 tests)
-  - Complete widget flow with pixel tracking
+  - Complete widget flow with pixel logging
   - Custom styles injection verification
-  - Article link click tracking
-  - Yes/No button click tracking
+  - Article link click logging
+  - Yes/No button click logging
   - Clear conversation data flow
   - Dialog cancellation flow
-- `src/tests/unit/build-article-url.test.ts` - Unit tests for utilities (3 tests)
-- `src/tests/unit/get-slug-from-url.test.ts` - Unit tests for utilities (3 tests)
+- `src/tests/unit/build-article-url.test.ts` - Unit tests for URL building utility (3 tests)
+- `src/tests/unit/get-slug-from-url.test.ts` - Unit tests for URL slug extraction (3 tests)
+- `src/tests/unit/get-storage-with-expiry.test.ts` - Unit tests for storage expiry utility (13 tests)
+  - Valid/invalid storage items
+  - Expired items handling
+  - Server-side environment handling
+  - Date string format validation
 
 **Fixtures:**
 
@@ -679,4 +695,4 @@ For issues or questions:
 
 ---
 
-**Summary:** A focused test suite providing high confidence for CI deployment. Tests the complete user journey with realistic mocks, verifying iframe rendering, link swapping, message sending, pixel tracking, and the clear conversation data flow. Uses optimized helper functions to reduce duplication and improve maintainability.
+**Summary:** A focused test suite providing high confidence for CI deployment. Tests the complete user journey with realistic mocks, verifying iframe rendering, link swapping, message sending, pixel logging, and the clear conversation data flow. Uses optimized helper functions to reduce duplication and improve maintainability.
