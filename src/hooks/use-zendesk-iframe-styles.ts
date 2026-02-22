@@ -166,7 +166,12 @@ export function useZendeskIframeStyles({
   }, [injectStyles]);
 
   useEffect(() => {
+    // Reset injection state when widget becomes unavailable
+    // This ensures styles are re-injected when widget reloads
     if (!zendeskReady) {
+      injectedRef.current = false;
+      styleElementRef.current = null;
+      replacedButtonsRef.current = new WeakSet<HTMLElement>();
       return;
     }
 
@@ -177,13 +182,12 @@ export function useZendeskIframeStyles({
     let observerTimeout: ReturnType<typeof setTimeout> | null = null;
 
     // Inject styles when widget becomes ready
-    if (!injectedRef.current) {
-      injectStylesTimeout = setTimeout(() => {
-        if (isMountedRef.current) {
-          injectStyles();
-        }
-      }, INITIAL_RENDER_DELAY_MS);
-    }
+    // Always inject (or re-inject) when zendeskReady becomes true
+    injectStylesTimeout = setTimeout(() => {
+      if (isMountedRef.current) {
+        injectStyles();
+      }
+    }, INITIAL_RENDER_DELAY_MS);
 
     // Set up MutationObserver to re-inject styles if iframe reloads
     let observerCleanup: (() => void) | null = null;

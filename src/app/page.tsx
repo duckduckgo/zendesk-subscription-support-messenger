@@ -1,7 +1,6 @@
 'use client';
 
-import { useCallback, useReducer, useState } from 'react';
-import Script from 'next/script';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import styles from './page.module.css';
 import PageLoadPixel from '@/components/page-load-pixel/page-load-pixel';
 import ConsentForm from '@/components/consent-form/consent-form';
@@ -29,7 +28,6 @@ import {
   ZENDESK_YES_BUTTON_IDENTIFIER,
   ZENDESK_NO_BUTTON_IDENTIFIER,
   ZENDESK_SCRIPT_TAG_ID,
-  ZENDESK_HIDDEN_IFRAME_SELECTOR,
 } from '@/constants/zendesk-selectors';
 import { ZENDESK_IFRAME_STYLES } from '@/constants/zendesk-styles';
 import { getCSSVariable } from '@/utils/get-css-variable';
@@ -37,12 +35,17 @@ import { getSlugFromUrl } from '@/utils/get-slug-from-url';
 import { widgetReducer, initialWidgetState } from '@/reducers/widget-reducer';
 import { setStorageWithExpiry } from '@/utils/set-storage-with-expiry';
 import { deleteStorageKeysBySuffix } from '@/utils/delete-storage-keys-by-suffix';
+import { cleanupZendesk } from '@/utils/cleanup-zendesk';
 
 export default function Home() {
   const [widgetState, dispatch] = useReducer(widgetReducer, initialWidgetState);
   const { zendeskReady, loadWidget, firstMessageSent } = widgetState;
   const [isBurning, setIsBurning] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const scriptLoadedRef = useRef(false);
+  const initializeZendeskRef = useRef<((retries?: number) => void) | null>(
+    null,
+  );
 
   const onContinue = useCallback(() => {
     window.firePixelEvent?.('consent');
@@ -121,8 +124,14 @@ export default function Home() {
         // clear `ZD-widgetOpen`
         sessionStorage.clear();
 
+        // Clean up all Zendesk DOM elements, scripts, and globals
+        cleanupZendesk();
+
         // Reset state to clear UI elements
         dispatch({ type: 'RESET_STATE' });
+
+        // Reset script loaded flag so script will reload on next mount
+        scriptLoadedRef.current = false;
       });
     }, ZENDESK_RESET_DELAY_MS);
   }, [dispatch]);
@@ -142,88 +151,112 @@ export default function Home() {
       behavior: prefersReducedMotion ? 'auto' : 'smooth',
     });
 
-    // Clear contents of messaging-container div (Zendesk iframe, etc.)
-    const messagingContainer = document.getElementById(EMBEDDED_TARGET_ELEMENT);
-    if (messagingContainer) {
-      messagingContainer.innerHTML = '';
-    }
-
-    // Remove hidden Zendesk iframe (data-product="web_widget")
-    const hiddenIframe = document.querySelector(ZENDESK_HIDDEN_IFRAME_SELECTOR);
-    if (hiddenIframe) {
-      hiddenIframe.remove();
-    }
-
-    // Remove ze-snippet script element
-    const zeSnippet = document.getElementById(ZENDESK_SCRIPT_TAG_ID);
-    if (zeSnippet) {
-      zeSnippet.remove();
-    }
-
-    // Clean up Zendesk global objects
-    if (typeof window !== 'undefined') {
-      // Remove zE function if it exists
-      try {
-        delete (window as unknown as { zE?: unknown }).zE;
-      } catch {
-        // Ignore errors if zE is not configurable
-      }
-
-      // Remove zEMessenger if it exists
-      try {
-        delete (window as unknown as { zEMessenger?: unknown }).zEMessenger;
-      } catch {
-        // Ignore errors if zEMessenger is not configurable
-      }
-    }
-
     // Stop burn animation
     setIsBurning(false);
   }, []);
 
-  const handleOnError = useCallback((e: Error) => {
-    window.fireJse?.(e);
-  }, []);
-
-  const handleOnLoad = useCallback(() => {
-    try {
-      // Set cookies and theme customization first
-      zE('messenger:set', 'cookies', 'functional');
-      zE('messenger:set', 'customization', {
-        common: {
-          hideHeader: true,
-        },
-        theme: {
-          message: getCSSVariable('--sds-color-palette-blue-60'),
-          action: getCSSVariable('--sds-color-palette-blue-60'),
-          onAction: '#FAFAFA',
-          businessMessage: '#F2F2F2', // Chat response background
-          onBusinessMessage: getCSSVariable('--sds-color-text-01'),
-          background: 'transparent', // Chat window background
-          onBackground: '#666666',
-          error: '#FF1744',
-          onError: '#FFFFFF',
-          notify: '#FF007F',
-          onNotify: '#FFFFFF',
-        },
-      });
-
-      // Render the embedded messenger
-      zE('messenger', 'render', {
-        mode: 'embedded',
-        widget: {
-          targetElement: `#${EMBEDDED_TARGET_ELEMENT}`,
-        },
-      });
-
-      // Set ready after a delay to allow widget to render
+  const initializeZendesk = useCallback(
+    (retries = 5) => {
+      // Wait a bit to ensure zE is available and messaging-container exists
       setTimeout(() => {
-        dispatch({ type: 'SET_ZENDESK_READY' });
-      }, ZENDESK_READY_DELAY_MS);
-    } catch (error) {
-      window.fireJse?.(error);
+        try {
+          // Check if messaging-container exists
+          const messagingContainer = document.getElementById(
+            EMBEDDED_TARGET_ELEMENT,
+          );
+          if (!messagingContainer) {
+            if (retries > 0) {
+              initializeZendeskRef.current?.(retries - 1);
+            }
+            return;
+          }
+
+          // Check if zE exists (script might not have initialized yet)
+          if (typeof zE === 'undefined') {
+            if (retries > 0) {
+              initializeZendeskRef.current?.(retries - 1);
+            }
+            return;
+          }
+
+          // Set cookies and theme customization first
+          zE('messenger:set', 'cookies', 'functional');
+          zE('messenger:set', 'customization', {
+            common: {
+              hideHeader: true,
+            },
+            theme: {
+              message: getCSSVariable('--sds-color-palette-blue-60'),
+              action: getCSSVariable('--sds-color-palette-blue-60'),
+              onAction: '#FAFAFA',
+              businessMessage: '#F2F2F2', // Chat response background
+              onBusinessMessage: getCSSVariable('--sds-color-text-01'),
+              background: 'transparent', // Chat window background
+              onBackground: '#666666',
+              error: '#FF1744',
+              onError: '#FFFFFF',
+              notify: '#FF007F',
+              onNotify: '#FFFFFF',
+            },
+          });
+
+          // Render the embedded messenger
+          zE('messenger', 'render', {
+            mode: 'embedded',
+            widget: {
+              targetElement: `#${EMBEDDED_TARGET_ELEMENT}`,
+            },
+          });
+
+          // Set ready after a delay to allow widget to render
+          setTimeout(() => {
+            dispatch({ type: 'SET_ZENDESK_READY' });
+          }, ZENDESK_READY_DELAY_MS);
+        } catch (error) {
+          window.fireJse?.(error);
+        }
+      }, 50);
+    },
+    [dispatch],
+  );
+
+  // Store initializeZendesk in a ref to enable recursive calls
+  useEffect(() => {
+    initializeZendeskRef.current = initializeZendesk;
+  }, [initializeZendesk]);
+
+  // Manually load Zendesk script when loadWidget becomes true
+  useEffect(() => {
+    if (!loadWidget || scriptLoadedRef.current) {
+      return;
     }
-  }, [dispatch]);
+
+    // Check if script already exists
+    const existingScript = document.getElementById(ZENDESK_SCRIPT_TAG_ID);
+    if (existingScript) {
+      // Script already exists, just initialize
+      initializeZendesk();
+      scriptLoadedRef.current = true;
+      return;
+    }
+
+    // Create and inject script tag manually
+    const script = document.createElement('script');
+    script.id = ZENDESK_SCRIPT_TAG_ID;
+    script.src = ZENDESK_SCRIPT_URL;
+    script.async = true;
+
+    script.onload = () => {
+      scriptLoadedRef.current = true;
+      initializeZendesk();
+    };
+
+    script.onerror = () => {
+      window.fireJse?.(new Error('Failed to load Zendesk script'));
+    };
+
+    document.head.appendChild(script);
+  }, [loadWidget, initializeZendesk]);
 
   return (
     <>
@@ -272,14 +305,6 @@ export default function Home() {
 
         {!loadWidget && <ConsentForm onContinue={onContinue} />}
       </main>
-      {loadWidget && (
-        <Script
-          id={ZENDESK_SCRIPT_TAG_ID}
-          src={ZENDESK_SCRIPT_URL}
-          onLoad={handleOnLoad}
-          onError={handleOnError}
-        />
-      )}
       <PageLoadPixel />
     </>
   );
