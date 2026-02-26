@@ -59,10 +59,12 @@ export default function ConsentForm({ onContinue }: ConsentFormProps) {
         <>
           <div className={styles.cardHeader}>
             <p>
-              Subscriber support chat is available 24/7 and can answer many
-              common questions immediately. However, if you&apos;d prefer to
-              speak with our human support team via email instead, you can use
-              the subscriber support form to{' '}
+              <strong>
+                Subscriber support chat is available 24/7 and can answer many
+                common questions immediately
+              </strong>
+              . However, if you&apos;d prefer to speak with our human support
+              team via email instead, you can use the subscriber support form to{' '}
               <a
                 href={`${MAIN_SITE_URL}/subscription-support`}
                 target="_blank"
