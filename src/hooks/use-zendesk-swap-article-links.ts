@@ -9,17 +9,54 @@ import {
   INITIAL_RENDER_DELAY_MS,
   DEFAULT_MAX_RETRIES,
 } from '@/constants/zendesk-timing';
+import {
+  createRetryManager,
+  scheduleCoordinatedRetry,
+  markComponentMounted,
+  markComponentUnmounted,
+} from '@/utils/zendesk-retry-manager';
 
 interface UseZendeskSwapArticleLinksOptions {
   zendeskReady: boolean;
 }
 
 /**
- * Processes article links in the Zendesk widget iframe.
+ * Creates a retry callback for link swapping operations.
+ *
+ * @function createLinkSwapRetryCallback
+ * @param isMountedRef - Ref to track if component is mounted
+ * @param retryManager - Shared retry manager instance
+ * @param retries - Number of retries remaining
+ * @param delay - Delay between retries
+ * @returns Retry callback function
+ */
+function createLinkSwapRetryCallback(
+  isMountedRef: RefObject<boolean>,
+  retryManager: ReturnType<typeof createRetryManager>,
+  retries: number,
+  delay: number,
+): () => boolean {
+  return () => {
+    if (!isMountedRef.current) {
+      return false;
+    }
+    const result = processArticleLinks(
+      isMountedRef,
+      retryManager,
+      retries - 1,
+      delay,
+    );
+    return !!result?.linksFound;
+  };
+}
+
+/**
+ * Processes article links in the Zendesk widget iframe using coordinated retry logic.
  *
  * @function processArticleLinks
  * @param {RefObject<boolean>} isMountedRef - Ref to track if component is
  * mounted
+ * @param retryManager - Shared retry manager instance for coordination
  * @param {number} retries - Maximum number of retry attempts (defaults to
  * DEFAULT_MAX_RETRIES)
  * @param {number} delay - Delay between retries in milliseconds (defaults to
@@ -30,21 +67,10 @@ interface UseZendeskSwapArticleLinksOptions {
  */
 function processArticleLinks(
   isMountedRef: RefObject<boolean>,
+  retryManager: ReturnType<typeof createRetryManager>,
   retries: number = DEFAULT_MAX_RETRIES,
   delay: number = DOM_READY_DELAY_MS,
 ): { doc: Document; linksFound: boolean } | void {
-  // Schedules a retry if attempts remain and component is mounted
-  const scheduleRetry = (): void => {
-    if (retries > 0) {
-      setTimeout(() => {
-        // Check mounted state before recursive call
-        if (isMountedRef.current) {
-          processArticleLinks(isMountedRef, retries - 1, delay);
-        }
-      }, delay);
-    }
-  };
-
   // Check mounted state before proceeding
   if (!isMountedRef.current) {
     return;
@@ -53,7 +79,15 @@ function processArticleLinks(
   const iframe = getMessagingIframe(null);
 
   if (!iframe) {
-    scheduleRetry();
+    // Schedule coordinated retry if retries remaining
+    scheduleCoordinatedRetry(
+      retryManager,
+      'link-swapping',
+      createLinkSwapRetryCallback(isMountedRef, retryManager, retries, delay),
+      isMountedRef,
+      retries,
+      delay,
+    );
 
     return;
   }
@@ -61,7 +95,15 @@ function processArticleLinks(
   const iframeDoc = getMessagingIframeDocument(iframe);
 
   if (!iframeDoc) {
-    scheduleRetry();
+    // Schedule coordinated retry if retries remaining
+    scheduleCoordinatedRetry(
+      retryManager,
+      'link-swapping',
+      createLinkSwapRetryCallback(isMountedRef, retryManager, retries, delay),
+      isMountedRef,
+      retries,
+      delay,
+    );
 
     return;
   }
@@ -72,14 +114,21 @@ function processArticleLinks(
 
   // If no links were found and we have retries left, retry (links may not be
   // ready yet)
-  if (!linksFound && retries > 0) {
-    scheduleRetry();
-
-    return;
+  if (!linksFound) {
+    // Schedule coordinated retry
+    scheduleCoordinatedRetry(
+      retryManager,
+      'link-swapping',
+      createLinkSwapRetryCallback(isMountedRef, retryManager, retries, delay),
+      isMountedRef,
+      retries,
+      delay,
+    );
   }
 
   // Return the document and whether links were found
-  return { doc: iframeDoc, linksFound };
+  // iframeDoc is guaranteed to be non-null here since we checked above
+  return { doc: iframeDoc as Document, linksFound };
 }
 
 /**
@@ -101,14 +150,19 @@ export function useZendeskSwapArticleLinks({
 }: UseZendeskSwapArticleLinksOptions) {
   const processedRef = useRef(false);
   const isMountedRef = useRef(true);
+  const retryManagerRef = useRef(createRetryManager());
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!zendeskReady) {
       return;
     }
 
+    // Capture ref value for use in cleanup
+    const retryManager = retryManagerRef.current;
+
     // Mark as mounted when effect runs
-    isMountedRef.current = true;
+    markComponentMounted(isMountedRef, retryManager);
 
     let processArticleLinksTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -119,7 +173,7 @@ export function useZendeskSwapArticleLinks({
       // Give the widget a moment to render, then process with retries
       processArticleLinksTimeout = setTimeout(() => {
         if (isMountedRef.current) {
-          const result = processArticleLinks(isMountedRef);
+          const result = processArticleLinks(isMountedRef, retryManager);
 
           // Only mark as processed if links were actually found, or if
           // retries are exhausted (to prevent infinite retries)
@@ -129,8 +183,6 @@ export function useZendeskSwapArticleLinks({
         }
       }, INITIAL_RENDER_DELAY_MS);
     }
-
-    let timeout: ReturnType<typeof setTimeout> | null = null;
 
     // Listen for new messages and swap article links. Only process when `count
     // === 0` (indicating response content has been added to the DOM). The
@@ -142,29 +194,35 @@ export function useZendeskSwapArticleLinks({
       }
 
       // Clear any pending timeout to debounce multiple calls
-      if (timeout) {
-        clearTimeout(timeout);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
 
+      // Cancel any active retry for link-swapping to prevent conflicts
+      retryManager.cancelRetry('link-swapping');
+
       // Swap article links after a short delay to ensure DOM is fully rendered
-      timeout = setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         if (isMountedRef.current) {
-          processArticleLinks(isMountedRef);
+          processArticleLinks(isMountedRef, retryManager);
         }
+        timeoutRef.current = null;
       }, DOM_READY_DELAY_MS);
     });
 
     return () => {
       // Mark as unmounted
-      isMountedRef.current = false;
+      markComponentUnmounted(isMountedRef, retryManager);
 
       // Clean up timeouts
       if (processArticleLinksTimeout) {
         clearTimeout(processArticleLinksTimeout);
       }
 
-      if (timeout) {
-        clearTimeout(timeout);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
     };
   }, [zendeskReady]);

@@ -37,3 +37,8 @@ export const SCRIPT_CHECK_INTERVAL_MS = 50;
  * Delay reset after burn is initiated
  */
 export const ZENDESK_RESET_DELAY_MS = 1000;
+
+/**
+ * Fallback delay to call onComplete when burn animation fails to load
+ */
+export const BURN_ANIMATION_FALLBACK_DELAY_MS = 800;

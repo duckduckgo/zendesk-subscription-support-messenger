@@ -37,9 +37,9 @@ export default function RootLayout({
       </head>
       <body>
         {/* 
-          Blocking script to prevent FOUC (Flash of Unstyled Content).
-          This runs synchronously before React hydrates to apply the theme immediately.
-          Respects system theme preference only - no user preference storage.
+          Blocking script to prevent FOUC. This runs synchronously before React
+          hydrates to apply the theme immediately. Respects system theme
+          preference only - no user preference storage.
         */}
         <script
           suppressHydrationWarning
@@ -74,7 +74,6 @@ export default function RootLayout({
           }}
         />
         <Script src="/scripts/pixels.js" strategy="afterInteractive" />
-        {/* Wrap app in providers */}
         <ThemeProvider>
           <a href="#main-content" className={styles.skipLink}>
             Skip to main content

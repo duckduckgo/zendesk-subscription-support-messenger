@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import BurnAnimation from './burn-animation';
 import styles from './burn-overlay.module.css';
 import { LottieAnimationData } from '@/types/lottie';
+import { BURN_ANIMATION_FALLBACK_DELAY_MS } from '@/constants/zendesk-timing';
 
 interface BurnOverlayProps {
   /** Callback invoked when animation completes or fails to load */
@@ -16,7 +17,8 @@ interface BurnOverlayProps {
  * Lifecycle:
  * 1. Fetches the Lottie animation data from /burn.json
  * 2. Renders the animation fullscreen with transparent background
- * 3. Calls onComplete when animation finishes (or after 800ms if fetch fails)
+ * 3. Calls onComplete when animation finishes (or after
+ * BURN_ANIMATION_FALLBACK_DELAY_MS if fetch fails)
  *
  * The overlay covers the entire viewport and prevents user interaction
  * while the animation plays. Typically used before page reload to create
@@ -35,7 +37,7 @@ export default function BurnOverlay({ onComplete }: BurnOverlayProps) {
     let cancelled = false;
 
     // Fetches the Lottie animation data from the public directory. Falls back
-    // to completing after 800ms if the fetch fails.
+    // to completing after BURN_ANIMATION_FALLBACK_DELAY_MS if the fetch fails.
     async function loadAnimation() {
       try {
         const resp = await fetch('/burn.json');
@@ -43,7 +45,8 @@ export default function BurnOverlay({ onComplete }: BurnOverlayProps) {
         if (!resp.ok) {
           setIsLoading(false);
           // Fallback: complete after delay if animation fails to load
-          setTimeout(() => onComplete?.(), 800);
+          setTimeout(() => onComplete?.(), BURN_ANIMATION_FALLBACK_DELAY_MS);
+
           return;
         }
 
@@ -56,7 +59,7 @@ export default function BurnOverlay({ onComplete }: BurnOverlayProps) {
       } catch (error) {
         setIsLoading(false);
         // Fallback: complete after delay if fetch throws
-        setTimeout(() => onComplete?.(), 800);
+        setTimeout(() => onComplete?.(), BURN_ANIMATION_FALLBACK_DELAY_MS);
 
         window.fireJse?.(error);
       }

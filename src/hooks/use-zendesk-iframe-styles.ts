@@ -11,6 +11,12 @@ import {
 } from '@/constants/zendesk-timing';
 import { setupZendeskObserver } from '@/utils/zendesk-observer';
 import { ZENDESK_SEND_BUTTON_SELECTOR } from '@/constants/zendesk-selectors';
+import {
+  createRetryManager,
+  scheduleCoordinatedRetry,
+  markComponentMounted,
+  markComponentUnmounted,
+} from '@/utils/zendesk-retry-manager';
 
 interface UseZendeskIframeStylesOptions {
   zendeskReady: boolean;
@@ -44,45 +50,78 @@ export function useZendeskIframeStyles({
 }: UseZendeskIframeStylesOptions) {
   const injectedRef = useRef(false);
   const styleElementRef = useRef<HTMLStyleElement | null>(null);
-  const injectStylesRef = useRef<
-    ((retries?: number, delay?: number) => void) | null
-  >(null);
   const observerRef = useRef<MutationObserver | null>(null);
   const buttonObserverRef = useRef<MutationObserver | null>(null);
   const isMountedRef = useRef(true);
+  const retryManagerRef = useRef(createRetryManager());
   // Track buttons that have already had their SVG replaced to avoid duplicates
   const replacedButtonsRef = useRef<WeakSet<HTMLElement>>(
     new WeakSet<HTMLElement>(),
   );
+  const injectStylesRef = useRef<
+    ((retries?: number, delay?: number) => boolean) | null
+  >(null);
 
-  // Injects styles into the Zendesk iframe document. Retries if iframe is not
-  // available yet.
+  /**
+   * Creates a retry callback for style injection operations.
+   * Consolidates common retry logic to avoid duplication.
+   *
+   * @param retries - Number of retries remaining
+   * @param delay - Delay between retries
+   *
+   * @returns Retry callback function
+   */
+  const createStyleInjectionRetryCallback = useCallback(
+    (retries: number, delay: number): (() => boolean) => {
+      return () => {
+        if (!isMountedRef.current) {
+          return false;
+        }
+
+        return injectStylesRef.current?.(retries - 1, delay) ?? false;
+      };
+    },
+    [],
+  );
+
+  // Injects styles into the Zendesk iframe document using coordinated retry logic.
   const injectStyles = useCallback(
-    (retries = DEFAULT_MAX_RETRIES, delay = DOM_READY_DELAY_MS): void => {
+    (retries = DEFAULT_MAX_RETRIES, delay = DOM_READY_DELAY_MS): boolean => {
+      // Check if component is still mounted
+      if (!isMountedRef.current) {
+        return false;
+      }
+
       const iframe = getMessagingIframe(null);
 
       if (!iframe) {
-        if (retries > 0) {
-          setTimeout(
-            () => injectStylesRef.current?.(retries - 1, delay),
-            delay,
-          );
-        }
+        // Schedule coordinated retry if retries remaining
+        scheduleCoordinatedRetry(
+          retryManagerRef.current,
+          'style-injection',
+          createStyleInjectionRetryCallback(retries, delay),
+          isMountedRef,
+          retries,
+          delay,
+        );
 
-        return;
+        return false;
       }
 
       const iframeDoc = getMessagingIframeDocument(iframe);
 
       if (!iframeDoc) {
-        if (retries > 0) {
-          setTimeout(
-            () => injectStylesRef.current?.(retries - 1, delay),
-            delay,
-          );
-        }
+        // Schedule coordinated retry if retries remaining
+        scheduleCoordinatedRetry(
+          retryManagerRef.current,
+          'style-injection',
+          createStyleInjectionRetryCallback(retries, delay),
+          isMountedRef,
+          retries,
+          delay,
+        );
 
-        return;
+        return false;
       }
 
       // Check if styles are already injected and element still exists
@@ -90,7 +129,9 @@ export function useZendeskIframeStyles({
         styleElementRef.current &&
         iframeDoc.contains(styleElementRef.current)
       ) {
-        return;
+        injectedRef.current = true;
+
+        return true;
       }
 
       try {
@@ -113,12 +154,21 @@ export function useZendeskIframeStyles({
 
         styleElementRef.current = styleElement;
         injectedRef.current = true;
+
+        return true;
       } catch (error) {
         window.fireJse?.(error);
+
+        return false;
       }
     },
-    [styles],
+    [styles, createStyleInjectionRetryCallback],
   );
+
+  // Store injectStyles in a ref to enable recursive calls
+  useEffect(() => {
+    injectStylesRef.current = injectStyles;
+  }, [injectStyles]);
 
   // Replaces the SVG in the send button with a custom icon
   const replaceSendButtonSvg = useCallback((iframeDoc: Document): void => {
@@ -159,12 +209,6 @@ export function useZendeskIframeStyles({
     }
   }, []);
 
-  // Store `injectStyles` in a ref to enable recursive calls. ESLint flags
-  // self-referential calls within useCallback
-  useEffect(() => {
-    injectStylesRef.current = injectStyles;
-  }, [injectStyles]);
-
   useEffect(() => {
     // Reset injection state when widget becomes unavailable
     // This ensures styles are re-injected when widget reloads
@@ -172,11 +216,16 @@ export function useZendeskIframeStyles({
       injectedRef.current = false;
       styleElementRef.current = null;
       replacedButtonsRef.current = new WeakSet<HTMLElement>();
+      retryManagerRef.current.cancelRetry('style-injection');
+
       return;
     }
 
+    // Capture ref value for use in cleanup
+    const retryManager = retryManagerRef.current;
+
     // Mark as mounted when effect runs
-    isMountedRef.current = true;
+    markComponentMounted(isMountedRef, retryManager);
 
     let injectStylesTimeout: ReturnType<typeof setTimeout> | null = null;
     let observerTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -237,7 +286,7 @@ export function useZendeskIframeStyles({
 
     return () => {
       // Mark as unmounted to prevent any async operations from continuing
-      isMountedRef.current = false;
+      markComponentUnmounted(isMountedRef, retryManager);
 
       // Clean up timeouts
       if (injectStylesTimeout) {

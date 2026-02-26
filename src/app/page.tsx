@@ -22,6 +22,7 @@ import { ZENDESK_SCRIPT_URL } from '@/config/zendesk';
 import {
   ZENDESK_READY_DELAY_MS,
   ZENDESK_RESET_DELAY_MS,
+  SCRIPT_CHECK_INTERVAL_MS,
 } from '@/constants/zendesk-timing';
 import {
   ZENDESK_SEND_BUTTON_IDENTIFIER,
@@ -249,7 +250,7 @@ export default function Home() {
         }
 
         initializeTimeoutRef.current = null;
-      }, 50);
+      }, SCRIPT_CHECK_INTERVAL_MS);
     },
     [dispatch],
   );
