@@ -46,6 +46,11 @@ export default function Home() {
   const initializeZendeskRef = useRef<((retries?: number) => void) | null>(
     null,
   );
+  const isMountedRef = useRef(true);
+  const initializeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const readyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onContinue = useCallback(() => {
     window.firePixelEvent?.('consent');
@@ -157,17 +162,31 @@ export default function Home() {
 
   const initializeZendesk = useCallback(
     (retries = 5) => {
+      // Clear any existing timeout to prevent duplicates
+      if (initializeTimeoutRef.current) {
+        clearTimeout(initializeTimeoutRef.current);
+
+        initializeTimeoutRef.current = null;
+      }
+
       // Wait a bit to ensure zE is available and messaging-container exists
-      setTimeout(() => {
+      initializeTimeoutRef.current = setTimeout(() => {
+        // Check if component is still mounted before proceeding
+        if (!isMountedRef.current) {
+          return;
+        }
+
         try {
           // Check if messaging-container exists
           const messagingContainer = document.getElementById(
             EMBEDDED_TARGET_ELEMENT,
           );
+
           if (!messagingContainer) {
             if (retries > 0) {
               initializeZendeskRef.current?.(retries - 1);
             }
+
             return;
           }
 
@@ -176,6 +195,7 @@ export default function Home() {
             if (retries > 0) {
               initializeZendeskRef.current?.(retries - 1);
             }
+
             return;
           }
 
@@ -208,13 +228,27 @@ export default function Home() {
             },
           });
 
+          // Clear any existing ready timeout
+          if (readyTimeoutRef.current) {
+            clearTimeout(readyTimeoutRef.current);
+
+            readyTimeoutRef.current = null;
+          }
+
           // Set ready after a delay to allow widget to render
-          setTimeout(() => {
-            dispatch({ type: 'SET_ZENDESK_READY' });
+          readyTimeoutRef.current = setTimeout(() => {
+            // Check if component is still mounted before dispatching
+            if (isMountedRef.current) {
+              dispatch({ type: 'SET_ZENDESK_READY' });
+            }
+
+            readyTimeoutRef.current = null;
           }, ZENDESK_READY_DELAY_MS);
         } catch (error) {
           window.fireJse?.(error);
         }
+
+        initializeTimeoutRef.current = null;
       }, 50);
     },
     [dispatch],
@@ -224,6 +258,27 @@ export default function Home() {
   useEffect(() => {
     initializeZendeskRef.current = initializeZendesk;
   }, [initializeZendesk]);
+
+  // Cleanup timeouts and mark as unmounted when component unmounts
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      // Mark as unmounted to prevent any async operations from continuing
+      isMountedRef.current = false;
+
+      // Clean up timeouts
+      if (initializeTimeoutRef.current) {
+        clearTimeout(initializeTimeoutRef.current);
+        initializeTimeoutRef.current = null;
+      }
+
+      if (readyTimeoutRef.current) {
+        clearTimeout(readyTimeoutRef.current);
+        readyTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Manually load Zendesk script when loadWidget becomes true
   useEffect(() => {
