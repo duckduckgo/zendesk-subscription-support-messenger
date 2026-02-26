@@ -13,6 +13,7 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
+    "parse-legal-notice": "tsx scripts/parse-legal-notice.ts",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config",
     "@playwright/test": "^1.57.0",
+    "@types/jsdom": "^28.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -41,8 +43,11 @@
     "eslint-config-next": "16.0.7",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
+    "jsdom": "^28.1.0",
     "lint-staged": "^16.2.7",
+    "mammoth": "^1.11.0",
     "prettier": "3.7.4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

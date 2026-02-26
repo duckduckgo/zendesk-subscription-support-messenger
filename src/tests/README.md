@@ -7,12 +7,14 @@ This project uses **Playwright** for all testing needs, with a focused test suit
 ## Test Results
 
 ```bash
-✅ 19 passing tests (~22s)
-  - 19 unit tests (pure utility functions)
-    - 3 tests: build-article-url.test.ts
-    - 3 tests: get-slug-from-url.test.ts
-    - 13 tests: get-storage-with-expiry.test.ts
-  - 9 integration tests (complete user flows)
+✅ All tests passing
+  - Unit tests
+    - build-article-url.test.ts
+    - get-slug-from-url.test.ts
+    - get-storage-with-expiry.test.ts
+    - parse-legal-notice.test.ts
+  - Integration tests (complete user flows)
+    - complete-flow.test.ts
 ```
 
 ## Architecture
@@ -24,11 +26,14 @@ src/tests/
 ├── unit/                               # Fast, isolated unit tests
 │   ├── build-article-url.test.ts       # URL building utility tests
 │   ├── get-slug-from-url.test.ts       # URL slug extraction tests
-│   └── get-storage-with-expiry.test.ts # Storage expiry utility tests
+│   ├── get-storage-with-expiry.test.ts # Storage expiry utility tests
+│   └── parse-legal-notice.test.ts      # Legal notice parsing tests
 ├── integration/                        # End-to-end integration tests
-│   └── complete-flow.test.ts           # 🎯 COMPREHENSIVE FLOW TEST
+│   └── complete-flow.test.ts           # COMPREHENSIVE FLOW TEST
 └── fixtures/
-    └── zendesk-mock.js                 # Realistic Zendesk widget mock
+    ├── zendesk-mock.js                 # Realistic Zendesk widget mock
+    ├── mock-document-html.ts           # Static HTML mock from Word document
+    └── mock-legal-notice-content.ts    # Static mock of parsed legal notice content
 ```
 
 ## 🎯 Comprehensive Integration Test
@@ -298,6 +303,11 @@ test('should build URL correctly', () => {
   - Valid/invalid storage items, expired items, server-side handling
   - Date string format validation (YYYY-MM-DD)
   - Edge cases: missing keys, invalid JSON, type mismatches
+- `parseHtmlToLegalNotice()` - Legal notice HTML parsing (from Word documents)
+  - Full document parsing with sections, headings, paragraphs, links, bold, and italic text
+  - Button text pattern filtering (e.g., `[Continue to Chat] [Cancel]`)
+  - "Last updated" line filtering (automatically sets date)
+  - Validates parsed output matches expected structure
 
 ### 2. Integration Tests (`src/tests/integration/`)
 
@@ -595,24 +605,30 @@ test('should clear conversation data', async ({ page }) => {
 
 **Tests:**
 
-- `src/tests/integration/complete-flow.test.ts` - Comprehensive integration tests (9 tests)
+- `src/tests/integration/complete-flow.test.ts` - Comprehensive integration tests
   - Complete widget flow with pixel logging
   - Custom styles injection verification
   - Article link click logging
   - Yes/No button click logging
   - Clear conversation data flow
   - Dialog cancellation flow
-- `src/tests/unit/build-article-url.test.ts` - Unit tests for URL building utility (3 tests)
-- `src/tests/unit/get-slug-from-url.test.ts` - Unit tests for URL slug extraction (3 tests)
-- `src/tests/unit/get-storage-with-expiry.test.ts` - Unit tests for storage expiry utility (13 tests)
+- `src/tests/unit/build-article-url.test.ts` - Unit tests for URL building utility
+- `src/tests/unit/get-slug-from-url.test.ts` - Unit tests for URL slug extraction
+- `src/tests/unit/get-storage-with-expiry.test.ts` - Unit tests for storage expiry utility
   - Valid/invalid storage items
   - Expired items handling
   - Server-side environment handling
   - Date string format validation
+- `src/tests/unit/parse-legal-notice.test.ts` - Unit tests for legal notice parsing
+  - Full document parsing validation against static mock fixtures
+  - Button text pattern filtering
+  - "Last updated" line filtering
 
 **Fixtures:**
 
 - `src/tests/fixtures/zendesk-mock.js` - Realistic Zendesk Web Widget mock
+- `src/tests/fixtures/mock-document-html.ts` - Static HTML mock from Word document conversion
+- `src/tests/fixtures/mock-legal-notice-content.ts` - Static mock of expected parsed legal notice content
 
 **Configuration:**
 

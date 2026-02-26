@@ -72,6 +72,8 @@ The application uses three main hooks for Zendesk integration (see [`src/hooks/R
 - **`utils/delete-storage-keys-by-suffix.ts`** - Deletes localStorage keys matching a suffix pattern
 - **`utils/is-browser.ts`** - Checks if code is running in a browser environment (SSR safety)
 - **`utils/cleanup-zendesk.ts`** - Cleans up all Zendesk DOM elements, scripts, and global objects when resetting the widget
+- **`utils/normalize-word-content.ts`** - Utilities for normalizing content extracted from Word documents (quotes, whitespace)
+- **`utils/render-legal-notice-content.tsx`** - React utility to render structured legal notice content into JSX
 
 ### Logging
 
@@ -159,8 +161,8 @@ npm test -- src/tests/unit/
 
 **Test Coverage:**
 
-- ✅ 19 unit tests - Pure utility function tests (build-article-url, get-slug-from-url, get-storage-with-expiry)
-- ✅ 9 integration tests - Complete end-to-end user flow tests with Zendesk widget mocking
+- ✅ Unit tests - Pure utility function tests (build-article-url, get-slug-from-url, get-storage-with-expiry, parse-legal-notice)
+- ✅ Integration tests - Complete end-to-end user flow tests with Zendesk widget mocking
 
 Tests run automatically in CI before deployment.
 
@@ -181,6 +183,49 @@ Zendesk configuration is in `src/config/zendesk.ts`:
 - **`WEB_WIDGET_KEY`** - Zendesk Web Widget key
 - **`ZENDESK_SCRIPT_URL`** - Zendesk script URL
 - **`ARTICLE_LINK_MAP`** - Mapping of Zendesk article IDs to help page paths
+
+### Legal Notice Content
+
+Legal notice content is managed in `src/config/legal-notice-content.ts`. This content is parsed from Word documents provided by the legal team.
+
+#### Updating Legal Notice Content
+
+When the legal team provides an updated Word document (`.docx` file):
+
+1. **Place the document** at `/tmp/notice.docx` (or provide the path as an argument)
+
+2. **Run the parsing script**:
+
+   ```bash
+   npm run parse-legal-notice
+   ```
+
+   Or with a custom file path:
+
+   ```bash
+   npm run parse-legal-notice /path/to/document.docx
+   ```
+
+3. **The script will**:
+   - Convert the Word document to HTML using `mammoth`
+   - Parse the HTML structure (sections, headings, paragraphs, links, bold, italic)
+   - Filter out button text patterns (e.g., `[Continue to Chat] [Cancel]`)
+   - Filter out "Last updated" lines (automatically sets date to script run date)
+   - Generate and update `src/config/legal-notice-content.ts` with the parsed content
+   - Format the generated file using Prettier
+
+4. **Review the changes** in `src/config/legal-notice-content.ts` to ensure the parsing is correct
+
+The parsing script (`scripts/parse-legal-notice.ts`) handles:
+
+- **Sections and headings**: Bold paragraphs are automatically detected as section headings
+- **Links**: Extracted from `<a>` tags and plain text URLs
+- **Bold text**: Converted from `<strong>` or `<b>` tags
+- **Italic text**: Converted from `<em>` or `<i>` tags
+- **Button filtering**: Automatically skips patterns like `[Continue to Chat] [Cancel]`
+- **Date handling**: Sets `lastUpdated` to the script run date in "Month DD, YYYY" format
+
+**Note**: The script requires the Word document to be in `.docx` format. If you receive a different format, convert it to `.docx` first.
 
 ## Project Structure
 
@@ -205,6 +250,7 @@ src/
 ├── config/                                 # Configuration constants
 │   ├── common.ts                           # Common site configuration
 │   ├── fonts.ts                            # Font configuration
+│   ├── legal-notice-content.ts             # Legal notice content (parsed from Word docs)
 │   └── zendesk.ts                          # Zendesk widget configuration
 ├── constants/                              # Application constants
 │   ├── breakpoints.ts                      # Responsive breakpoint constants
@@ -226,13 +272,16 @@ src/
 │   └── widget-reducer.ts                   # Widget lifecycle state reducer (zendeskReady, loadWidget, firstMessageSent)
 ├── tests/                                  # Test files
 │   ├── fixtures/                           # Test fixtures and mocks
-│   │   └── zendesk-mock.js                 # Zendesk widget mock for testing
+│   │   ├── zendesk-mock.js                 # Zendesk widget mock for testing
+│   │   ├── mock-document-html.ts           # Static HTML mock from Word document
+│   │   └── mock-legal-notice-content.ts    # Static mock of parsed legal notice content
 │   ├── integration/                        # Integration tests
-│   │   └── complete-flow.test.ts           # End-to-end user flow tests (9 tests)
+│   │   └── complete-flow.test.ts           # End-to-end user flow tests
 │   ├── unit/                               # Unit tests
-│   │   ├── build-article-url.test.ts       # URL building utility tests (3 tests)
-│   │   ├── get-slug-from-url.test.ts       # URL slug extraction tests (3 tests)
-│   │   └── get-storage-with-expiry.test.ts # Storage expiry utility tests (13 tests)
+│   │   ├── build-article-url.test.ts       # URL building utility tests
+│   │   ├── get-slug-from-url.test.ts       # URL slug extraction tests
+│   │   ├── get-storage-with-expiry.test.ts # Storage expiry utility tests
+│   │   └── parse-legal-notice.test.ts      # Legal notice parsing tests
 │   └── README.md                           # Testing documentation
 ├── icons/                                  # SVG icon assets
 │   ├── logo-horizontal-dark.svg            # DuckDuckGo logo (dark theme)
@@ -240,6 +289,7 @@ src/
 │   ├── logo-stacked-dark.svg               # DuckDuckGo stacked logo (dark theme)
 │   └── logo-stacked-light.svg              # DuckDuckGo stacked logo (light theme)
 ├── types/                                  # TypeScript type definitions
+│   ├── legal-notice-content.ts             # Legal notice content structure types
 │   ├── lottie.ts                           # Lottie animation type definitions
 │   └── zendesk.d.ts                        # Extended Zendesk Web Widget types
 └── utils/                                  # Utility functions
