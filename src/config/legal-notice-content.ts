@@ -18,7 +18,10 @@ export const legalNoticeContent: LegalNoticeContent = {
       heading: 'DuckDuckGo Subscription Support Zendesk AI Agent Notice',
       paragraphs: [
         [
-          'DuckDuckGo Subscription, Inc. (“we,” “us,” or “our”), a subsidiary of Duck Duck Go, Inc., (“DuckDuckGo”), offers an optional automated AI Agent powered by Zendesk, Inc. (the “Agent”) to provide always-available customer support to subscription users. As Zendesk is a third party, the information that you submit to the Agent is transmitted to Zendesk, though we’ve engineered our Zendesk integration to minimize the use of your personal information (see below). However, if you’d rather not use the Agent at all, that’s totally fine: you can contact our human support team',
+          'DuckDuckGo Subscription, Inc. (“we,” “us,” or “our”), a subsidiary of Duck Duck Go, Inc., (“DuckDuckGo”), offers an optional automated AI Agent powered by Zendesk, Inc. (the “Agent”) to provide always-available customer support to subscription users. As Zendesk is a third party, the information that you submit to the Agent is transmitted to Zendesk, though we’ve engineered our Zendesk integration to minimize the use of your personal information (see below).',
+        ],
+        [
+          'However, if you’d rather not use the Agent at all, that’s totally fine: you can contact our human support team',
           {
             link: {
               text: 'here',
@@ -34,7 +37,7 @@ export const legalNoticeContent: LegalNoticeContent = {
           },
         ],
         [
-          'The Agent operates on a separate subdomain to isolate any data it collects. Due to the nature of customer support, the Agent inevitably collects some personal information, such as the content of support requests and conversations, as well as automated data (such as logs, feedback signals, and other metadata mentioned below). Zendesk is configured to aggregate and/or remove certain types of personal information to prevent it from being processed, such as bank account numbers, credit cards, and social security numbers, though this does not guarantee complete “anonymization” or removal of all personal information submitted to the Agent. We’ve also taken steps to prevent the third party Zendesk script (the “script”) from storing potentially sensitive data in the DuckDuckGo browser beyond the support chat session.',
+          'The Agent operates on a separate subdomain to isolate any data it collects. Due to the nature of customer support, the Agent inevitably collects some personal information, such as the content of support requests and conversations, as well as automated data (such as logs, feedback signals, and other metadata mentioned below). Zendesk is configured to aggregate and/or remove certain types of personal information to prevent it from being processed, such as bank account numbers, credit cards, and social security numbers, though this does not guarantee complete “anonymization” or removal of all personal information submitted to the Agent. We’ve also taken steps to prevent the third-party Zendesk script (the “script”) from storing potentially sensitive data in the DuckDuckGo browser beyond the support chat session.',
         ],
         [
           {
@@ -57,7 +60,7 @@ export const legalNoticeContent: LegalNoticeContent = {
           'As noted above, Zendesk collects information submitted through the Agent and the script, processing it to automate conversations, provide analytics, and improve the service. Zendesk also collects other information related to your support session, such as page impressions, consent preferences, and errors. Chat-related information is deleted from Zendesk’s servers after 90 days.',
         ],
         [
-          'Zendesk uses local storage as necessary for the Agent to function. For example, a client identifier is stored to recognize a returning user so you can continue a conversation where you left off. All local storage items are cleared when you clear your browser’s web storage or use the Fire Button.',
+          'Zendesk uses local storage as necessary for the Agent to function. For example, a client identifier is stored to recognize a returning user, so you can continue a conversation where you left off. Local storage items are cleared when you clear your browser’s web storage or click the ‘Clear Conversation Data’ button.',
         ],
         [
           'See Zendesk’s',
@@ -72,7 +75,7 @@ export const legalNoticeContent: LegalNoticeContent = {
         ],
         [
           {
-            bold: 'Your data will not be used to train third party or Zendesk models.',
+            bold: 'Your data will not be used to train third-party or Zendesk models.',
           },
         ],
         [
@@ -116,11 +119,11 @@ export const legalNoticeContent: LegalNoticeContent = {
           },
         ],
         [
-          'I have read, understand, and consent to DuckDuckGo’s Subscription Support Zendesk Agent Notice and understand that a third party (Zendesk) script will be loaded and the Agent will be enabled for my device. I can withdraw consent by clicking the Fire Button associated with the Agent. This will reset the Agent and clear my storage, including chat and chat-related local storage items.',
+          'I have read, understand, and consent to DuckDuckGo’s Subscription Support Zendesk Agent Notice and understand that a third party (Zendesk) script will be loaded, and the Agent will be enabled for my device. Clicking the ‘Clear Conversation Data’ button associated with the Agent will reset the Agent and clear my storage, including chat and chat-related local storage items.',
         ],
         ['If you do not wish to continue, click “Cancel”.'],
       ],
     },
   ],
-  lastUpdated: 'February 25, 2026',
+  lastUpdated: 'February 27, 2026',
 };
