@@ -184,6 +184,27 @@ Zendesk configuration is in `src/config/zendesk.ts`:
 - **`ZENDESK_SCRIPT_URL`** - Zendesk script URL
 - **`ARTICLE_LINK_MAP`** - Mapping of Zendesk article IDs to help page paths
 
+#### Updating Article Link Mapping
+
+The `ARTICLE_LINK_MAP` maps Zendesk article IDs to DuckDuckGo help page paths. This mapping is maintained in the `help-pages-cms` repository and can be automatically synced to this project.
+
+To update the article link mapping:
+
+```bash
+npm run update-article-link-map
+```
+
+This script:
+
+1. **Fetches the mapping file** from the `help-pages-cms` repository using a sparse git checkout (only downloads the specific file)
+2. **Parses the JSON mapping** and transforms it into the format required by `ARTICLE_LINK_MAP`
+3. **Updates** `src/config/zendesk.ts` with the new mapping entries
+4. **Preserves** the existing file structure and formatting
+
+The script uses `git sparse-checkout` to efficiently fetch only the required file (`scripts/zendesk-sync/zendesk-mapping.json`) from the `help-pages-cms` repository without cloning the entire repository.
+
+**Note**: After running the script, review the changes in `src/config/zendesk.ts` and run `npm run build` to verify everything works correctly.
+
 ### Legal Notice Content
 
 Legal notice content is managed in `src/config/legal-notice-content.ts`. This content is parsed from Word documents provided by the legal team.
