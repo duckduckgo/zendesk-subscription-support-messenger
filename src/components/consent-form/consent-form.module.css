@@ -42,7 +42,6 @@
 
 .link {
   color: var(--sds-color-palette-blue-60);
-  /* Inherit all other styles from parent paragraph */
   font-family: inherit;
   font-size: inherit;
   font-style: inherit;
@@ -77,10 +76,10 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  contain: layout style;
 
   .section {
     flex: 1 1 0%;
-    /* Use 0% basis for proper flex behavior */
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
@@ -94,7 +93,6 @@
       line-height: 24px;
       margin-block: 1em;
       overflow-wrap: break-word;
-      /* Wrap long words at word boundaries when necessary */
       max-width: 100%;
       box-sizing: border-box;
     }
@@ -133,7 +131,6 @@
   background-color: white;
   border: 2px solid #e0e0e0;
   color: #212121;
-  /* Override primary button text color for cancel button */
 }
 
 .cancelButton:hover {

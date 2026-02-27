@@ -23,6 +23,7 @@
   background-size: cover;
   background-position: top center;
   background-repeat: no-repeat;
+  background-attachment: scroll;
   font-family: var(--Font-Family-Product);
   position: relative;
 }
