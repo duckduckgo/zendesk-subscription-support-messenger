@@ -17,6 +17,7 @@ export const legalNoticeContent: LegalNoticeContent = {
     {
       heading: 'DuckDuckGo Subscription Support Zendesk AI Agent Notice',
       paragraphs: [
+        [{ bold: 'We minimize support data and restrict how it’s used.' }],
         [
           'DuckDuckGo Subscription, Inc. (“we,” “us,” or “our”), a subsidiary of Duck Duck Go, Inc., (“DuckDuckGo”), offers an optional automated AI Agent powered by Zendesk, Inc. (the “Agent”) to provide always-available customer support to subscription users. As Zendesk is a third party, the information that you submit to the Agent is transmitted to Zendesk, though we’ve engineered our Zendesk integration to minimize the use of your personal information (see below).',
         ],
@@ -125,5 +126,5 @@ export const legalNoticeContent: LegalNoticeContent = {
       ],
     },
   ],
-  lastUpdated: 'February 27, 2026',
+  lastUpdated: 'March 2, 2026',
 };
