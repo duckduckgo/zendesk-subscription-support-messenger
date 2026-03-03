@@ -6,6 +6,10 @@ import {
   ZENDESK_SEND_BUTTON_SELECTOR,
 } from '@/constants/zendesk-selectors';
 import { setupZendeskObserver } from '@/utils/zendesk-observer';
+import {
+  markComponentMounted,
+  markComponentUnmounted,
+} from '@/utils/zendesk-retry-manager';
 
 interface UseZendeskClickHandlersOptions {
   zendeskReady: boolean;
@@ -73,7 +77,7 @@ export function useZendeskClickHandlers({
     }
 
     // Mark as mounted when effect runs
-    isMountedRef.current = true;
+    markComponentMounted(isMountedRef);
 
     let observerCleanup: (() => void) | null = null;
 
@@ -207,7 +211,7 @@ export function useZendeskClickHandlers({
 
     return () => {
       // Mark as unmounted to prevent any async operations from continuing
-      isMountedRef.current = false;
+      markComponentUnmounted(isMountedRef);
 
       // Clean up observer
       if (observerCleanup) {

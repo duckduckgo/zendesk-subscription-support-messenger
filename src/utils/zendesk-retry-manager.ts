@@ -62,7 +62,7 @@ interface ActiveRetry {
  * });
  * ```
  */
-class RetryManager {
+export class RetryManager {
   private activeRetries = new Map<RetryOperationType, ActiveRetry>();
   private isMounted = true;
 
@@ -83,6 +83,11 @@ class RetryManager {
 
   /**
    * Schedules a retry operation with coordination to prevent race conditions.
+   *
+   * This is a single-shot scheduler per call. After the delay, the callback is
+   * invoked. If the callback returns false (or void) and retries remain, the
+   * manager automatically reschedules with a decremented count — no recursive
+   * callback factories required. Return true from the callback to stop early.
    *
    * If a retry for the same operation type is already active, it will be
    * cancelled and replaced with the new retry.
@@ -131,8 +136,22 @@ class RetryManager {
         return;
       }
 
-      // Execute callback to attempt the operation.
-      retryCallback();
+      // Execute callback. Return true to stop, false/void to reschedule.
+      try {
+        const succeeded = retryCallback();
+
+        if (!succeeded && this.isMounted && maxRetries > 1) {
+          this.scheduleRetry({
+            operationType,
+            retryCallback,
+            shouldRetry,
+            maxRetries: maxRetries - 1,
+            delay,
+          });
+        }
+      } catch (error) {
+        window.fireJse?.(error);
+      }
     }, delay);
 
     // Track active retry
@@ -197,29 +216,30 @@ export function createRetryManager(): RetryManager {
 }
 
 /**
- * Creates a standard shouldRetry callback that checks if component is mounted
- * and retries are remaining.
+ * Creates a standard shouldRetry callback that checks if the component is mounted.
+ * Retry countdown is managed by the RetryManager internally.
  *
  * @param isMountedRef - Ref to track if component is mounted
- * @param retries - Number of retries remaining
  * @returns shouldRetry callback function
  */
 export function createShouldRetryCallback(
   isMountedRef: RefObject<boolean>,
-  retries: number,
 ): () => boolean {
-  return () => isMountedRef.current && retries > 0;
+  return () => isMountedRef.current;
 }
 
 /**
  * Helper function to schedule a coordinated retry with common patterns.
  * Consolidates the repeated pattern of checking retries and scheduling.
  *
+ * The manager automatically retries up to `retries` times if the callback
+ * returns false or void. Return true from the callback to stop retrying early.
+ *
  * @param retryManager - Retry manager instance
  * @param operationType - Type of operation for coordination
- * @param retryCallback - Callback to execute on retry
+ * @param retryCallback - Callback to execute on each attempt. Return true to stop, false/void to retry
  * @param isMountedRef - Ref to track if component is mounted
- * @param retries - Number of retries remaining
+ * @param retries - Maximum number of retry attempts
  * @param delay - Delay between retries (defaults to DOM_READY_DELAY_MS)
  * @returns Cleanup function to cancel the retry, or null if not scheduled
  */
@@ -240,36 +260,36 @@ export function scheduleCoordinatedRetry(
     maxRetries: retries,
     delay,
     retryCallback,
-    shouldRetry: createShouldRetryCallback(isMountedRef, retries),
+    shouldRetry: createShouldRetryCallback(isMountedRef),
   });
 }
 
 /**
- * Helper function to mark component as mounted and notify retry manager.
+ * Helper function to mark component as mounted and optionally notify retry manager.
  * Consolidates the common pattern of setting mount state.
  *
  * @param isMountedRef - Ref to track if component is mounted
- * @param retryManager - Retry manager instance
+ * @param retryManager - Optional retry manager instance to notify
  */
 export function markComponentMounted(
   isMountedRef: RefObject<boolean>,
-  retryManager: RetryManager,
+  retryManager?: RetryManager,
 ): void {
   isMountedRef.current = true;
-  retryManager.setMounted();
+  retryManager?.setMounted();
 }
 
 /**
- * Helper function to mark component as unmounted and notify retry manager.
+ * Helper function to mark component as unmounted and optionally notify retry manager.
  * Consolidates the common pattern of setting unmount state.
  *
  * @param isMountedRef - Ref to track if component is mounted
- * @param retryManager - Retry manager instance
+ * @param retryManager - Optional retry manager instance to cancel active retries
  */
 export function markComponentUnmounted(
   isMountedRef: RefObject<boolean>,
-  retryManager: RetryManager,
+  retryManager?: RetryManager,
 ): void {
   isMountedRef.current = false;
-  retryManager.setUnmounted();
+  retryManager?.setUnmounted();
 }

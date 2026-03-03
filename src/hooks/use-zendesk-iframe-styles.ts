@@ -58,117 +58,63 @@ export function useZendeskIframeStyles({
   const replacedButtonsRef = useRef<WeakSet<HTMLElement>>(
     new WeakSet<HTMLElement>(),
   );
-  const injectStylesRef = useRef<
-    ((retries?: number, delay?: number) => boolean) | null
-  >(null);
+  // Injects styles into the Zendesk iframe document. Returns true on success, false if not ready.
+  const injectStyles = useCallback((): boolean => {
+    // Check if component is still mounted
+    if (!isMountedRef.current) {
+      return false;
+    }
 
-  /**
-   * Creates a retry callback for style injection operations.
-   * Consolidates common retry logic to avoid duplication.
-   *
-   * @param retries - Number of retries remaining
-   * @param delay - Delay between retries
-   *
-   * @returns Retry callback function
-   */
-  const createStyleInjectionRetryCallback = useCallback(
-    (retries: number, delay: number): (() => boolean) => {
-      return () => {
-        if (!isMountedRef.current) {
-          return false;
-        }
+    const iframe = getMessagingIframe(null);
 
-        return injectStylesRef.current?.(retries - 1, delay) ?? false;
-      };
-    },
-    [],
-  );
+    if (!iframe) {
+      return false;
+    }
 
-  // Injects styles into the Zendesk iframe document using coordinated retry logic.
-  const injectStyles = useCallback(
-    (retries = DEFAULT_MAX_RETRIES, delay = DOM_READY_DELAY_MS): boolean => {
-      // Check if component is still mounted
-      if (!isMountedRef.current) {
-        return false;
-      }
+    const iframeDoc = getMessagingIframeDocument(iframe);
 
-      const iframe = getMessagingIframe(null);
+    if (!iframeDoc) {
+      return false;
+    }
 
-      if (!iframe) {
-        // Schedule coordinated retry if retries remaining
-        scheduleCoordinatedRetry(
-          retryManagerRef.current,
-          'style-injection',
-          createStyleInjectionRetryCallback(retries, delay),
-          isMountedRef,
-          retries,
-          delay,
-        );
+    // Check if styles are already injected and element still exists
+    if (
+      styleElementRef.current &&
+      iframeDoc.contains(styleElementRef.current)
+    ) {
+      injectedRef.current = true;
 
-        return false;
-      }
+      return true;
+    }
 
-      const iframeDoc = getMessagingIframeDocument(iframe);
+    try {
+      // Remove any existing style elements with our attribute to prevent duplicates
+      const existingStyleElements = iframeDoc.querySelectorAll(
+        'style[data-zendesk-custom-styles="true"]',
+      );
 
-      if (!iframeDoc) {
-        // Schedule coordinated retry if retries remaining
-        scheduleCoordinatedRetry(
-          retryManagerRef.current,
-          'style-injection',
-          createStyleInjectionRetryCallback(retries, delay),
-          isMountedRef,
-          retries,
-          delay,
-        );
+      existingStyleElements.forEach((element) => {
+        element.remove();
+      });
 
-        return false;
-      }
+      const styleElement = iframeDoc.createElement('style');
 
-      // Check if styles are already injected and element still exists
-      if (
-        styleElementRef.current &&
-        iframeDoc.contains(styleElementRef.current)
-      ) {
-        injectedRef.current = true;
+      styleElement.textContent = styles;
+      styleElement.setAttribute('data-zendesk-custom-styles', 'true');
 
-        return true;
-      }
+      // Inject into iframe head
+      iframeDoc.head.appendChild(styleElement);
 
-      try {
-        // Remove any existing style elements with our attribute to prevent duplicates
-        const existingStyleElements = iframeDoc.querySelectorAll(
-          'style[data-zendesk-custom-styles="true"]',
-        );
+      styleElementRef.current = styleElement;
+      injectedRef.current = true;
 
-        existingStyleElements.forEach((element) => {
-          element.remove();
-        });
+      return true;
+    } catch (error) {
+      window.fireJse?.(error);
 
-        const styleElement = iframeDoc.createElement('style');
-
-        styleElement.textContent = styles;
-        styleElement.setAttribute('data-zendesk-custom-styles', 'true');
-
-        // Inject into iframe head
-        iframeDoc.head.appendChild(styleElement);
-
-        styleElementRef.current = styleElement;
-        injectedRef.current = true;
-
-        return true;
-      } catch (error) {
-        window.fireJse?.(error);
-
-        return false;
-      }
-    },
-    [styles, createStyleInjectionRetryCallback],
-  );
-
-  // Store injectStyles in a ref to enable recursive calls
-  useEffect(() => {
-    injectStylesRef.current = injectStyles;
-  }, [injectStyles]);
+      return false;
+    }
+  }, [styles]);
 
   // Replaces the SVG in the send button with a custom icon
   const replaceSendButtonSvg = useCallback((iframeDoc: Document): void => {
@@ -233,8 +179,21 @@ export function useZendeskIframeStyles({
     // Inject styles when widget becomes ready
     // Always inject (or re-inject) when zendeskReady becomes true
     injectStylesTimeout = setTimeout(() => {
-      if (isMountedRef.current) {
-        injectStyles();
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      const succeeded = injectStyles();
+
+      if (!succeeded) {
+        scheduleCoordinatedRetry(
+          retryManager,
+          'style-injection',
+          injectStyles,
+          isMountedRef,
+          DEFAULT_MAX_RETRIES,
+          DOM_READY_DELAY_MS,
+        );
       }
     }, INITIAL_RENDER_DELAY_MS);
 
@@ -257,7 +216,19 @@ export function useZendeskIframeStyles({
             !iframeDoc.contains(styleElementRef.current)
           ) {
             injectedRef.current = false;
-            injectStyles();
+
+            const succeeded = injectStyles();
+
+            if (!succeeded) {
+              scheduleCoordinatedRetry(
+                retryManager,
+                'style-injection',
+                injectStyles,
+                isMountedRef,
+                DEFAULT_MAX_RETRIES,
+                DOM_READY_DELAY_MS,
+              );
+            }
           }
         },
         target: 'head',

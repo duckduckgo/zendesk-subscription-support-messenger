@@ -21,114 +21,30 @@ interface UseZendeskSwapArticleLinksOptions {
 }
 
 /**
- * Creates a retry callback for link swapping operations.
- *
- * @function createLinkSwapRetryCallback
- * @param isMountedRef - Ref to track if component is mounted
- * @param retryManager - Shared retry manager instance
- * @param retries - Number of retries remaining
- * @param delay - Delay between retries
- * @returns Retry callback function
- */
-function createLinkSwapRetryCallback(
-  isMountedRef: RefObject<boolean>,
-  retryManager: ReturnType<typeof createRetryManager>,
-  retries: number,
-  delay: number,
-): () => boolean {
-  return () => {
-    if (!isMountedRef.current) {
-      return false;
-    }
-    const result = processArticleLinks(
-      isMountedRef,
-      retryManager,
-      retries - 1,
-      delay,
-    );
-    return !!result?.linksFound;
-  };
-}
-
-/**
- * Processes article links in the Zendesk widget iframe using coordinated retry logic.
+ * Processes article links in the Zendesk widget iframe.
  *
  * @function processArticleLinks
- * @param {RefObject<boolean>} isMountedRef - Ref to track if component is
- * mounted
- * @param retryManager - Shared retry manager instance for coordination
- * @param {number} retries - Maximum number of retry attempts (defaults to
- * DEFAULT_MAX_RETRIES)
- * @param {number} delay - Delay between retries in milliseconds (defaults to
- * DOM_READY_DELAY_MS)
- *
- * @returns {Object | void} Object with iframe document and whether links were
- * found, or void if iframe/document not found
+ * @param {RefObject<boolean>} isMountedRef - Ref to track if component is mounted
+ * @returns {boolean} True if links were found and updated, false if not ready or no links found
  */
-function processArticleLinks(
-  isMountedRef: RefObject<boolean>,
-  retryManager: ReturnType<typeof createRetryManager>,
-  retries: number = DEFAULT_MAX_RETRIES,
-  delay: number = DOM_READY_DELAY_MS,
-): { doc: Document; linksFound: boolean } | void {
-  // Check mounted state before proceeding
+function processArticleLinks(isMountedRef: RefObject<boolean>): boolean {
   if (!isMountedRef.current) {
-    return;
+    return false;
   }
 
   const iframe = getMessagingIframe(null);
 
   if (!iframe) {
-    // Schedule coordinated retry if retries remaining
-    scheduleCoordinatedRetry(
-      retryManager,
-      'link-swapping',
-      createLinkSwapRetryCallback(isMountedRef, retryManager, retries, delay),
-      isMountedRef,
-      retries,
-      delay,
-    );
-
-    return;
+    return false;
   }
 
   const iframeDoc = getMessagingIframeDocument(iframe);
 
   if (!iframeDoc) {
-    // Schedule coordinated retry if retries remaining
-    scheduleCoordinatedRetry(
-      retryManager,
-      'link-swapping',
-      createLinkSwapRetryCallback(isMountedRef, retryManager, retries, delay),
-      isMountedRef,
-      retries,
-      delay,
-    );
-
-    return;
+    return false;
   }
 
-  // Update article links in the iframe document
-  const linksUpdated = updateArticleLinks(iframeDoc);
-  const linksFound = linksUpdated > 0;
-
-  // If no links were found and we have retries left, retry (links may not be
-  // ready yet)
-  if (!linksFound) {
-    // Schedule coordinated retry
-    scheduleCoordinatedRetry(
-      retryManager,
-      'link-swapping',
-      createLinkSwapRetryCallback(isMountedRef, retryManager, retries, delay),
-      isMountedRef,
-      retries,
-      delay,
-    );
-  }
-
-  // Return the document and whether links were found
-  // iframeDoc is guaranteed to be non-null here since we checked above
-  return { doc: iframeDoc as Document, linksFound };
+  return updateArticleLinks(iframeDoc) > 0;
 }
 
 /**
@@ -155,6 +71,8 @@ export function useZendeskSwapArticleLinks({
 
   useEffect(() => {
     if (!zendeskReady) {
+      processedRef.current = false;
+
       return;
     }
 
@@ -172,14 +90,31 @@ export function useZendeskSwapArticleLinks({
     if (!processedRef.current) {
       // Give the widget a moment to render, then process with retries
       processArticleLinksTimeout = setTimeout(() => {
-        if (isMountedRef.current) {
-          const result = processArticleLinks(isMountedRef, retryManager);
+        if (!isMountedRef.current) {
+          return;
+        }
 
-          // Only mark as processed if links were actually found, or if
-          // retries are exhausted (to prevent infinite retries)
-          if (result?.linksFound) {
-            processedRef.current = true;
-          }
+        const linksFound = processArticleLinks(isMountedRef);
+
+        if (linksFound) {
+          processedRef.current = true;
+        } else {
+          scheduleCoordinatedRetry(
+            retryManager,
+            'link-swapping',
+            () => {
+              const found = processArticleLinks(isMountedRef);
+
+              if (found) {
+                processedRef.current = true;
+              }
+
+              return found;
+            },
+            isMountedRef,
+            DEFAULT_MAX_RETRIES,
+            DOM_READY_DELAY_MS,
+          );
         }
       }, INITIAL_RENDER_DELAY_MS);
     }
@@ -204,9 +139,23 @@ export function useZendeskSwapArticleLinks({
 
       // Swap article links after a short delay to ensure DOM is fully rendered
       timeoutRef.current = setTimeout(() => {
-        if (isMountedRef.current) {
-          processArticleLinks(isMountedRef, retryManager);
+        if (!isMountedRef.current) {
+          return;
         }
+
+        const found = processArticleLinks(isMountedRef);
+
+        if (!found) {
+          scheduleCoordinatedRetry(
+            retryManager,
+            'link-swapping',
+            () => processArticleLinks(isMountedRef),
+            isMountedRef,
+            DEFAULT_MAX_RETRIES,
+            DOM_READY_DELAY_MS,
+          );
+        }
+
         timeoutRef.current = null;
       }, DOM_READY_DELAY_MS);
     });
