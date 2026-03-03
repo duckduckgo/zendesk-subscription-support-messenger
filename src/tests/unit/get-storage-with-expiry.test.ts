@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import { getStorageWithExpiry } from '@/utils/get-storage-with-expiry';
 import { formatDateString } from '@/utils/set-storage-with-expiry';
 
+const LAST_UPDATED = '2026-03-02';
+
 /**
  * Calculates an expiry date by adding days to today's date.
  *
@@ -53,7 +55,7 @@ test.describe('getStorageWithExpiry', () => {
     global.localStorage = createLocalStorageMock() as unknown as Storage;
     // Ensure window exists for isBrowser() check
     if (typeof global.window === 'undefined') {
-      global.window = global as unknown as Window;
+      global.window = global as unknown as Window & typeof globalThis;
     }
   });
 
@@ -66,14 +68,14 @@ test.describe('getStorageWithExpiry', () => {
     }
     // Restore original window if it existed
     if (originalWindow) {
-      global.window = originalWindow;
+      global.window = originalWindow as unknown as Window & typeof globalThis;
     } else {
-      global.window = undefined as unknown as Window;
+      global.window = undefined as unknown as Window & typeof globalThis;
     }
   });
 
   test('should return null when key does not exist', () => {
-    const result = getStorageWithExpiry('non-existent-key');
+    const result = getStorageWithExpiry('non-existent-key', LAST_UPDATED);
 
     expect(result).toBeNull();
   });
@@ -82,11 +84,12 @@ test.describe('getStorageWithExpiry', () => {
     const item = {
       value: true,
       expiry: calculateExpiryDate(1), // 1 day from now
+      lastUpdated: LAST_UPDATED,
     };
 
     localStorage.setItem('test-key', JSON.stringify(item));
 
-    const result = getStorageWithExpiry('test-key');
+    const result = getStorageWithExpiry('test-key', LAST_UPDATED);
 
     expect(result).toBe(true);
   });
@@ -95,11 +98,12 @@ test.describe('getStorageWithExpiry', () => {
     const item = {
       value: false,
       expiry: calculateExpiryDate(1),
+      lastUpdated: LAST_UPDATED,
     };
 
     localStorage.setItem('test-key', JSON.stringify(item));
 
-    const result = getStorageWithExpiry('test-key');
+    const result = getStorageWithExpiry('test-key', LAST_UPDATED);
 
     expect(result).toBe(false);
   });
@@ -112,11 +116,12 @@ test.describe('getStorageWithExpiry', () => {
     const item = {
       value: true,
       expiry: formatDateString(yesterday), // Expired yesterday
+      lastUpdated: LAST_UPDATED,
     };
 
     localStorage.setItem('expired-key', JSON.stringify(item));
 
-    const result = getStorageWithExpiry('expired-key');
+    const result = getStorageWithExpiry('expired-key', LAST_UPDATED);
 
     expect(result).toBeNull();
   });
@@ -124,7 +129,7 @@ test.describe('getStorageWithExpiry', () => {
   test('should return null when JSON is invalid', () => {
     localStorage.setItem('invalid-json-key', 'not valid json{');
 
-    const result = getStorageWithExpiry('invalid-json-key');
+    const result = getStorageWithExpiry('invalid-json-key', LAST_UPDATED);
 
     expect(result).toBeNull();
   });
@@ -137,7 +142,7 @@ test.describe('getStorageWithExpiry', () => {
 
     localStorage.setItem('missing-expiry-key', JSON.stringify(item));
 
-    const result = getStorageWithExpiry('missing-expiry-key');
+    const result = getStorageWithExpiry('missing-expiry-key', LAST_UPDATED);
 
     expect(result).toBeNull();
   });
@@ -150,7 +155,7 @@ test.describe('getStorageWithExpiry', () => {
 
     localStorage.setItem('missing-value-key', JSON.stringify(item));
 
-    const result = getStorageWithExpiry('missing-value-key');
+    const result = getStorageWithExpiry('missing-value-key', LAST_UPDATED);
 
     expect(result).toBeNull();
   });
@@ -163,7 +168,10 @@ test.describe('getStorageWithExpiry', () => {
 
     localStorage.setItem('invalid-expiry-type-key', JSON.stringify(item));
 
-    const result = getStorageWithExpiry('invalid-expiry-type-key');
+    const result = getStorageWithExpiry(
+      'invalid-expiry-type-key',
+      LAST_UPDATED,
+    );
 
     expect(result).toBeNull();
   });
@@ -176,7 +184,7 @@ test.describe('getStorageWithExpiry', () => {
 
     localStorage.setItem('invalid-value-type-key', JSON.stringify(item));
 
-    const result = getStorageWithExpiry('invalid-value-type-key');
+    const result = getStorageWithExpiry('invalid-value-type-key', LAST_UPDATED);
 
     expect(result).toBeNull();
   });
@@ -184,7 +192,7 @@ test.describe('getStorageWithExpiry', () => {
   test('should return null when parsed value is null', () => {
     localStorage.setItem('null-item-key', JSON.stringify(null));
 
-    const result = getStorageWithExpiry('null-item-key');
+    const result = getStorageWithExpiry('null-item-key', LAST_UPDATED);
 
     expect(result).toBeNull();
   });
@@ -192,7 +200,7 @@ test.describe('getStorageWithExpiry', () => {
   test('should return null when parsed value is not an object', () => {
     localStorage.setItem('string-item-key', JSON.stringify('just-a-string'));
 
-    const result = getStorageWithExpiry('string-item-key');
+    const result = getStorageWithExpiry('string-item-key', LAST_UPDATED);
 
     expect(result).toBeNull();
   });
@@ -203,11 +211,12 @@ test.describe('getStorageWithExpiry', () => {
     const item = {
       value: true,
       expiry: today,
+      lastUpdated: LAST_UPDATED,
     };
 
     localStorage.setItem('today-expiry-key', JSON.stringify(item));
 
-    const result = getStorageWithExpiry('today-expiry-key');
+    const result = getStorageWithExpiry('today-expiry-key', LAST_UPDATED);
 
     // Should not be expired since expiry is at start of day (midnight)
     expect(result).toBe(true);
@@ -221,11 +230,74 @@ test.describe('getStorageWithExpiry', () => {
     const item = {
       value: true,
       expiry: formatDateString(twoDaysAgo),
+      lastUpdated: LAST_UPDATED,
     };
 
     localStorage.setItem('past-expiry-key', JSON.stringify(item));
 
-    const result = getStorageWithExpiry('past-expiry-key');
+    const result = getStorageWithExpiry('past-expiry-key', LAST_UPDATED);
+
+    expect(result).toBeNull();
+  });
+
+  test('should return stored value when lastUpdated matches', () => {
+    const item = {
+      value: true,
+      expiry: calculateExpiryDate(1),
+      lastUpdated: LAST_UPDATED,
+    };
+
+    localStorage.setItem('last-updated-match-key', JSON.stringify(item));
+
+    const result = getStorageWithExpiry('last-updated-match-key', LAST_UPDATED);
+
+    expect(result).toBe(true);
+  });
+
+  test('should return null when lastUpdated does not match stored value', () => {
+    const item = {
+      value: true,
+      expiry: calculateExpiryDate(1),
+      lastUpdated: '2025-01-01',
+    };
+
+    localStorage.setItem('last-updated-mismatch-key', JSON.stringify(item));
+
+    const result = getStorageWithExpiry(
+      'last-updated-mismatch-key',
+      LAST_UPDATED,
+    );
+
+    expect(result).toBeNull();
+  });
+
+  test('should remove item from storage when lastUpdated does not match', () => {
+    const item = {
+      value: true,
+      expiry: calculateExpiryDate(1),
+      lastUpdated: '2025-01-01',
+    };
+
+    localStorage.setItem('last-updated-removed-key', JSON.stringify(item));
+
+    getStorageWithExpiry('last-updated-removed-key', LAST_UPDATED);
+
+    expect(localStorage.getItem('last-updated-removed-key')).toBeNull();
+  });
+
+  test('should return null when item has no lastUpdated field', () => {
+    const item = {
+      value: true,
+      expiry: calculateExpiryDate(1),
+      // no lastUpdated field
+    };
+
+    localStorage.setItem('last-updated-missing-key', JSON.stringify(item));
+
+    const result = getStorageWithExpiry(
+      'last-updated-missing-key',
+      LAST_UPDATED,
+    );
 
     expect(result).toBeNull();
   });

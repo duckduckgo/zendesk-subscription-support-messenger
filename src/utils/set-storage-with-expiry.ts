@@ -46,6 +46,9 @@ function calculateExpiryDate(days: number): string {
  * @param {string} key - The localStorage key to store the value under
  * @param {boolean} value - The boolean value to store
  * @param {number} days - Number of days from today until expiration
+ * @param {string} lastUpdated - Content version string in YYYY-MM-DD format.
+ * Stored alongside the item so {@link getStorageWithExpiry} can invalidate the
+ * item if the version changes.
  *
  * @returns {void}
  */
@@ -53,6 +56,7 @@ export function setStorageWithExpiry(
   key: string,
   value: boolean,
   days: number,
+  lastUpdated: string,
 ): void {
   if (!isBrowser()) {
     return;
@@ -61,6 +65,7 @@ export function setStorageWithExpiry(
   const item = {
     value,
     expiry: calculateExpiryDate(days),
+    lastUpdated,
   };
 
   localStorage.setItem(key, JSON.stringify(item));

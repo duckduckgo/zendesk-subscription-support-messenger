@@ -10,12 +10,18 @@ import { formatDateString } from './set-storage-with-expiry';
  *
  * @function getStorageWithExpiry
  * @param {string} key - The localStorage key to retrieve
+ * @param {string} lastUpdated - Content version string in YYYY-MM-DD format.
+ * The stored item is considered expired if its `lastUpdated` field does not
+ * exactly match this value.
  *
  * @returns {boolean | null | undefined} Returns `undefined` when called
  * server-side, `null` if expired/missing/invalid, or the stored boolean value
  * if valid and not expired
  */
-export function getStorageWithExpiry(key: string): boolean | null | undefined {
+export function getStorageWithExpiry(
+  key: string,
+  lastUpdated: string,
+): boolean | null | undefined {
   if (!isBrowser()) {
     return undefined;
   }
@@ -37,6 +43,13 @@ export function getStorageWithExpiry(key: string): boolean | null | undefined {
       typeof item.value !== 'boolean'
     ) {
       // Invalid structure
+      localStorage.removeItem(key);
+
+      return null;
+    }
+
+    // Consider expired if stored lastUpdated doesn't match the expected version
+    if (item.lastUpdated !== lastUpdated) {
       localStorage.removeItem(key);
 
       return null;

@@ -31,10 +31,14 @@ import {
   ZENDESK_SCRIPT_TAG_ID,
 } from '@/constants/zendesk-selectors';
 import { ZENDESK_IFRAME_STYLES } from '@/constants/zendesk-styles';
+import { legalNoticeContent } from '@/config/legal-notice-content';
 import { getCSSVariable } from '@/utils/get-css-variable';
 import { getSlugFromUrl } from '@/utils/get-slug-from-url';
 import { widgetReducer, initialWidgetState } from '@/reducers/widget-reducer';
-import { setStorageWithExpiry } from '@/utils/set-storage-with-expiry';
+import {
+  setStorageWithExpiry,
+  formatDateString,
+} from '@/utils/set-storage-with-expiry';
 import { deleteStorageKeysBySuffix } from '@/utils/delete-storage-keys-by-suffix';
 import { cleanupZendesk } from '@/utils/cleanup-zendesk';
 
@@ -56,7 +60,12 @@ export default function Home() {
   const onContinue = useCallback(() => {
     window.firePixelEvent?.('consent');
 
-    setStorageWithExpiry(CONSENT_STORAGE_KEY, true, CONSENT_STORAGE_TTL);
+    setStorageWithExpiry(
+      CONSENT_STORAGE_KEY,
+      true,
+      CONSENT_STORAGE_TTL,
+      formatDateString(new Date(legalNoticeContent.lastUpdated)),
+    );
 
     dispatch({ type: 'SET_LOAD_WIDGET' });
   }, [dispatch]);

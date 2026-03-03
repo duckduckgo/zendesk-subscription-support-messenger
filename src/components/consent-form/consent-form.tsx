@@ -15,6 +15,7 @@ import NewTabLabel from '@/components/new-tab-label/new-tab-label';
 import { LOAD_ZD_BUTTON_TEST_ID } from '@/constants/test-ids';
 import { REDIRECT_DELAY_MS } from '@/constants/zendesk-timing';
 import { getStorageWithExpiry } from '@/utils/get-storage-with-expiry';
+import { formatDateString } from '@/utils/set-storage-with-expiry';
 import styles from './consent-form.module.css';
 
 interface ConsentFormProps {
@@ -33,7 +34,12 @@ export default function ConsentForm({ onContinue }: ConsentFormProps) {
   // component mounts, so we disable the ESLint rule for this line
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setHasConsent(getStorageWithExpiry(CONSENT_STORAGE_KEY));
+    setHasConsent(
+      getStorageWithExpiry(
+        CONSENT_STORAGE_KEY,
+        formatDateString(new Date(legalNoticeContent.lastUpdated)),
+      ),
+    );
   }, []);
 
   // Render structured legal notice content

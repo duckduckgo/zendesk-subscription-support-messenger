@@ -302,6 +302,7 @@ test('should build URL correctly', () => {
 - `getStorageWithExpiry()` - localStorage retrieval with date-based expiry
   - Valid/invalid storage items, expired items, server-side handling
   - Date string format validation (YYYY-MM-DD)
+  - `lastUpdated` version matching: expired when stored value doesn't match or is missing
   - Edge cases: missing keys, invalid JSON, type mismatches
 - `parseHtmlToLegalNotice()` - Legal notice HTML parsing (from Word documents)
   - Full document parsing with sections, headings, paragraphs, links, bold, and italic text
