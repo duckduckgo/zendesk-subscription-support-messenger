@@ -19,11 +19,6 @@ export const OBSERVER_SETUP_DELAY_MS = 1500;
 export const DEFAULT_MAX_RETRIES = 5;
 
 /**
- * Delay for redirect after pixel fire
- */
-export const REDIRECT_DELAY_MS = 500;
-
-/**
  * Delay after Zendesk render before marking as ready
  */
 export const ZENDESK_READY_DELAY_MS = 500;

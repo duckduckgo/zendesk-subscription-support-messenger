@@ -13,7 +13,6 @@ import { legalNoticeContent } from '@/config/legal-notice-content';
 import { renderLegalNoticeContent } from '@/utils/render-legal-notice-content';
 import NewTabLabel from '@/components/new-tab-label/new-tab-label';
 import { LOAD_ZD_BUTTON_TEST_ID } from '@/constants/test-ids';
-import { REDIRECT_DELAY_MS } from '@/constants/zendesk-timing';
 import { getStorageWithExpiry } from '@/utils/get-storage-with-expiry';
 import { formatDateString } from '@/utils/set-storage-with-expiry';
 import styles from './consent-form.module.css';
@@ -107,13 +106,10 @@ export default function ConsentForm({ onContinue }: ConsentFormProps) {
               skipBaseStyles
               className={`${styles.button} ${styles.cancelButton}`}
               onClick={() => {
-                // allow time for a pixel to fire before redirecting
-                setTimeout(() => {
-                  window.location.href = new URL(
-                    '/subscription-support',
-                    MAIN_SITE_URL,
-                  ).href;
-                }, REDIRECT_DELAY_MS);
+                window.location.href = new URL(
+                  '/subscription-support',
+                  MAIN_SITE_URL,
+                ).href;
               }}
             />
             {renderContinueButton(CONSENT_BUTTON_TEXT)}
