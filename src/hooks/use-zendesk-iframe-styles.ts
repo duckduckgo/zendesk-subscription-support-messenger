@@ -140,10 +140,10 @@ export function useZendeskIframeStyles({
 
         // Replace with external SVG file
         svg.outerHTML = `
-          <img src="static-assets/images/Send-Plane-Solid-16.svg" 
-               width="20" 
-               height="20" 
-               alt="Send" 
+          <img src="/static-assets/images/Send-Plane-Solid-16.svg"
+               width="20"
+               height="20"
+               alt="Send"
                style="display: block;" />
         `;
 
