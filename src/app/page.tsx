@@ -46,6 +46,7 @@ export default function Home() {
   const [widgetState, dispatch] = useReducer(widgetReducer, initialWidgetState);
   const { zendeskReady, loadWidget, firstMessageSent } = widgetState;
   const [isBurning, setIsBurning] = useState(false);
+  const [hasReset, setHasReset] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const scriptLoadedRef = useRef(false);
   const initializeZendeskRef = useRef<((retries?: number) => void) | null>(
@@ -58,17 +59,19 @@ export default function Home() {
   const readyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onContinue = useCallback(() => {
-    window.firePixelEvent?.('consent');
+    if (!hasReset) {
+      window.firePixelEvent?.('consent');
 
-    setStorageWithExpiry(
-      CONSENT_STORAGE_KEY,
-      true,
-      CONSENT_STORAGE_TTL,
-      formatDateString(new Date(legalNoticeContent.lastUpdated)),
-    );
+      setStorageWithExpiry(
+        CONSENT_STORAGE_KEY,
+        true,
+        CONSENT_STORAGE_TTL,
+        formatDateString(new Date(legalNoticeContent.lastUpdated)),
+      );
+    }
 
     dispatch({ type: 'SET_LOAD_WIDGET' });
-  }, [dispatch]);
+  }, [dispatch, hasReset]);
 
   // Swap ZD article link URLs for help page URLs
   useZendeskSwapArticleLinks({
@@ -144,6 +147,7 @@ export default function Home() {
 
         // Reset state to clear UI elements
         dispatch({ type: 'RESET_STATE' });
+        setHasReset(true);
 
         // Reset script loaded flag so script will reload on next mount
         scriptLoadedRef.current = false;
