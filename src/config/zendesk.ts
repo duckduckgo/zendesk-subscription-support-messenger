@@ -96,5 +96,7 @@ export const ARTICLE_LINK_MAP: Record<string, string> = {
   '46843983698195': '/privacy-pro/black-friday-promotion-2025',
   '47214498266131': '/duckai/moving-from-duckduckgocom-to-duckai',
   '47449581242899': '/duckai/image-creation',
-  '48569428145683': '/duckai/is-duckai-voice-chat-private'
+  '48569428145683': '/duckai/is-duckai-voice-chat-private',
+  '50029706101011': '/privacy-pro/changing-subscription-plans',
+  '50029731928339': '/privacy-pro/plus-and-pro-plan-differences'
 } as const;
