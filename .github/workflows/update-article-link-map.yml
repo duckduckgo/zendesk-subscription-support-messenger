@@ -104,7 +104,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          EXISTING=$(gh pr list --head automated/update-article-link-map --json url --jq '.[0].url')
+          EXISTING=$(gh pr list --head automated/update-article-link-map --json url --jq '.[0].url // empty')
           if [ -n "$EXISTING" ]; then
             echo "PR already exists at $EXISTING — branch updated"
           else
