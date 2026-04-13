@@ -49,16 +49,21 @@ jobs:
               capture_output=True, text=True
           ).stdout
 
-          added, removed = [], []
+          added, removed = set(), set()
           for line in diff.splitlines():
               if line.startswith('+') and not line.startswith('+++'):
                   m = re.search(r"'(\d+)':", line)
                   if m:
-                      added.append(m.group(1))
+                      added.add(m.group(1))
               elif line.startswith('-') and not line.startswith('---'):
                   m = re.search(r"'(\d+)':", line)
                   if m:
-                      removed.append(m.group(1))
+                      removed.add(m.group(1))
+
+          # IDs in both sets had their path changed, not added or removed
+          updated = added & removed
+          added -= updated
+          removed -= updated
 
           lines = [
               "## Summary\n\n",
@@ -68,13 +73,16 @@ jobs:
           ]
 
           if added:
-              ids = ", ".join(f"`{i}`" for i in added)
+              ids = ", ".join(f"`{i}`" for i in sorted(added))
               lines.append(f"**Added ({len(added)}):** {ids}\n\n")
           if removed:
-              ids = ", ".join(f"`{i}`" for i in removed)
+              ids = ", ".join(f"`{i}`" for i in sorted(removed))
               lines.append(f"**Removed ({len(removed)}):** {ids}\n\n")
-          if not added and not removed:
-              lines.append("Path updates only — no article IDs added or removed.\n\n")
+          if updated:
+              ids = ", ".join(f"`{i}`" for i in sorted(updated))
+              lines.append(f"**Path updated ({len(updated)}):** {ids}\n\n")
+          if not added and not removed and not updated:
+              lines.append("No article ID or path changes detected.\n\n")
 
           lines += [
               "### Checklist\n\n",
