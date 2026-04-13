@@ -36,6 +36,27 @@ export function updateArticleLinks(doc: Document): number {
       const newHref = buildArticleUrl(ARTICLE_LINK_MAP[matchedId]);
 
       anchorEl.setAttribute('href', newHref);
+
+      // Prevent Zendesk's internal click handler from intercepting navigation.
+      // We use capture phase so our handler fires before Zendesk's handlers on
+      // the element. Guard against duplicate listeners on repeated calls.
+      if (!anchorEl.dataset.helpPageRewritten) {
+        anchorEl.dataset.helpPageRewritten = 'true';
+        anchorEl.addEventListener(
+          'click',
+          (event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            window.open(
+              anchorEl.getAttribute('href') ?? newHref,
+              '_blank',
+              'noopener,noreferrer',
+            );
+          },
+          true,
+        );
+      }
+
       updatedCount++;
     }
   });
