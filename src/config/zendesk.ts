@@ -98,5 +98,7 @@ export const ARTICLE_LINK_MAP: Record<string, string> = {
   '47449581242899': '/duckai/image-creation',
   '48569428145683': '/duckai/is-duckai-voice-chat-private',
   '50029706101011': '/privacy-pro/changing-subscription-plans',
-  '50029731928339': '/privacy-pro/plus-and-pro-plan-differences'
+  '50029731928339': '/privacy-pro/plus-and-pro-plan-differences',
+  '50725030209939': '/privacy-pro/vpn/security-reports/2024-audit',
+  '50725034053267': '/privacy-pro/vpn/security-reports/2025-2026-vpn-no-log-policy-audit'
 } as const;
