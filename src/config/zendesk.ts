@@ -100,5 +100,8 @@ export const ARTICLE_LINK_MAP: Record<string, string> = {
   '50029706101011': '/privacy-pro/changing-subscription-plans',
   '50029731928339': '/privacy-pro/plus-and-pro-plan-differences',
   '50725030209939': '/privacy-pro/vpn/security-reports/2024-audit',
-  '50725034053267': '/privacy-pro/vpn/security-reports/2025-2026-vpn-no-log-policy-audit'
+  '50725034053267': '/privacy-pro/vpn/security-reports/2025-2026-vpn-no-log-policy-audit',
+  '50798358438419': '/privacy-pro/share-with-family-friends',
+  '50798374881043': '/privacy-pro/subscribe-one-service-only',
+  '50819047912723': '/get-duckduckgo/how-much-does-duckduckgo-cost'
 } as const;
