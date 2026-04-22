@@ -123,23 +123,23 @@ def update_zendesk_config(config_path: Path, new_map_entries: str) -> None:
     def replace_map(match):
         return f"{match.group(1)}\n{new_map_entries}\n{match.group(3)}"
 
-    new_content = pattern.sub(replace_map, content)
-
-    if new_content == content:
+    if pattern.search(content):
+        new_content = pattern.sub(replace_map, content)
+    else:
         # Try alternative pattern without "as const"
         pattern_alt = re.compile(
             r"(export const ARTICLE_LINK_MAP: Record<string, string> = \{)(.*?)(\};)",
             re.DOTALL,
         )
+        if not pattern_alt.search(content):
+            raise ValueError("Could not find ARTICLE_LINK_MAP in config file")
         new_content = pattern_alt.sub(
             lambda m: f"{m.group(1)}\n{new_map_entries}\n}} as const;",
             content,
         )
 
-    if new_content == content:
-        raise ValueError("Could not find ARTICLE_LINK_MAP in config file")
-
-    config_path.write_text(new_content)
+    if new_content != content:
+        config_path.write_text(new_content)
 
 
 def main():
