@@ -77,9 +77,18 @@ export default function Footer() {
             to search and browse online. Our built-in search engine is like
             Google but never tracks your searches, and our browser blocks ads,
             trackers, and cookies that collect your data. It also offers
-            private, useful, and optional AI, including Duck.ai, which lets you
-            chat privately with ChatGPT, Claude, and other AIs, all in one
-            place. Oh, and our browser is free. We make money from{' '}
+            private, useful, and optional AI, including{' '}
+            <a
+              target="_blank"
+              rel="noopener"
+              className={styles.footerTextLink}
+              href="https://duck.ai"
+            >
+              Duck.ai
+              <NewTabLabel />
+            </a>
+            , which lets you chat privately with ChatGPT, Claude, and other AIs,
+            all in one place. Oh, and our browser is free. We make money from{' '}
             <a
               target="_blank"
               rel="noopener"
@@ -114,7 +123,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener"
               className={styles.footerTextLink}
-              href="https://apps.apple.com/us/app/duckduckgo-duck-ai-vpn/id663592361"
+              href="https://apps.apple.com/app/duckduckgo-duck-ai-vpn/id663592361"
             >
               iOS
               <NewTabLabel />
