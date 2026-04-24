@@ -77,7 +77,7 @@ export default function Footer() {
             to search and browse online. Our built-in search engine is like
             Google but never tracks your searches, and our browser blocks ads,
             trackers, and cookies that collect your data. It also offers
-            private, useful, and optional AI, such as Duck.ai, that lets you
+            private, useful, and optional AI, including Duck.ai, which lets you
             chat privately with ChatGPT, Claude, and other AIs, all in one
             place. Oh, and our browser is free. We make money from{' '}
             <a
