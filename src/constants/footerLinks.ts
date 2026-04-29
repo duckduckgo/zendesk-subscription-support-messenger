@@ -43,7 +43,6 @@ export const learnMoreLinks: readonly FooterLink[] = [
     text: 'Newsletter',
   },
   {
-    badge: 'NEW',
     href: 'https://insideduckduckgo.substack.com/?showWelcome=true',
     id: 'substack',
     text: 'Podcast',

@@ -75,10 +75,20 @@ export default function Footer() {
               <NewTabLabel />
             </a>{' '}
             to search and browse online. Our built-in search engine is like
-            Google but never tracks your searches. And our browsing protections,
-            such as ad tracker blocking and cookie blocking, help stop other
-            companies from collecting your data. Oh, and our browser is free —
-            we make money from{' '}
+            Google but never tracks your searches, and our browser blocks ads,
+            trackers, and cookies that collect your data. It also offers
+            private, useful, and optional AI, including{' '}
+            <a
+              target="_blank"
+              rel="noopener"
+              className={styles.footerTextLink}
+              href="https://duck.ai"
+            >
+              Duck.ai
+              <NewTabLabel />
+            </a>
+            , which lets you chat privately with ChatGPT, Claude, and other AIs,
+            all in one place. Oh, and our browser is free. We make money from{' '}
             <a
               target="_blank"
               rel="noopener"
@@ -88,9 +98,7 @@ export default function Footer() {
               privacy-respecting search ads
               <NewTabLabel />
             </a>
-            , not by exploiting your data. Take back control of your personal
-            information with the browser designed for data protection, not data
-            collection. Available to download on{' '}
+            , not by exploiting your data. Available to download on{' '}
             <a
               target="_blank"
               rel="noopener"
@@ -115,7 +123,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener"
               className={styles.footerTextLink}
-              href="https://apps.apple.com/app/duckduckgo-privacy-browser/id663592361?platform=iphone"
+              href="https://apps.apple.com/app/duckduckgo-duck-ai-vpn/id663592361"
             >
               iOS
               <NewTabLabel />
