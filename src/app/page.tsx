@@ -220,12 +220,15 @@ export default function Home() {
               hideHeader: true,
             },
             theme: {
-              message: getCSSVariable('--sds-color-palette-blue-60'),
-              action: getCSSVariable('--sds-color-palette-blue-60'),
+              message:
+                getCSSVariable('--sds-color-palette-blue-60') || '#2b55ca',
+              action:
+                getCSSVariable('--sds-color-palette-blue-60') || '#2b55ca',
               onAction: '#FAFAFA',
               businessMessage: '#F2F2F2', // Chat response background
-              onBusinessMessage: getCSSVariable('--sds-color-text-01'),
-              background: 'transparent', // Chat window background
+              onBusinessMessage:
+                getCSSVariable('--sds-color-text-01') || '#222222',
+              background: 'rgba(0, 0, 0, 0)', // Chat window background
               onBackground: '#666666',
               error: '#FF1744',
               onError: '#FFFFFF',
