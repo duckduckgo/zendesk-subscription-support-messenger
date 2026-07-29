@@ -35,7 +35,7 @@
     "mammoth": {
       "@xmldom/xmldom": "0.8.13"
     },
-    "postcss": "8.5.10",
+    "postcss": "8.5.25",
     "esbuild": "0.28.1"
   },
   "devDependencies": {
