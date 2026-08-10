@@ -46,7 +46,8 @@
     },
     "sharp": "0.35.3",
     "postcss": "8.5.25",
-    "esbuild": "0.28.1"
+    "esbuild": "0.28.1",
+    "undici": "^7.29.0"
   },
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config",
