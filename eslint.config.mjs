@@ -1,12 +1,17 @@
 import { defineConfig, globalIgnores } from "eslint/config";
+import js from "@eslint/js";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
-import ddgConfig from "@duckduckgo/eslint-config";
+import eslintConfigPrettier from "eslint-config-prettier";
+import nodePlugin from "eslint-plugin-n";
+import promisePlugin from "eslint-plugin-promise";
 
 const eslintConfig = defineConfig([
+  js.configs.recommended,
   ...nextVitals,
   ...nextTs,
-  ...ddgConfig,
+  eslintConfigPrettier,
+
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -15,6 +20,101 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+
+  // DDG standard rules (inlined from @duckduckgo/eslint-config)
+  {
+    plugins: {
+      n: nodePlugin,
+      promise: promisePlugin,
+    },
+
+    rules: {
+      "no-var": "warn",
+      "object-shorthand": ["warn", "properties"],
+      "accessor-pairs": [
+        "error",
+        { setWithoutGet: true, enforceForClassMembers: true },
+      ],
+      "array-callback-return": [
+        "error",
+        { allowImplicit: false, checkForEach: false },
+      ],
+      camelcase: [
+        "error",
+        { allow: ["^UNSAFE_"], properties: "never", ignoreGlobals: true },
+      ],
+      "default-case-last": "error",
+      "dot-notation": ["error", { allowKeywords: true }],
+      eqeqeq: ["error", "always", { null: "ignore" }],
+      "new-cap": ["error", { newIsCap: true, capIsNew: false, properties: true }],
+      "no-array-constructor": "error",
+      "no-caller": "error",
+      "no-constant-condition": ["error", { checkLoops: false }],
+      "no-duplicate-imports": "error",
+      "no-empty": ["error", { allowEmptyCatch: true }],
+      "no-eval": "error",
+      "no-extend-native": "error",
+      "no-extra-bind": "error",
+      "no-implied-eval": "error",
+      "no-inner-declarations": "error",
+      "no-iterator": "error",
+      "no-label-var": "error",
+      "no-labels": ["error", { allowLoop: false, allowSwitch: false }],
+      "no-lone-blocks": "error",
+      "no-multi-str": "error",
+      "no-new": "error",
+      "no-new-func": "error",
+      "no-new-wrappers": "error",
+      "no-object-constructor": "error",
+      "no-octal-escape": "error",
+      "no-proto": "error",
+      "no-return-assign": ["error", "except-parens"],
+      "no-self-compare": "error",
+      "no-sequences": "error",
+      "no-template-curly-in-string": "error",
+      "no-throw-literal": "error",
+      "no-undef-init": "error",
+      "no-unmodified-loop-condition": "error",
+      "no-unneeded-ternary": ["error", { defaultAssignment: false }],
+      "no-unreachable-loop": "error",
+      "no-unused-vars": [
+        "error",
+        { args: "none", caughtErrors: "none", ignoreRestSiblings: true, vars: "all" },
+      ],
+      "no-unused-expressions": [
+        "error",
+        { allowShortCircuit: true, allowTernary: true, allowTaggedTemplates: true },
+      ],
+      "no-use-before-define": [
+        "error",
+        { functions: false, classes: false, variables: false },
+      ],
+      "no-useless-call": "error",
+      "no-useless-computed-key": "error",
+      "no-useless-constructor": "error",
+      "no-useless-rename": "error",
+      "no-useless-return": "error",
+      "no-void": "error",
+      "one-var": ["error", { initialized: "never" }],
+      "prefer-const": ["error", { destructuring: "all" }],
+      "prefer-promise-reject-errors": "error",
+      "prefer-regex-literals": ["error", { disallowRedundantWrapping: true }],
+      "symbol-description": "error",
+      "unicode-bom": ["error", "never"],
+      yoda: ["error", "never"],
+
+      "n/handle-callback-err": ["error", "^(err|error)$"],
+      "n/no-callback-literal": "error",
+      "n/no-deprecated-api": "error",
+      "n/no-exports-assign": "error",
+      "n/no-new-require": "error",
+      "n/no-path-concat": "error",
+      "n/process-exit-as-throw": "error",
+
+      "promise/param-names": "error",
+    },
+  },
+
   // Define global variables from third-party scripts
   // zE is provided by Zendesk Web Widget SDK (loaded dynamically via Script component)
   // Type definitions are provided by @types/zendesk-web-widget
