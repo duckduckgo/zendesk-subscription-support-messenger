@@ -15,6 +15,12 @@ import styles from './layout.module.css';
 export const metadata: Metadata = {
   title: SITE_TITLE,
   description: "DuckDuckGo's automated support assistant powered by Zendesk",
+  // GitHub Pages can't set X-Robots-Tag headers, so keep search engines out
+  // with a robots meta tag on every page
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({
