@@ -19,6 +19,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Cooldown check (temporary)
+        run: |
+          npm --version
+          npm config get min-release-age
+          if npm pack --dry-run caniuse-lite@1.0.30001819 2>&1 | tee pack.log; then
+            echo "FAIL: npm fetched a 6-day-old version, cooldown not enforced"
+            exit 1
+          fi
+          grep 'with a date before' pack.log && echo "PASS: cooldown enforced"
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
 
