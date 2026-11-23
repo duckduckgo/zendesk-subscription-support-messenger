@@ -14,7 +14,8 @@ import styles from './layout.module.css';
 
 export const metadata: Metadata = {
   title: SITE_TITLE,
-  description: "DuckDuckGo's automated support assistant powered by Zendesk",
+  description:
+    'DuckDuckGo Automated Support Chat is no longer available. Visit DuckDuckGo Subscription Support for help.',
   // GitHub Pages can't set X-Robots-Tag headers, so keep search engines out
   // with a robots meta tag on every page
   robots: {

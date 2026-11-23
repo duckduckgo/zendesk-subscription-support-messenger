@@ -1,7 +1,8 @@
 .footer {
   max-width: 1368px;
   width: 100%;
-  margin: 0 auto;
+  /* Top auto margin anchors the footer to the bottom of the layout column */
+  margin: auto auto 0;
   box-sizing: border-box;
   padding: 0 64px;
 }

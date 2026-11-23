@@ -18,6 +18,10 @@
 
 .container {
   min-height: 100vh;
+  min-height: 100dvh;
+  /* Flex column so the footer can be pushed to the bottom on short pages */
+  display: flex;
+  flex-direction: column;
   background-color: #f7f7f7;
   /* background-image set via inline style in layout.tsx to handle basePath correctly */
   background-size: cover;

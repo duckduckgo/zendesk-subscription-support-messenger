@@ -24,3 +24,13 @@ export const basePath =
   process.env.NODE_ENV === 'production' && !useCustomDomain
     ? '/zendesk-subscription-support-messenger'
     : '';
+
+/**
+ * Service sunset. The homepage shows a notice and then redirects here.
+ * 20 seconds matches the WCAG 2.2.1 (Timing Adjustable) minimum for a warned
+ * timeout, and users can cancel the redirect.
+ */
+export const SUNSET_REDIRECT_URL = `${MAIN_SITE_URL}/subscription-support`;
+export const SUNSET_REDIRECT_SECONDS = 20;
+export const SUNSET_HEADING =
+  'DuckDuckGo Automated Support Chat is no longer available';
