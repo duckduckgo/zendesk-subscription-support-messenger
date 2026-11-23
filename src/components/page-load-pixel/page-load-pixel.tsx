@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { SCRIPT_CHECK_INTERVAL_MS } from '@/constants/zendesk-timing';
+
+// How often to check whether pixels.js has finished loading
+const SCRIPT_CHECK_INTERVAL_MS = 50;
 
 /**
  * Portable PageLoadPixel Component

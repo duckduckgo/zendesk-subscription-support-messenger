@@ -30,7 +30,7 @@ test.describe('Sunset notice', () => {
       page.getByTestId(SUNSET_REDIRECT_LINK_TEST_ID),
     ).toHaveAttribute('href', SUNSET_REDIRECT_URL);
 
-    await expect(page.locator('#messaging-container')).toHaveCount(0);
+    await expect(page.locator('iframe')).toHaveCount(0);
   });
 
   test('redirects after the countdown', async ({ page }) => {

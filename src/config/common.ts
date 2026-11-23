@@ -1,13 +1,5 @@
 export const MAIN_SITE_URL = 'https://duckduckgo.com';
 export const SITE_TITLE = 'DuckDuckGo Automated Support Chat';
-export const MAIN_HEADING = 'DuckDuckGo Automated Support Chat';
-export const HELP_PAGES_BASE_URL = `${MAIN_SITE_URL}/duckduckgo-help-pages`;
-export const EMBEDDED_TARGET_ELEMENT = 'messaging-container';
-export const DECLINE_BUTTON_TEXT = 'Cancel';
-export const CONSENT_BUTTON_TEXT = 'Continue to Chat';
-export const START_CHAT_BUTTON_TEXT = 'Start Chat';
-export const CONSENT_STORAGE_KEY = 'ddg_consent';
-export const CONSENT_STORAGE_TTL = 30;
 
 /**
  * Determine if using custom domain (e.g., subscription-support.duckduckgo.com)

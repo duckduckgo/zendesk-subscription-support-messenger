@@ -63,23 +63,6 @@ export default function RootLayout({
             `,
           }}
         />
-        <script
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.zEMessenger = {
-                autorender: false
-              };
-              // Provide onThemeUpdate callback for Zendesk widget to prevent
-              // console warnings when theme changes
-              window.onThemeUpdate = function(theme) {
-                // Zendesk widget will call this when it detects theme changes
-                // We can use this to sync theme if needed, but currently
-                // we only respect system preference, so this is a no-op
-              };
-            `,
-          }}
-        />
         <Script src="/scripts/pixels.js" strategy="afterInteractive" />
         <ThemeProvider>
           <a href="#main-content" className={styles.skipLink}>

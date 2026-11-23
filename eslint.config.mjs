@@ -114,17 +114,6 @@ const eslintConfig = defineConfig([
       "promise/param-names": "error",
     },
   },
-
-  // Define global variables from third-party scripts
-  // zE is provided by Zendesk Web Widget SDK (loaded dynamically via Script component)
-  // Type definitions are provided by @types/zendesk-web-widget
-  {
-    languageOptions: {
-      globals: {
-        zE: "readonly", // Zendesk Web Widget API
-      },
-    },
-  },
 ]);
 
 export default eslintConfig;
