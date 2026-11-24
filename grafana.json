@@ -1,0 +1,1742 @@
+{
+  "apiVersion": "dashboard.grafana.app/v2",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "fff0rebdcgxz4d"
+  },
+  "spec": {
+    "annotations": [
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "builtIn": true,
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "query": {
+            "datasource": {
+              "name": "-- Grafana --"
+            },
+            "group": "grafana",
+            "kind": "DataQuery",
+            "spec": {},
+            "version": "v0"
+          }
+        }
+      }
+    ],
+    "cursorSync": "Off",
+    "editable": true,
+    "elements": {
+      "panel-1": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  sum(total) as \"Converted\"\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  pixel = '$convert'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  sum(total) as \"Converted\"\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056960) <= date AND\n  toDate(1772648960) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  pixel = 'subscriptionsupport.link.ticket'\n\nGROUP BY\n  t,\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056960))\n    TO toStartOfDay(toDateTime(1772648960))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 1,
+          "links": [],
+          "title": "Tickets Converted",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic-by-name"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.3.1"
+          }
+        }
+      },
+      "panel-10": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  pixel,\n  sum(total) as n\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date'\n\nGROUP BY\n  t,\n  pixel\n\nORDER BY\n  pixel,\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  pixel,\n  sum(total) as n\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770055867) <= date AND\n  toDate(1772647867) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01'\n\nGROUP BY\n  t,\n  pixel\n\nORDER BY\n  pixel,\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770055867))\n    TO toStartOfDay(toDateTime(1772647867))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 10,
+          "links": [],
+          "title": "Template - For cloning",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic-by-name"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green"
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": ""
+          }
+        }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  sum(total) as \"Impressions\"\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  pixel = '$impression'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  sum(total) as Impressions\"\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056057) <= date AND\n  toDate(1772648057) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  pixel = 'subscriptionsupport.impression'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056057))\n    TO toStartOfDay(toDateTime(1772648057))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 3,
+          "links": [],
+          "title": "Impressions",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic-by-name"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.3.1"
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  sum(total) as \"Granted Consent\"\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  pixel = '$consent'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  sum(total) as \"Granted Consent\"\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056091) <= date AND\n  toDate(1772648091) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  pixel = '$consen'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056091))\n    TO toStartOfDay(toDateTime(1772648091))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 4,
+          "links": [],
+          "title": "Granted Consent",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic-by-name"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.3.1"
+          }
+        }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  sum(total) as \"Granted Consent\"\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  pixel = '$consent'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  sum(total) as \"Granted Consent\"\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056091) <= date AND\n  toDate(1772648091) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  pixel = '$consen'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056091))\n    TO toStartOfDay(toDateTime(1772648091))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  sum(total) as \"Impressions\"\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  pixel = '$impression'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  sum(total) as \"Impressions\"\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056133) <= date AND\n  toDate(1772648133) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  pixel = '$impressions'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056133))\n    TO toStartOfDay(toDateTime(1772648133))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "joinByField",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "byField": "Time",
+                      "mode": "outer"
+                    }
+                  }
+                },
+                {
+                  "group": "calculateField",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "alias": "Rate",
+                      "binary": {
+                        "left": "Granted Consent",
+                        "operator": "/",
+                        "right": "Impressions"
+                      },
+                      "mode": "binary",
+                      "reduce": {
+                        "reducer": "sum"
+                      }
+                    }
+                  }
+                },
+                {
+                  "group": "organize",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "excludeByName": {
+                        "Granted Consent": true,
+                        "Impressions": true
+                      },
+                      "includeByName": {},
+                      "indexByName": {},
+                      "renameByName": {}
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "",
+          "id": 5,
+          "links": [],
+          "title": "Granted Consent Rate",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic-by-name"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "bottom",
+                  "showLegend": false
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.3.1"
+          }
+        }
+      },
+      "panel-6": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  sum(total) as \"First Message\"\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  pixel = '$firstmessage'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  sum(total) as \"First Messag\"\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056249) <= date AND\n  toDate(1772648249) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  pixel = 'subscriptionsupport.message.first'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056249))\n    TO toStartOfDay(toDateTime(1772648249))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 6,
+          "links": [],
+          "title": "Sent First Message",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic-by-name"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.3.1"
+          }
+        }
+      },
+      "panel-7": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  sum(total) as \"Sent First Message\"\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  pixel = '$firstmessage'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  sum(total) as \"Sent First Message\"\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056316) <= date AND\n  toDate(1772648316) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  pixel = '$firstmessag'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056316))\n    TO toStartOfDay(toDateTime(1772648316))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  sum(total) as \"Impressions\"\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  pixel = '$impression'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  sum(total) as \"Impressions\"\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056133) <= date AND\n  toDate(1772648133) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  pixel = '$impressions'\n\nGROUP BY\n  t\n\nORDER BY\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056133))\n    TO toStartOfDay(toDateTime(1772648133))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "joinByField",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "byField": "Time",
+                      "mode": "outer"
+                    }
+                  }
+                },
+                {
+                  "group": "calculateField",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "alias": "Rate",
+                      "binary": {
+                        "left": "Sent First Message",
+                        "operator": "/",
+                        "right": "Impressions"
+                      },
+                      "mode": "binary",
+                      "reduce": {
+                        "reducer": "sum"
+                      }
+                    }
+                  }
+                },
+                {
+                  "group": "organize",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "excludeByName": {
+                        "Granted Consent": true,
+                        "Impressions": true,
+                        "Sent First Message": true
+                      },
+                      "includeByName": {},
+                      "indexByName": {},
+                      "renameByName": {}
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "",
+          "id": 7,
+          "links": [],
+          "title": "Sent First Message Rate",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic-by-name"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "bottom",
+                  "showLegend": false
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.3.1"
+          }
+        }
+      },
+      "panel-8": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  $slug as slug,\n  sum(total) as n\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  startsWith(pixel, '$article')\n\nGROUP BY\n  t,\n  slug\n\nORDER BY\n  slug,\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  if(startsWith(pixel, 'subscriptionsupport.helplink.'), arrayElement(splitByChar('.', pixel), -1), '') as slug,\n  sum(total) as n\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056497) <= date AND\n  toDate(1772648497) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  startsWith(pixel, 'subscriptionsupport.helplink')\n\nGROUP BY\n  t,\n  slug\n\nORDER BY\n  pixel,\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056497))\n    TO toStartOfDay(toDateTime(1772648497))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": false,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 8,
+          "links": [],
+          "title": "Help Page Links Followed",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic-by-name"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.3.1"
+          }
+        }
+      },
+      "panel-9": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "000000010"
+                      },
+                      "group": "vertamedia-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "adHocFilters": [],
+                        "add_metadata": true,
+                        "database": "metrics",
+                        "dateColDataType": "date",
+                        "editorMode": "sql",
+                        "extrapolate": true,
+                        "format": "time_series",
+                        "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+                        "interval": "",
+                        "intervalFactor": 1,
+                        "query": "SELECT\n  toStartOfDay($dateCol) as t,\n  pixel,\n  sum(total) as n\n\nFROM\n  $table\n\nWHERE\n  toDate($from) <= $dateCol AND\n  toDate($to) >= $dateCol AND\n  pixel_id = '$pixel_id' AND\n  date >= '$start_date' AND\n  pixel IN (\n    '$helpful',\n    '$not_helpful'\n  )\n\nGROUP BY\n  t,\n  pixel\n\nORDER BY\n  pixel,\n  t WITH FILL\n    FROM toStartOfDay(toDateTime($from))\n    TO toStartOfDay(toDateTime($to))\n    STEP INTERVAL 1 DAY",
+                        "rawQuery": "/* grafana dashboard=Subscription Support Bot, user=164 */\nSELECT\n  toStartOfDay(date) as t,\n  pixel,\n  sum(total) as n\n\nFROM\n  metrics.pixels_aggregation\n\nWHERE\n  toDate(1770056666) <= date AND\n  toDate(1772648666) >= date AND\n  pixel_id = 'subscriptionsupport' AND\n  date >= '2026-01-01' AND\n  pixel IN (\n    'subscriptionsupport.helpful.yes'\n    'subscriptionsupport.helpful.no'\n  )\n\nGROUP BY\n  t,\n  pixel\n\nORDER BY\n  pixel,\n  t WITH FILL\n    FROM toStartOfDay(toDateTime(1770056666))\n    TO toStartOfDay(toDateTime(1772648666))\n    STEP INTERVAL 1 DAY",
+                        "round": "0s",
+                        "showFormattedSQL": true,
+                        "skip_comments": true,
+                        "table": "pixels_aggregation"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "calculateField",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "alias": "No",
+                      "cumulative": {
+                        "field": "subscriptionsupport.helpful.no",
+                        "reducer": "sum"
+                      },
+                      "mode": "cumulativeFunctions",
+                      "reduce": {
+                        "reducer": "sum"
+                      }
+                    }
+                  }
+                },
+                {
+                  "group": "calculateField",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "alias": "Yes",
+                      "cumulative": {
+                        "field": "subscriptionsupport.helpful.yes",
+                        "reducer": "sum"
+                      },
+                      "mode": "cumulativeFunctions",
+                      "reduce": {
+                        "reducer": "sum"
+                      }
+                    }
+                  }
+                },
+                {
+                  "group": "calculateField",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "alias": "Total",
+                      "binary": {
+                        "left": "Yes",
+                        "right": "No"
+                      },
+                      "cumulative": {
+                        "field": "subscriptionsupport.helpful.yes",
+                        "reducer": "sum"
+                      },
+                      "mode": "binary",
+                      "reduce": {
+                        "reducer": "sum"
+                      }
+                    }
+                  }
+                },
+                {
+                  "group": "calculateField",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "alias": "Proportion Helpful",
+                      "binary": {
+                        "left": "Yes",
+                        "operator": "/",
+                        "right": "Total"
+                      },
+                      "mode": "binary",
+                      "reduce": {
+                        "reducer": "sum"
+                      }
+                    }
+                  }
+                },
+                {
+                  "group": "organize",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "excludeByName": {
+                        "No": true,
+                        "Total": true,
+                        "Yes": true,
+                        "subscriptionsupport.helpful.no": true,
+                        "subscriptionsupport.helpful.yes": true
+                      },
+                      "includeByName": {},
+                      "indexByName": {},
+                      "renameByName": {}
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "",
+          "id": 9,
+          "links": [],
+          "title": "Proportion Helpful",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.5,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": ["lastNotNull"],
+                  "fields": "",
+                  "values": false
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.3.1"
+          }
+        }
+      }
+    },
+    "layout": {
+      "kind": "RowsLayout",
+      "spec": {
+        "rows": [
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "hideHeader": true,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-8"
+                        },
+                        "height": 11,
+                        "width": 8,
+                        "x": 0,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-1"
+                        },
+                        "height": 11,
+                        "width": 8,
+                        "x": 8,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-9"
+                        },
+                        "height": 11,
+                        "width": 8,
+                        "x": 16,
+                        "y": 0
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": ""
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-3"
+                        },
+                        "height": 22,
+                        "width": 8,
+                        "x": 0,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-4"
+                        },
+                        "height": 11,
+                        "width": 8,
+                        "x": 8,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-5"
+                        },
+                        "height": 11,
+                        "width": 8,
+                        "x": 16,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-6"
+                        },
+                        "height": 11,
+                        "width": 8,
+                        "x": 8,
+                        "y": 11
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-7"
+                        },
+                        "height": 11,
+                        "width": 8,
+                        "x": 16,
+                        "y": 11
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Funnel"
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": true,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-10"
+                        },
+                        "height": 7,
+                        "width": 11,
+                        "x": 0,
+                        "y": 0
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Template"
+            }
+          }
+        ]
+      }
+    },
+    "links": [],
+    "liveNow": false,
+    "preferences": {
+      "layout": {
+        "kind": "GridLayout",
+        "spec": {
+          "items": []
+        }
+      }
+    },
+    "preload": false,
+    "tags": [],
+    "timeSettings": {
+      "autoRefresh": "",
+      "autoRefreshIntervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "fiscalYearStartMonth": 0,
+      "from": "now-30d",
+      "hideTimepicker": false,
+      "timezone": "America/New_York",
+      "to": "now"
+    },
+    "title": "Subscription Support Bot",
+    "variables": [
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "subscriptionsupport",
+            "value": "subscriptionsupport"
+          },
+          "hide": "hideVariable",
+          "name": "pixel_id",
+          "query": "subscriptionsupport",
+          "skipUrlSync": true
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "subscriptionsupport.impression",
+            "value": "subscriptionsupport.impression"
+          },
+          "hide": "hideVariable",
+          "name": "impression",
+          "query": "subscriptionsupport.impression",
+          "skipUrlSync": true
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "subscriptionsupport.consent",
+            "value": "subscriptionsupport.consent"
+          },
+          "hide": "hideVariable",
+          "name": "consent",
+          "query": "subscriptionsupport.consent",
+          "skipUrlSync": true
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "subscriptionsupport.message.first",
+            "value": "subscriptionsupport.message.first"
+          },
+          "hide": "hideVariable",
+          "name": "firstmessage",
+          "query": "subscriptionsupport.message.first",
+          "skipUrlSync": true
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "subscriptionsupport.link.ticket",
+            "value": "subscriptionsupport.link.ticket"
+          },
+          "hide": "hideVariable",
+          "name": "convert",
+          "query": "subscriptionsupport.link.ticket",
+          "skipUrlSync": true
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "subscriptionsupport.helpful.yes",
+            "value": "subscriptionsupport.helpful.yes"
+          },
+          "hide": "hideVariable",
+          "name": "helpful",
+          "query": "subscriptionsupport.helpful.yes",
+          "skipUrlSync": true
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "subscriptionsupport.helpful.no",
+            "value": "subscriptionsupport.helpful.no"
+          },
+          "hide": "hideVariable",
+          "name": "not_helpful",
+          "query": "subscriptionsupport.helpful.no",
+          "skipUrlSync": true
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "subscriptionsupport.helplink",
+            "value": "subscriptionsupport.helplink"
+          },
+          "hide": "hideVariable",
+          "name": "article",
+          "query": "subscriptionsupport.helplink",
+          "skipUrlSync": true
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "if(startsWith(pixel, 'subscriptionsupport.helplink.'), arrayElement(splitByChar('.', pixel), -1), '')",
+            "value": "if(startsWith(pixel, 'subscriptionsupport.helplink.'), arrayElement(splitByChar('.', pixel), -1), '')"
+          },
+          "hide": "hideVariable",
+          "name": "slug",
+          "query": "if(startsWith(pixel, 'subscriptionsupport.helplink.'), arrayElement(splitByChar('.', pixel), -1), '')",
+          "skipUrlSync": true
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "2026-03-04",
+            "value": "2026-03-04"
+          },
+          "description": "The date on which we began collection data in production",
+          "hide": "hideVariable",
+          "name": "start_date",
+          "query": "2026-03-04",
+          "skipUrlSync": true
+        }
+      }
+    ]
+  }
+}
