@@ -54,3 +54,71 @@ test.describe('Sunset notice', () => {
     expect(page.url()).not.toContain(SUNSET_REDIRECT_URL);
   });
 });
+
+test.describe('Legacy chat storage cleanup', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route(`${SUNSET_REDIRECT_URL}*`, (route) =>
+      route.fulfill({ status: 200, body: 'redirected' }),
+    );
+
+    await page.clock.install();
+  });
+
+  test('removes chat keys and keeps unrelated keys', async ({ page }) => {
+    await page.goto('/');
+
+    await page.evaluate(() => {
+      localStorage.setItem('ddg_consent', '{"value":true}');
+      localStorage.setItem('ZD-abc123.clientId', 'client');
+      localStorage.setItem('ZD-abc123.appUserId', 'user');
+      localStorage.setItem('ZD-abc123.sessionToken', 'token');
+      localStorage.setItem('ZD-abc123.conversationStartedAt', '123');
+      localStorage.setItem('unrelated', 'keep me');
+    });
+
+    await page.reload();
+
+    // The button is server rendered, so wait for the cleanup to run after
+    // hydration instead of checking right away
+    await expect
+      .poll(() => page.evaluate(() => Object.keys(localStorage)))
+      .toEqual(['unrelated']);
+  });
+
+  test('loads without errors when no chat keys exist', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+
+    await page.goto('/');
+
+    // A ticking countdown proves the page hydrated and the cleanup ran
+    await page.clock.runFor(1000);
+    await expect(page.getByText('19 seconds')).toBeVisible();
+
+    expect(errors).toEqual([]);
+  });
+
+  test('still shows the notice when storage is blocked', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+
+    await page.addInitScript(() => {
+      Object.defineProperty(window, 'localStorage', {
+        get() {
+          throw new DOMException('Access denied', 'SecurityError');
+        },
+      });
+    });
+
+    await page.goto('/');
+    await expect(
+      page.getByRole('heading', { level: 1, name: SUNSET_HEADING }),
+    ).toBeVisible();
+
+    // A ticking countdown proves the page hydrated and the cleanup ran
+    await page.clock.runFor(1000);
+    await expect(page.getByText('19 seconds')).toBeVisible();
+
+    expect(errors).toEqual([]);
+  });
+});

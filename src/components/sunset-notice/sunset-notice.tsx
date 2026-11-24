@@ -11,6 +11,7 @@ import {
   SUNSET_REDIRECT_LINK_TEST_ID,
   SUNSET_STAY_BUTTON_TEST_ID,
 } from '@/constants/test-ids';
+import { clearLegacyChatStorage } from '@/utils/clear-legacy-chat-storage';
 import styles from './sunset-notice.module.css';
 
 /**
@@ -27,6 +28,11 @@ import styles from './sunset-notice.module.css';
 export default function SunsetNotice() {
   const [secondsLeft, setSecondsLeft] = useState(SUNSET_REDIRECT_SECONDS);
   const [isCanceled, setIsCanceled] = useState(false);
+
+  // Remove data the retired chat left in the browser
+  useEffect(() => {
+    clearLegacyChatStorage();
+  }, []);
 
   useEffect(() => {
     if (isCanceled) {

@@ -10,6 +10,7 @@ When a user visits the homepage they see the DuckDuckGo logo, background, footer
 2. Links to DuckDuckGo Subscription Support in case the user is not redirected
 3. Counts down and redirects to Subscription Support after 20 seconds
 4. Offers a "Stay on this page" button that cancels the redirect
+5. Deletes data the old chat left in the browser: `ddg_consent` and any Zendesk keys ending in `.clientId`, `.appUserId`, `.sessionToken`, or `.conversationStartedAt`
 
 ### Accessibility
 
@@ -115,8 +116,10 @@ src/
 │   ├── integration/
 │   │   └── sunset.test.ts      # Sunset notice and redirect tests
 │   └── README.md               # Testing documentation
-└── types/                      # TypeScript type definitions
-    └── pixels.d.ts             # Window globals set by pixels.js
+├── types/                      # TypeScript type definitions
+│   └── pixels.d.ts             # Window globals set by pixels.js
+└── utils/
+    └── clear-legacy-chat-storage.ts  # Deletes leftover chat data from localStorage
 ```
 
 ## Deployment
