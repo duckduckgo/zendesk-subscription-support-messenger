@@ -14,7 +14,8 @@ import styles from './layout.module.css';
 
 export const metadata: Metadata = {
   title: SITE_TITLE,
-  description: "DuckDuckGo's automated support assistant powered by Zendesk",
+  description:
+    'DuckDuckGo Automated Support Chat is no longer available. Visit DuckDuckGo Subscription Support for help.',
   // GitHub Pages can't set X-Robots-Tag headers, so keep search engines out
   // with a robots meta tag on every page
   robots: {
@@ -59,23 +60,6 @@ export default function RootLayout({
                   document.documentElement.setAttribute('data-theme', resolvedTheme);
                 } catch (e) {}
               })();
-            `,
-          }}
-        />
-        <script
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.zEMessenger = {
-                autorender: false
-              };
-              // Provide onThemeUpdate callback for Zendesk widget to prevent
-              // console warnings when theme changes
-              window.onThemeUpdate = function(theme) {
-                // Zendesk widget will call this when it detects theme changes
-                // We can use this to sync theme if needed, but currently
-                // we only respect system preference, so this is a no-op
-              };
             `,
           }}
         />

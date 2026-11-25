@@ -1,114 +1,45 @@
-# DuckDuckGo Automated Support Assistant
+# DuckDuckGo Automated Support Assistant (Sunset)
 
-A Next.js application that integrates the Zendesk Web Widget messaging interface for automated customer support. The application provides a consent form, embeds the Zendesk widget, and logs user interactions via anonymous pixels.
+This service has been sunsetted. The site now serves a single page stating that DuckDuckGo Automated Support Chat is no longer available, then redirects visitors to [DuckDuckGo Subscription Support](https://duckduckgo.com/subscription-support).
 
 ## Overview
 
-This application serves as a support ticket deflection tool that:
+When a user visits the homepage they see the DuckDuckGo logo, background, footer, and a sunset notice. The notice:
 
-1. **Displays a consent form** before loading the Zendesk script and widget
-2. **Renders the Zendesk messaging widget** in embedded mode
-3. **Customizes the widget** with DuckDuckGo branding and theme colors
-4. **Logs interactions** via anonymous pixel events (clicks, messages, link navigation)
-5. **Swaps article links** to point to DuckDuckGo help pages instead of Zendesk articles
+1. Explains that the service is no longer available
+2. Links to DuckDuckGo Subscription Support in case the user is not redirected
+3. Counts down and redirects to Subscription Support after 20 seconds
+4. Offers a "Stay on this page" button that cancels the redirect
+5. Deletes data the old chat left in the browser: `ddg_consent` and any Zendesk keys ending in `.clientId`, `.appUserId`, `.sessionToken`, or `.conversationStartedAt`
 
-## Architecture
+### Accessibility
 
-### Application Flow
-
-```
-User visits page
-  ↓
-Consent form displayed
-  ↓
-User clicks the consent button
-  ↓
-Zendesk script loads
-  ↓
-Widget renders in embedded mode
-  ↓
-Hooks initialize (link swapping, click handlers, styles)
-  ↓
-User interacts with widget
-  ↓
-Events anonymously logged via pixels.js
-```
+- **20 second delay** - Matches the WCAG 2.2.1 (Timing Adjustable) minimum for a warned timeout
+- **Cancelable** - Users can stop the redirect with a single action
+- **No meta refresh** - The redirect is scripted so it can be canceled (WCAG failure F41 covers timed meta refresh)
+- **Always reachable** - The Subscription Support link works with JavaScript disabled
+- **Quiet countdown** - The per-second countdown is not a live region, so screen readers are not interrupted every second. Only the cancellation is announced.
 
 ### Key Components
 
-- **`app/page.tsx`** - Main page component managing widget lifecycle and event handlers
-- **`components/consent-form/`** - Privacy consent form shown before widget loads
+- **`app/page.tsx`** - Homepage that renders the sunset notice
+- **`components/sunset-notice/`** - Sunset message, countdown, redirect, and cancel button
 - **`components/footer/`** - Site footer with links and company information
-- **`components/burn-animation/`** - Fullscreen burn animation overlay displayed when clearing conversation data
-  - `burn-overlay.tsx` - Overlay wrapper that fetches and displays Lottie animation
-  - `burn-animation.tsx` - Lottie animation component wrapper
-- **`components/fire-button/`** - Button component for clearing conversation data (icon or button appearance)
-- **`components/confirm-dialog/`** - Modal confirmation dialog for clearing conversation data with keyboard navigation and focus management
-- **`components/chat-navigation/`** - Navigation links displayed below the chat widget (FAQs, Feedback)
-- **`components/main-heading/`** - Main page heading component with consistent branding
-- **`components/horizontal-rule/`** - Visual separator component for section divisions
 - **`components/new-tab-label/`** - Screen reader label for links that open in new tabs
 - **`components/button/`** - Reusable button component with customizable styling
-- **`components/page-load-pixel/`** - Component that fires page impression pixel on mount
-
-### Zendesk Integration
-
-The application uses three main hooks for Zendesk integration (see [`src/hooks/README.md`](./src/hooks/README.md) for details):
-
-- **`useZendeskSwapArticleLinks`** - Replaces Zendesk article URLs with DuckDuckGo help page URLs
-- **`useZendeskClickHandlers`** - Attaches click handlers to buttons and links for anonymous event logging
-- **`useZendeskIframeStyles`** - Injects custom CSS styles into the widget iframe
-
-### Utilities
-
-- **`utils/zendesk-iframe.ts`** - Functions to access the Zendesk messaging widget iframe and its document
-- **`utils/zendesk-observer.ts`** - Sets up MutationObserver on the Zendesk iframe for DOM change detection
-- **`utils/build-article-url.ts`** - Builds complete article URLs using the URL constructor
-- **`utils/update-article-links.ts`** - Updates article links in a document based on article ID mapping
-- **`utils/get-css-variable.ts`** - Reads CSS variable values from the document root
-- **`utils/get-slug-from-url.ts`** - Extracts and sanitizes the last path segment from a URL for use in pixel event logging
-- **`utils/get-storage-with-expiry.ts`** - Retrieves boolean values from localStorage with date-based expiry (YYYY-MM-DD format)
-- **`utils/set-storage-with-expiry.ts`** - Stores boolean values in localStorage with date-based expiry (YYYY-MM-DD format)
-- **`utils/delete-storage-keys-by-suffix.ts`** - Deletes localStorage keys matching a suffix pattern
-- **`utils/is-browser.ts`** - Checks if code is running in a browser environment (SSR safety)
-- **`utils/cleanup-zendesk.ts`** - Cleans up all Zendesk DOM elements, scripts, and global objects when resetting the widget
-- **`utils/normalize-word-content.ts`** - Utilities for normalizing content extracted from Word documents (quotes, whitespace)
-- **`utils/render-legal-notice-content.tsx`** - React utility to render structured legal notice content into JSX
+- **`components/page-load-pixel/`** - Component that fires the page impression pixel on mount
 
 ### Logging
 
-The application uses a custom `pixels.js` script (`public/scripts/pixels.js`) for anonymous logging of events. No PII or device fingerprinting.
+The application uses a custom `pixels.js` script (`public/scripts/pixels.js`) for anonymous logging. No PII or device fingerprinting.
 
-- **Page impression** - Fired when page loads (via `PageLoadPixel` component)
-- **Button clicks** - logs button interactions (send button, Yes/No buttons)
-- **Link clicks** - Logs knowledge base article link clicks
-
-Pixel configuration can be set via `window.PIXEL_CONFIG` before the script loads:
-
-```javascript
-window.PIXEL_CONFIG = {
-  baseUrl: 'https://improving.duckduckgo.com/t/',
-  eventPrefix: 'subscriptionsupport_',
-  disableDeduplication: false, // Set to true to allow duplicate pixels
-  ...
-};
-```
-
-#### Pixel schema
-
-- **Page impression** - `subscriptionsupport_impression` - The first time user lands on the page
-- **User consent** - `subscriptionsupport_consent` - User provides consent to privacy policy / TOU
-- **First message** - `subscriptionsupport_message_first` - The first question / message per session that the user submits
-- **Convert to ticket** - `subscriptionsupport_link_ticket` - When the user clicks the "Support Form" link to create a ticket
-- **Error** - `subscriptionsupport_jsexception` - JavaScript Error object
-- **Yes / No clicks**: `subscriptionsupport_helpful_yes` or `subscriptionsupport_helpful_no` - User clicked either "Yes" or "No" button when asked "Was this helpful?"
-- **Article link clicks with slug** - `subscriptionsupport_helplink_$slug` - User clicked a help page link (provided by the chat bot). Example: `subscriptionsupport_helplink_getting-started` (The DDG help page slug)
+- **Page impression** - `subscriptionsupport_impression` - Fired when the page loads (via the `PageLoadPixel` component)
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (version specified in `.nvmrc`)
+- Node.js (version specified in `.node-version`)
 - npm or compatible package manager
 
 ### Installation
@@ -123,13 +54,7 @@ npm install
 npm run dev
 ```
 
-For HTTPS development (useful for testing Zendesk widget):
-
-```bash
-npm run dev:tls
-```
-
-Open [http://localhost:3000](http://localhost:3000) (or https://localhost:3000 for TLS) to view the application.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ### Building
 
@@ -140,8 +65,6 @@ npm start
 
 ### Testing
 
-The project uses Playwright for testing. See [`src/tests/README.md`](./src/tests/README.md) for comprehensive testing documentation.
-
 ```bash
 # Run all tests
 npm test
@@ -151,180 +74,52 @@ npm run test:ui
 
 # Run in headed mode (visible browser)
 npm run test:headed
-
-# Run only integration tests
-npm test -- src/tests/integration/
-
-# Run only unit tests
-npm test -- src/tests/unit/
 ```
 
-**Test Coverage:**
-
-- ✅ Unit tests - Pure utility function tests (build-article-url, get-slug-from-url, get-storage-with-expiry, parse-legal-notice)
-- ✅ Integration tests - Complete end-to-end user flow tests with Zendesk widget mocking
-
-Tests run automatically in CI before deployment.
+See [`src/tests/README.md`](./src/tests/README.md) for details. Tests run automatically in CI before deployment.
 
 ## Configuration
 
-### Common Configuration
-
-Common site configuration is in `src/config/common.ts`:
+Site configuration is in `src/config/common.ts`:
 
 - **`MAIN_SITE_URL`** - Main DuckDuckGo site URL
 - **`SITE_TITLE`** - Application title
-- **`HELP_PAGES_BASE_URL`** - Base URL for help pages
-
-### Zendesk Widget
-
-Zendesk configuration is in `src/config/zendesk.ts`:
-
-- **`WEB_WIDGET_KEY`** - Zendesk Web Widget key
-- **`ZENDESK_SCRIPT_URL`** - Zendesk script URL
-- **`ARTICLE_LINK_MAP`** - Mapping of Zendesk article IDs to help page paths
-
-#### Updating Article Link Mapping
-
-The `ARTICLE_LINK_MAP` maps Zendesk article IDs to DuckDuckGo help page paths. This mapping is maintained in the `help-pages-cms` repository and can be automatically synced to this project.
-
-To update the article link mapping:
-
-```bash
-npm run update-article-link-map
-```
-
-This script:
-
-1. **Fetches the mapping file** from the `help-pages-cms` repository using a sparse git checkout (only downloads the specific file)
-2. **Parses the JSON mapping** and transforms it into the format required by `ARTICLE_LINK_MAP`
-3. **Updates** `src/config/zendesk.ts` with the new mapping entries
-4. **Preserves** the existing file structure and formatting
-
-The script uses `git sparse-checkout` to efficiently fetch only the required file (`scripts/zendesk-sync/zendesk-mapping.json`) from the `help-pages-cms` repository without cloning the entire repository.
-
-**Note**: After running the script, review the changes in `src/config/zendesk.ts` and run `npm run build` to verify everything works correctly.
-
-### Legal Notice Content
-
-Legal notice content is managed in `src/config/legal-notice-content.ts`. This content is parsed from Word documents provided by the legal team.
-
-#### Updating Legal Notice Content
-
-When the legal team provides an updated Word document (`.docx` file):
-
-1. **Place the document** at `/tmp/notice.docx` (or provide the path as an argument)
-
-2. **Run the parsing script**:
-
-   ```bash
-   npm run parse-legal-notice
-   ```
-
-   Or with a custom file path:
-
-   ```bash
-   npm run parse-legal-notice /path/to/document.docx
-   ```
-
-3. **The script will**:
-   - Convert the Word document to HTML using `mammoth`
-   - Parse the HTML structure (sections, headings, paragraphs, links, bold, italic)
-   - Filter out button text patterns (e.g., `[Continue to Chat] [Cancel]`)
-   - Filter out "Last updated" lines (automatically sets date to script run date)
-   - Generate and update `src/config/legal-notice-content.ts` with the parsed content
-   - Format the generated file using Prettier
-
-4. **Review the changes** in `src/config/legal-notice-content.ts` to ensure the parsing is correct
-
-The parsing script (`scripts/parse-legal-notice.ts`) handles:
-
-- **Sections and headings**: Bold paragraphs are automatically detected as section headings
-- **Links**: Extracted from `<a>` tags and plain text URLs
-- **Bold text**: Converted from `<strong>` or `<b>` tags
-- **Italic text**: Converted from `<em>` or `<i>` tags
-- **Button filtering**: Automatically skips patterns like `[Continue to Chat] [Cancel]`
-- **Date handling**: Sets `lastUpdated` to the script run date in "Month DD, YYYY" format
-
-**Note**: The script requires the Word document to be in `.docx` format. If you receive a different format, convert it to `.docx` first.
+- **`SUNSET_REDIRECT_URL`** - Where users are redirected
+- **`SUNSET_REDIRECT_SECONDS`** - Delay before redirecting (keep at 20 or more for accessibility)
+- **`SUNSET_HEADING`** - Sunset notice heading
 
 ## Project Structure
 
 ```
 src/
-├── app/                                    # Next.js App Router pages
-│   ├── layout.tsx                          # Root layout with header, footer, theme provider
-│   └── page.tsx                            # Main page with Zendesk integration
-├── components/                             # React components
-│   ├── burn-animation/                     # Burn animation overlay for clearing data
-│   ├── button/                             # Reusable button component
-│   ├── chat-navigation/                    # Navigation links below chat widget
-│   ├── confirm-dialog/                     # Confirmation dialog modal
-│   ├── consent-form/                       # Privacy consent form
-│   ├── error-boundary/                     # Error boundary component
-│   ├── fire-button/                        # Clear conversation data button
-│   ├── footer/                             # Site footer
-│   ├── horizontal-rule/                    # Visual separator component
-│   ├── main-heading/                       # Main page heading
-│   ├── new-tab-label/                      # Screen reader label for new tab links
-│   └── page-load-pixel/                    # Page load event dispatcher
-├── config/                                 # Configuration constants
-│   ├── common.ts                           # Common site configuration
-│   ├── fonts.ts                            # Font configuration
-│   ├── legal-notice-content.ts             # Legal notice content (parsed from Word docs)
-│   └── zendesk.ts                          # Zendesk widget configuration
-├── constants/                              # Application constants
-│   ├── breakpoints.ts                      # Responsive breakpoint constants
-│   ├── footerLinks.ts                      # Footer link definitions
-│   ├── test-ids.ts                         # Test ID constants for Playwright tests
-│   ├── theme.ts                            # Theme constants and types
-│   ├── zendesk-selectors.ts                # CSS selectors for Zendesk elements
-│   ├── zendesk-styles.ts                   # Custom CSS for Zendesk iframe
-│   └── zendesk-timing.ts                   # Timing constants for retries/delays
-├── contexts/                               # React contexts
-│   └── theme-context.tsx                   # Theme context provider (system preference)
-├── hooks/                                  # React hooks
-│   ├── README.md                           # Documentation for Zendesk integration hooks
-│   ├── use-media-query.ts                  # Responsive design hook
-│   ├── use-zendesk-click-handlers.ts       # Click event handlers
-│   ├── use-zendesk-iframe-styles.ts        # Style injection
-│   └── use-zendesk-swap-article-links.ts   # Article link swapping
-├── reducers/                               # State reducers
-│   └── widget-reducer.ts                   # Widget lifecycle state reducer (zendeskReady, loadWidget, firstMessageSent)
-├── tests/                                  # Test files
-│   ├── fixtures/                           # Test fixtures and mocks
-│   │   ├── zendesk-mock.js                 # Zendesk widget mock for testing
-│   │   ├── mock-document-html.ts           # Static HTML mock from Word document
-│   │   └── mock-legal-notice-content.ts    # Static mock of parsed legal notice content
-│   ├── integration/                        # Integration tests
-│   │   └── complete-flow.test.ts           # End-to-end user flow tests
-│   ├── unit/                               # Unit tests
-│   │   ├── build-article-url.test.ts       # URL building utility tests
-│   │   ├── get-slug-from-url.test.ts       # URL slug extraction tests
-│   │   ├── get-storage-with-expiry.test.ts # Storage expiry utility tests
-│   │   └── parse-legal-notice.test.ts      # Legal notice parsing tests
-│   └── README.md                           # Testing documentation
-├── icons/                                  # SVG icon assets
-│   ├── logo-horizontal-dark.svg            # DuckDuckGo logo (dark theme)
-│   ├── logo-horizontal-light.svg           # DuckDuckGo logo (light theme)
-│   ├── logo-stacked-dark.svg               # DuckDuckGo stacked logo (dark theme)
-│   └── logo-stacked-light.svg              # DuckDuckGo stacked logo (light theme)
-├── types/                                  # TypeScript type definitions
-│   ├── legal-notice-content.ts             # Legal notice content structure types
-│   ├── lottie.ts                           # Lottie animation type definitions
-│   └── zendesk.d.ts                        # Extended Zendesk Web Widget types
-└── utils/                                  # Utility functions
-    ├── build-article-url.ts                # URL building utility
-    ├── delete-storage-keys-by-suffix.ts    # localStorage key deletion by suffix
-    ├── get-css-variable.ts                 # CSS variable reader
-    ├── get-slug-from-url.ts                # URL slug extraction and sanitization
-    ├── get-storage-with-expiry.ts          # localStorage retrieval with date expiry
-    ├── is-browser.ts                       # Browser environment detection (SSR safety)
-    ├── set-storage-with-expiry.ts          # localStorage storage with date expiry
-    ├── cleanup-zendesk.ts                  # Zendesk widget cleanup utility
-    ├── update-article-links.ts             # Link updating utility
-    ├── zendesk-iframe.ts                   # Iframe access utilities
-    └── zendesk-observer.ts                 # MutationObserver setup utility
+├── app/                        # Next.js App Router pages
+│   ├── layout.tsx              # Root layout with header, footer, theme provider
+│   └── page.tsx                # Homepage with sunset notice
+├── components/                 # React components
+│   ├── button/                 # Reusable button component
+│   ├── footer/                 # Site footer
+│   ├── new-tab-label/          # Screen reader label for new tab links
+│   ├── page-load-pixel/        # Page load event dispatcher
+│   └── sunset-notice/          # Sunset message and redirect
+├── config/                     # Configuration constants
+│   ├── common.ts               # Common site configuration
+│   └── fonts.ts                # Font configuration
+├── constants/                  # Application constants
+│   ├── footerLinks.ts          # Footer link definitions
+│   ├── test-ids.ts             # Test ID constants for Playwright tests
+│   └── theme.ts                # Theme constants and types
+├── contexts/                   # React contexts
+│   └── theme-context.tsx       # Theme context provider (system preference)
+├── icons/                      # SVG icon assets
+│   └── logo-horizontal-light.svg
+├── tests/                      # Test files
+│   ├── integration/
+│   │   └── sunset.test.ts      # Sunset notice and redirect tests
+│   └── README.md               # Testing documentation
+├── types/                      # TypeScript type definitions
+│   └── pixels.d.ts             # Window globals set by pixels.js
+└── utils/
+    └── clear-legacy-chat-storage.ts  # Deletes leftover chat data from localStorage
 ```
 
 ## Deployment

@@ -46,6 +46,3 @@ pnpm-lock.yaml
 # Generated files
 *.min.js
 *.min.css
-
-# Script generated
-src/config/zendesk.ts

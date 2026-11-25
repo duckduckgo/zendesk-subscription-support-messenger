@@ -1,13 +1,5 @@
 export const MAIN_SITE_URL = 'https://duckduckgo.com';
 export const SITE_TITLE = 'DuckDuckGo Automated Support Chat';
-export const MAIN_HEADING = 'DuckDuckGo Automated Support Chat';
-export const HELP_PAGES_BASE_URL = `${MAIN_SITE_URL}/duckduckgo-help-pages`;
-export const EMBEDDED_TARGET_ELEMENT = 'messaging-container';
-export const DECLINE_BUTTON_TEXT = 'Cancel';
-export const CONSENT_BUTTON_TEXT = 'Continue to Chat';
-export const START_CHAT_BUTTON_TEXT = 'Start Chat';
-export const CONSENT_STORAGE_KEY = 'ddg_consent';
-export const CONSENT_STORAGE_TTL = 30;
 
 /**
  * Determine if using custom domain (e.g., subscription-support.duckduckgo.com)
@@ -24,3 +16,13 @@ export const basePath =
   process.env.NODE_ENV === 'production' && !useCustomDomain
     ? '/zendesk-subscription-support-messenger'
     : '';
+
+/**
+ * Service sunset. The homepage shows a notice and then redirects here.
+ * 20 seconds matches the WCAG 2.2.1 (Timing Adjustable) minimum for a warned
+ * timeout, and users can cancel the redirect.
+ */
+export const SUNSET_REDIRECT_URL = `${MAIN_SITE_URL}/subscription-support`;
+export const SUNSET_REDIRECT_SECONDS = 20;
+export const SUNSET_HEADING =
+  'DuckDuckGo Automated Support Chat is no longer available';

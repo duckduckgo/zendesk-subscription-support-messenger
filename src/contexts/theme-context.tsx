@@ -80,15 +80,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = document.documentElement;
     root.setAttribute('data-theme', systemTheme);
 
-    // Notify Zendesk widget of theme change if available
-    // This prevents console warnings about missing 'onThemeUpdate'
-    if (
-      typeof window !== 'undefined' &&
-      typeof window.onThemeUpdate === 'function'
-    ) {
-      window.onThemeUpdate(systemTheme);
-    }
-
     // Listen for system theme changes
     // This allows the app to automatically update when user changes OS theme
     const mediaQuery = window.matchMedia(PREFERS_COLOR_SCHEME_DARK);
@@ -98,11 +89,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setSystemTheme(newResolved);
       // Apply immediately to document
       document.documentElement.setAttribute('data-theme', newResolved);
-
-      // Notify Zendesk widget of theme change
-      if (typeof window.onThemeUpdate === 'function') {
-        window.onThemeUpdate(newResolved);
-      }
     };
 
     // Subscribe to system theme changes
